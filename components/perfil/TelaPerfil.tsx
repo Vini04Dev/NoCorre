@@ -5,6 +5,7 @@ import Link from "next/link";
 import { sair } from "@/app/(auth)/acoes";
 import { useClientes } from "@/hooks/useClientes";
 import { CirculoProgresso } from "@/components/metas/CirculoProgresso";
+import { Secao } from "@/components/ui/Secao";
 import { useMetas } from "@/hooks/useMetas";
 import { useEstatisticasPerfil, usePerfil } from "@/hooks/usePerfil";
 import { corDaMeta, textoProgresso } from "@/lib/metas";
@@ -14,15 +15,6 @@ const compacto = new Intl.NumberFormat("pt-BR", { notation: "compact", maximumFr
 
 const CLASSE_ITEM = "flex w-full items-center gap-3 py-[7px] text-left";
 const CLASSE_ICONE = "grid size-7 shrink-0 place-items-center rounded-full";
-
-function Secao({ titulo, children }: { titulo: string; children: React.ReactNode }) {
-  return (
-    <section className="flex flex-col gap-1.5">
-      <h2 className="text-[11px] font-semibold tracking-[0.66px] text-cinza">{titulo}</h2>
-      {children}
-    </section>
-  );
-}
 
 function ItemConfiguracao({ href, icone, rotulo }: { href: string; icone: string; rotulo: string }) {
   return (
