@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // O indicador de desenvolvimento fica no topo para não cobrir a navegação inferior.
+  devIndicators: { position: "top-right" },
 };
 
 export default nextConfig;
