@@ -1,5 +1,8 @@
-import { EmConstrucao } from "@/components/ui/EmConstrucao";
+import type { Metadata } from "next";
+import { TelaRelatorios } from "@/components/relatorios/TelaRelatorios";
+
+export const metadata: Metadata = { title: "Relatórios | No Corre!" };
 
 export default function Pagina() {
-  return <EmConstrucao titulo="Relatórios" />;
+  return <TelaRelatorios />;
 }

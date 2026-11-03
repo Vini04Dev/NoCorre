@@ -17,8 +17,7 @@ export type Movimentacao =
 // O cliente vem junto pela FK composta (cliente_id, usuario_id), sem segunda consulta.
 const SELECT_RECEITA = "*, clientes(nome)";
 
-async function buscarPeriodo(periodo: FiltroPeriodo) {
-  const { inicio, fim } = intervaloDoPeriodo(periodo);
+async function buscarIntervalo(inicio: Date, fim: Date) {
   const supabase = criarClienteNavegador();
   const [receitas, despesas] = await Promise.all([
     supabase
@@ -46,7 +45,32 @@ export const CHAVES_LANCAMENTOS = [["movimentacoes"], ["receitas"], ["despesas"]
 export function useMovimentacoes(periodo: FiltroPeriodo) {
   return useQuery({
     queryKey: ["movimentacoes", periodo],
-    queryFn: () => buscarPeriodo(periodo),
+    queryFn: () => {
+      const { inicio, fim } = intervaloDoPeriodo(periodo);
+      return buscarIntervalo(inicio, fim);
+    },
+  });
+}
+
+/**
+ * Dados dos Relatórios: o período escolhido e o anterior de mesmo tamanho
+ * (para comparar despesas), numa busca só, separados aqui.
+ */
+export function useRelatorio(periodo: FiltroPeriodo) {
+  return useQuery({
+    queryKey: ["movimentacoes", "relatorio", periodo],
+    queryFn: async () => {
+      const { inicio, fim } = intervaloDoPeriodo(periodo);
+      const inicioAnterior = new Date(inicio.getTime() - (fim.getTime() - inicio.getTime()));
+      const { receitas, despesas } = await buscarIntervalo(inicioAnterior, fim);
+      const noPeriodo = (item: { data_hora: string }) => new Date(item.data_hora) >= inicio;
+      return {
+        inicio,
+        fim,
+        atual: { receitas: receitas.filter(noPeriodo), despesas: despesas.filter(noPeriodo) },
+        anterior: { despesas: despesas.filter((d) => !noPeriodo(d)) },
+      };
+    },
   });
 }
 
