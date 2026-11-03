@@ -17,14 +17,12 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   grande?: boolean;
 };
 
-export function Botao({ className = "", type = "button", variante = "primario", grande, ...props }: Props) {
+/** Classes do botão, para aplicar o mesmo visual num <Link>. */
+export function classeBotao(variante: keyof typeof VARIANTES = "primario", grande = false) {
   const tamanho = grande ? "h-12 text-xl" : "py-[13px] text-[15px]";
+  return `block w-full rounded-[10px] text-center disabled:opacity-50 ${VARIANTES[variante]} ${tamanho}`;
+}
 
-  return (
-    <button
-      type={type}
-      className={`w-full rounded-[10px] disabled:opacity-50 ${VARIANTES[variante]} ${tamanho} ${className}`}
-      {...props}
-    />
-  );
+export function Botao({ className = "", type = "button", variante = "primario", grande, ...props }: Props) {
+  return <button type={type} className={`${classeBotao(variante, grande)} ${className}`} {...props} />;
 }
