@@ -94,8 +94,10 @@ function useMutacaoMeta<T>(executar: (variaveis: T) => Promise<void>) {
   return useMutation({
     mutationFn: executar,
     // Inclui ["metas"]. Excluir uma conta solta as despesas ligadas: o Resumo também recarrega.
-    onSuccess: () =>
-      Promise.all(CHAVES_LANCAMENTOS.map((queryKey) => queryClient.invalidateQueries({ queryKey }))),
+    // Sem esperar, pelo mesmo motivo de useMutacaoLancamento.
+    onSuccess: () => {
+      CHAVES_LANCAMENTOS.forEach((queryKey) => queryClient.invalidateQueries({ queryKey }));
+    },
   });
 }
 
