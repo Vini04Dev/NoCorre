@@ -14,7 +14,7 @@ export default async function Home() {
   return (
     <>
       <CabecalhoHome nome={primeiroNome} />
-      <main className="flex flex-col gap-5 px-[17px] pt-6">
+      <main className="flex flex-col gap-7 px-[17px] pt-6">
         <Secao titulo="MEU SALDO">
           <ResumoPeriodo />
         </Secao>
@@ -41,6 +41,10 @@ export default async function Home() {
               icone="/icones/cadastro.svg"
               tamanhoIcone={41}
             />
+            <p className="rounded-[12px] border border-dashed border-cinza px-4 py-3 text-center text-xs text-cinza-escuro">
+              <strong className="block text-marinho">Mais módulos em breve</strong>
+              Novidades a caminho para facilitar o seu corre.
+            </p>
           </nav>
         </Secao>
       </main>
