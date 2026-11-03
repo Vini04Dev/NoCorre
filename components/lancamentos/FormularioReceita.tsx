@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { CampoCategoria } from "./CampoCategoria";
-import { CamposValor, validarValores, type Valores } from "./CamposValor";
+import { CamposValor, validarValores, valoresIniciais, type Valores } from "./CamposValor";
 import { PrimeiroCliente } from "./PrimeiroCliente";
 import { Alternador } from "@/components/ui/Alternador";
 import { AvisoErro } from "@/components/ui/AvisoErro";
@@ -12,9 +12,10 @@ import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
 import { CampoTexto } from "@/components/ui/CampoTexto";
 import { SeletorChips } from "@/components/ui/SeletorChips";
 import { useClientes } from "@/hooks/useClientes";
-import { useNovaReceita } from "@/hooks/useLancamentos";
+import { useSalvarReceita } from "@/hooks/useLancamentos";
+import type { Receita } from "@/hooks/useMovimentacoes";
 import { CATEGORIAS_PADRAO } from "@/lib/categorias-padrao";
-import { camposParaDataHora, dataHoraParaCampos } from "@/lib/data";
+import { camposParaDataHora } from "@/lib/data";
 import type { Enums } from "@/types/database";
 
 type FormaPagamento = Enums<"forma_pagamento">;
@@ -32,24 +33,22 @@ const SITUACOES: { valor: StatusPagamento; rotulo: string; cor: string }[] = [
 
 type Erros = { cliente?: string; categoria?: string; quantidade?: string; valor?: string };
 
-export function FormularioReceita() {
+/** Lança uma receita nova ou, recebendo `receita`, edita a existente. */
+export function FormularioReceita({ receita }: { receita?: Receita }) {
   const router = useRouter();
   const idCliente = useId();
   const { data: clientes, isPending: carregandoClientes } = useClientes();
-  const salvar = useNovaReceita();
+  const salvar = useSalvarReceita();
+  const destino = receita ? `/resumo/receita/${receita.id}` : "/";
 
   // Com um cliente só, ele já vem escolhido.
-  const [clienteEscolhido, setClienteEscolhido] = useState<string>();
+  const [clienteEscolhido, setClienteEscolhido] = useState(receita?.cliente_id);
   const clienteId = clienteEscolhido ?? (clientes?.length === 1 ? clientes[0].id : "");
-  const [categoria, setCategoria] = useState(CATEGORIAS_PADRAO.receita[0]);
-  const [valores, setValores] = useState<Valores>(() => ({
-    ...dataHoraParaCampos(new Date()),
-    quantidade: "1",
-    centavos: 0,
-  }));
-  const [forma, setForma] = useState<FormaPagamento | null>(null);
-  const [situacao, setSituacao] = useState<StatusPagamento>("pago");
-  const [observacao, setObservacao] = useState("");
+  const [categoria, setCategoria] = useState(receita?.tipo ?? CATEGORIAS_PADRAO.receita[0]);
+  const [valores, setValores] = useState<Valores>(() => valoresIniciais(receita));
+  const [forma, setForma] = useState<FormaPagamento | null>(receita?.forma_pagamento ?? null);
+  const [situacao, setSituacao] = useState<StatusPagamento>(receita?.status_pagamento ?? "pago");
+  const [observacao, setObservacao] = useState(receita?.observacao ?? "");
   const [erros, setErros] = useState<Erros>({});
 
   function enviar(evento: React.FormEvent) {
@@ -62,20 +61,25 @@ export function FormularioReceita() {
 
     salvar.mutate(
       {
-        cliente_id: clienteId,
-        tipo: categoria.trim(),
-        data_hora: camposParaDataHora(valores.data, valores.hora),
-        quantidade: Number(valores.quantidade),
-        valor_unitario: valores.centavos / 100,
-        forma_pagamento: forma,
-        status_pagamento: situacao,
-        observacao: observacao.trim() || null,
+        id: receita?.id,
+        dados: {
+          cliente_id: clienteId,
+          tipo: categoria.trim(),
+          data_hora: camposParaDataHora(valores.data, valores.hora),
+          quantidade: Number(valores.quantidade),
+          valor_unitario: valores.centavos / 100,
+          forma_pagamento: forma,
+          status_pagamento: situacao,
+          observacao: observacao.trim() || null,
+        },
       },
-      { onSuccess: () => router.push("/") },
+      { onSuccess: () => router.push(destino) },
     );
   }
 
-  const cabecalho = <CabecalhoTela titulo="Nova receita" voltarPara="/" />;
+  const cabecalho = (
+    <CabecalhoTela titulo={receita ? "Editar receita" : "Nova receita"} voltarPara={destino} />
+  );
 
   if (!carregandoClientes && clientes?.length === 0) {
     return (
@@ -139,7 +143,7 @@ export function FormularioReceita() {
 
       <div className="sticky bottom-0 mt-auto bg-fundo px-5 pt-2.5 pb-[calc(env(safe-area-inset-bottom)+26px)]">
         <Botao type="submit" disabled={salvar.isPending}>
-          {salvar.isPending ? "Salvando..." : "Salvar receita"}
+          {salvar.isPending ? "Salvando..." : receita ? "Salvar alterações" : "Salvar receita"}
         </Botao>
       </div>
     </form>

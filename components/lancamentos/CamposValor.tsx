@@ -2,6 +2,7 @@
 
 import { CampoMoeda } from "@/components/ui/CampoMoeda";
 import { CampoTexto } from "@/components/ui/CampoTexto";
+import { dataHoraParaCampos } from "@/lib/data";
 import { formatarMoeda } from "@/lib/formatar";
 
 export type Valores = {
@@ -66,4 +67,18 @@ export function validarValores(valores: Valores) {
   if (!(Number(valores.quantidade) > 0)) erros.quantidade = "Mínimo 1.";
   if (valores.centavos <= 0) erros.valor = "Informe o valor.";
   return erros;
+}
+
+/** Valores de um lançamento existente ou, para um novo, agora com quantidade 1. */
+export function valoresIniciais(
+  lancamento?: { data_hora: string; quantidade: number; valor_unitario: number },
+): Valores {
+  if (!lancamento) {
+    return { ...dataHoraParaCampos(new Date()), quantidade: "1", centavos: 0 };
+  }
+  return {
+    ...dataHoraParaCampos(new Date(lancamento.data_hora)),
+    quantidade: String(lancamento.quantidade),
+    centavos: Math.round(lancamento.valor_unitario * 100),
+  };
 }
