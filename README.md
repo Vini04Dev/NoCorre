@@ -32,4 +32,6 @@ O app abre em http://localhost:3000.
 
 ## Documentação
 
-- `docs/der-fisico.png`: diagrama do banco de dados
+- `docs/der-fisico.md`: modelo físico do banco, regras de segurança e decisões
+- `docs/der-fisico.png`: diagrama original do banco de dados
+- `supabase/migrations/`: SQL versionado do banco
