@@ -10,6 +10,7 @@ import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
 import { NavegacaoDetalhe } from "./NavegacaoDetalhe";
 import { ConfirmarExclusao } from "@/components/ui/ConfirmarExclusao";
 import { useExcluirLancamento, useMarcarComoPago } from "@/hooks/useLancamentos";
+import { useMeta } from "@/hooks/useMetas";
 import { useDespesa, useReceita, type Despesa, type Receita } from "@/hooks/useMovimentacoes";
 import { dataHoraCompleta } from "@/lib/data";
 import { formatarMoeda } from "@/lib/formatar";
@@ -52,6 +53,7 @@ function Conteudo({ titulo, receita, despesa }: { titulo: string; receita?: Rece
   const excluir = useExcluirLancamento();
   const marcarPago = useMarcarComoPago();
   const [confirmando, setConfirmando] = useState(false);
+  const conta = useMeta(despesa?.meta_id ?? "").data;
 
   const lancamento = (receita ?? despesa)!;
   const pendente = receita?.status_pagamento === "pendente";
@@ -76,6 +78,7 @@ function Conteudo({ titulo, receita, despesa }: { titulo: string; receita?: Rece
         ["Quantidade", String(despesa!.quantidade)],
         ["Valor unitário", formatarMoeda(despesa!.valor_unitario)],
         ["Total", valor],
+        ...(conta ? [["Conta paga", conta.nome] as [string, string]] : []),
       ];
 
   const etiqueta = receita

@@ -78,7 +78,7 @@ async function excluirCliente(cliente: Cliente) {
   if (error) {
     throw new Error(
       traduzirErroBanco(error, {
-        vinculo: "Não é possível excluir: esse cliente tem receitas registradas.",
+        vinculo: "Não é possível excluir: esse cliente tem receitas registradas ou está numa meta.",
       }),
     );
   }

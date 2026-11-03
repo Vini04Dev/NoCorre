@@ -3,33 +3,51 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CampoCategoria } from "./CampoCategoria";
+import { CampoConta } from "./CampoConta";
 import { CamposValor, validarValores, valoresIniciais, type Valores } from "./CamposValor";
 import { AvisoErro } from "@/components/ui/AvisoErro";
 import { Botao } from "@/components/ui/Botao";
 import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
 import { CampoTexto } from "@/components/ui/CampoTexto";
 import { useSalvarDespesa } from "@/hooks/useLancamentos";
+import { useContasEmAberto } from "@/hooks/useMetas";
 import type { Despesa } from "@/hooks/useMovimentacoes";
 import { CATEGORIAS_PADRAO } from "@/lib/categorias-padrao";
 import { camposParaDataHora } from "@/lib/data";
+import { formatarMoeda } from "@/lib/formatar";
+import { emAbertoNaConta } from "@/lib/metas";
 
-type Erros = { categoria?: string; quantidade?: string; valor?: string };
+type Erros = { categoria?: string; quantidade?: string; valor?: string; conta?: string };
+
+type Props = {
+  despesa?: Despesa;
+  /** Conta das Metas já escolhida (botão "Lançar pagamento" da conta). */
+  contaInicial?: string;
+};
 
 /** Lança uma despesa nova ou, recebendo `despesa`, edita a existente. */
-export function FormularioDespesa({ despesa }: { despesa?: Despesa }) {
+export function FormularioDespesa({ despesa, contaInicial }: Props) {
   const router = useRouter();
   const salvar = useSalvarDespesa();
-  const destino = despesa ? `/resumo/despesa/${despesa.id}` : "/";
+  const { data: contas } = useContasEmAberto();
+  const destino = despesa ? `/resumo/despesa/${despesa.id}` : contaInicial ? `/metas/${contaInicial}` : "/";
 
   const [descricao, setDescricao] = useState(despesa?.observacao ?? "");
   const [categoria, setCategoria] = useState(despesa?.tipo ?? CATEGORIAS_PADRAO.despesa[0]);
   const [valores, setValores] = useState<Valores>(() => valoresIniciais(despesa));
+  const [contaId, setContaId] = useState<string | null>(despesa?.meta_id ?? contaInicial ?? null);
   const [erros, setErros] = useState<Erros>({});
 
   function enviar(evento: React.FormEvent) {
     evento.preventDefault();
     const novosErros: Erros = { ...validarValores(valores) };
     if (!categoria.trim()) novosErros.categoria = "Escolha ou digite a categoria.";
+    // O banco também barra, mas aqui o aviso aparece antes de enviar.
+    const conta = contas.find((item) => item.id === contaId);
+    const total = (Number(valores.quantidade) * valores.centavos) / 100;
+    if (conta && total > emAbertoNaConta(conta, despesa)) {
+      novosErros.conta = `Passa do valor da conta. Falta pagar ${formatarMoeda(emAbertoNaConta(conta, despesa))}.`;
+    }
     setErros(novosErros);
     if (Object.keys(novosErros).length > 0) return;
 
@@ -42,6 +60,7 @@ export function FormularioDespesa({ despesa }: { despesa?: Despesa }) {
           data_hora: camposParaDataHora(valores.data, valores.hora),
           quantidade: Number(valores.quantidade),
           valor_unitario: valores.centavos / 100,
+          meta_id: contaId,
         },
       },
       { onSuccess: () => router.push(destino) },
@@ -62,6 +81,7 @@ export function FormularioDespesa({ despesa }: { despesa?: Despesa }) {
         />
         <CampoCategoria tipo="despesa" valor={categoria} aoMudar={setCategoria} erro={erros.categoria} />
         <CamposValor valores={valores} aoMudar={setValores} corTotal="text-negativo" erros={erros} />
+        <CampoConta valor={contaId} aoMudar={setContaId} despesa={despesa} erro={erros.conta} />
       </div>
 
       <div className="sticky bottom-0 mt-auto bg-fundo px-5 pt-2.5 pb-[calc(env(safe-area-inset-bottom)+26px)]">
