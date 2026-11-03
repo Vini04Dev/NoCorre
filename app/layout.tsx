@@ -19,10 +19,21 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "No Corre!",
   description: "Controle de entregas, corridas e receita para motoboys e entregadores.",
+  applicationName: "No Corre!",
+  // iPhone: o Safari/Chrome do iOS ignora parte do manifest. Isto faz o app
+  // adicionado à Tela de Início abrir em tela cheia, com o nome certo.
+  appleWebApp: {
+    capable: true,
+    title: "No Corre!",
+    statusBarStyle: "default",
+  },
 };
 
 export const viewport: Viewport = {
   themeColor: "#2b2d42",
+  // Ocupa a tela toda no iPhone com notch; os paddings com env(safe-area-inset-*)
+  // já afastam o conteúdo das bordas.
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
