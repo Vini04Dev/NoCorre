@@ -57,11 +57,22 @@ ficam em `auth.users`).
 | `telefone`       | `varchar(20)` | opcional                                            |
 | `tipo_sanguineo` | `varchar(3)`  | opcional, `check` em A+, A-, B+, B-, AB+, AB-, O+, O- |
 | `veiculo`        | `varchar(60)` | opcional                                            |
+| `ano_veiculo`    | `smallint`    | opcional, `check` entre 1950 e 2100                 |
 | `placa`          | `varchar(10)` | opcional                                            |
+| `foto`           | `text`        | opcional, caminho no bucket `fotos-perfil`          |
 | `created_at`     | `timestamptz` | default `now()`                                     |
 
 Criada automaticamente pelo trigger `ao_criar_usuario` quando alguém se
 cadastra. O nome vem do formulário de cadastro (`raw_user_meta_data.nome`).
+
+A foto fica no bucket privado `fotos-perfil`, com as mesmas regras do
+`fotos-clientes` (pasta com o id do usuário, 1 MB, URL assinada para exibir).
+
+**Excluir a conta:** a função `public.excluir_minha_conta()` (security definer,
+`search_path` vazio, execução só para `authenticated`) apaga de `auth.users` a
+linha de quem chamou (`auth.uid()`); o resto some pelo cascade. Assim o app
+não precisa da Secret key para isso. As fotos no Storage são removidas pelo
+app antes da chamada.
 
 ### clientes
 

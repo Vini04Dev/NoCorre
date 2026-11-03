@@ -16,3 +16,9 @@ export function formatarTelefone(texto: string) {
   if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
   return `(${d.slice(0, 2)}) ${d.slice(2, 3)} ${d.slice(3, 7)}-${d.slice(7)}`;
 }
+
+/** Placa em maiúsculas com hífen depois das 3 letras: "abc1d23" → "ABC-1D23". */
+export function formatarPlaca(texto: string) {
+  const limpo = texto.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 7);
+  return limpo.length > 3 ? `${limpo.slice(0, 3)}-${limpo.slice(3)}` : limpo;
+}

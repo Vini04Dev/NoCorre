@@ -64,6 +64,11 @@ export function FormularioAcesso({ modo, erroInicial }: Props) {
         />
       </div>
 
+      {!cadastro && (
+        <Link href="/esqueci-senha" className="self-end pt-2 text-xs font-semibold text-cinza-escuro">
+          Esqueci minha senha
+        </Link>
+      )}
       <p role="alert" className="min-h-[33px] pt-2 text-xs font-medium text-negativo">
         {estado.erro}
       </p>

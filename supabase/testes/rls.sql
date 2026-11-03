@@ -119,7 +119,16 @@ begin
   delete from auth.users where id = ana;
   select count(*) into n from public.receitas where usuario_id = ana;
   if n <> 0 then raise exception 'FALHA 11'; end if;
-  log := log || '11 exclusao da conta em cascata ok';
+  log := log || '11 exclusao da conta em cascata ok; ';
+
+  -- a própria pessoa exclui a conta pela função, e só a dela
+  perform set_config('request.jwt.claims', json_build_object('sub', bia, 'role', 'authenticated')::text, true);
+  set local role authenticated;
+  perform public.excluir_minha_conta();
+  reset role;
+  select count(*) into n from auth.users where id = bia;
+  if n <> 0 then raise exception 'FALHA 12: excluir_minha_conta não apagou a Bia'; end if;
+  log := log || '12 excluir_minha_conta ok';
 
   raise exception 'TESTES OK: %', log;
 end $$;

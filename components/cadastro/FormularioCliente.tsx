@@ -1,8 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useState } from "react";
 import { AvatarCliente } from "./AvatarCliente";
 import { Alternador } from "@/components/ui/Alternador";
 import { AvisoErro } from "@/components/ui/AvisoErro";
@@ -10,6 +9,7 @@ import { Botao } from "@/components/ui/Botao";
 import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
 import { CampoTexto } from "@/components/ui/CampoTexto";
 import { ConfirmarExclusao } from "@/components/ui/ConfirmarExclusao";
+import { SeletorFoto } from "@/components/ui/SeletorFoto";
 import {
   ROTULO_TIPO_CLIENTE,
   useExcluirCliente,
@@ -38,11 +38,6 @@ export function FormularioCliente({ cliente }: { cliente?: Cliente }) {
   const [novaFoto, setNovaFoto] = useState<File | null>();
   const [erroNome, setErroNome] = useState<string>();
   const [confirmando, setConfirmando] = useState(false);
-  const seletorFoto = useRef<HTMLInputElement>(null);
-
-  const previa = useObjectUrl(novaFoto);
-  const fotoExibida = novaFoto === undefined ? (cliente?.fotoUrl ?? null) : previa;
-  const temFoto = Boolean(fotoExibida);
   const erro = salvar.error?.message ?? excluir.error?.message;
 
   function enviar(evento: React.FormEvent) {
@@ -81,55 +76,13 @@ export function FormularioCliente({ cliente }: { cliente?: Cliente }) {
         <CabecalhoTela titulo={cliente ? "Editar cliente" : "Novo cliente"} voltarPara="/cadastro" />
         <AvisoErro mensagem={erro} />
 
-        <div className="flex flex-col items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => seletorFoto.current?.click()}
-            aria-label={temFoto ? "Trocar foto" : "Adicionar foto"}
-          >
-            {fotoExibida ? (
-              <Image
-                src={fotoExibida}
-                alt=""
-                width={84}
-                height={84}
-                unoptimized
-                className="size-[84px] rounded-full object-cover"
-              />
-            ) : cliente && nome ? (
-              <AvatarCliente nome={nome} fotoUrl={null} tamanho={84} />
-            ) : (
-              <span className="grid size-[84px] place-items-center rounded-full border-[1.5px] border-dashed border-cinza bg-cinza-fundo text-[28px] font-medium text-cinza-escuro">
-                +
-              </span>
-            )}
-          </button>
-          <div className="flex gap-3 text-xs font-medium">
-            <button
-              type="button"
-              onClick={() => seletorFoto.current?.click()}
-              className={temFoto || cliente ? "font-semibold text-dourado" : "text-cinza-escuro"}
-            >
-              {temFoto || cliente ? "Trocar foto" : "Adicionar foto (opcional)"}
-            </button>
-            {temFoto && (
-              <button type="button" onClick={() => setNovaFoto(null)} className="text-cinza-escuro">
-                Remover
-              </button>
-            )}
-          </div>
-          <input
-            ref={seletorFoto}
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={(evento) => {
-              const arquivo = evento.target.files?.[0];
-              if (arquivo) setNovaFoto(arquivo);
-              evento.target.value = "";
-            }}
-          />
-        </div>
+        <SeletorFoto
+          fotoSalva={cliente?.fotoUrl ?? null}
+          novaFoto={novaFoto}
+          aoMudar={setNovaFoto}
+          rotuloAdicionar="Adicionar foto (opcional)"
+          semFoto={cliente && nome ? <AvatarCliente nome={nome} fotoUrl={null} tamanho={84} /> : undefined}
+        />
 
         <CampoTexto
           rotulo="Nome"
@@ -183,13 +136,4 @@ export function FormularioCliente({ cliente }: { cliente?: Cliente }) {
       )}
     </form>
   );
-}
-
-/** URL local para pré-visualizar o arquivo escolhido, liberada quando ele muda. */
-function useObjectUrl(arquivo: File | null | undefined) {
-  const url = useMemo(() => (arquivo ? URL.createObjectURL(arquivo) : null), [arquivo]);
-  useEffect(() => () => {
-    if (url) URL.revokeObjectURL(url);
-  }, [url]);
-  return url;
 }

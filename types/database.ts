@@ -175,7 +175,9 @@ export type Database = {
       }
       perfis: {
         Row: {
+          ano_veiculo: number | null
           created_at: string
+          foto: string | null
           id: string
           nome: string
           placa: string | null
@@ -184,7 +186,9 @@ export type Database = {
           veiculo: string | null
         }
         Insert: {
+          ano_veiculo?: number | null
           created_at?: string
+          foto?: string | null
           id: string
           nome: string
           placa?: string | null
@@ -193,7 +197,9 @@ export type Database = {
           veiculo?: string | null
         }
         Update: {
+          ano_veiculo?: number | null
           created_at?: string
+          foto?: string | null
           id?: string
           nome?: string
           placa?: string | null
@@ -265,7 +271,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      excluir_minha_conta: { Args: never; Returns: undefined }
     }
     Enums: {
       cor_evento: "amarelo" | "verde" | "vermelho" | "azul" | "roxo" | "cinza"
