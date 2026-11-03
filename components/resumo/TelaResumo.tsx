@@ -5,7 +5,7 @@ import { useState } from "react";
 import { CartaoSaldo } from "./CartaoSaldo";
 import { ListaMovimentacoes } from "./ListaMovimentacoes";
 import { PainelFiltros } from "./PainelFiltros";
-import { SeletorPeriodo, type Periodo } from "@/components/ui/SeletorPeriodo";
+import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
 import { useMovimentacoes, usePendentes } from "@/hooks/useMovimentacoes";
 import {
   FILTROS_VAZIOS,
@@ -15,7 +15,7 @@ import {
   type Filtros,
 } from "@/lib/filtros";
 import { formatarMoeda } from "@/lib/formatar";
-import { NOME_PERIODO } from "@/lib/periodo";
+import { nomeDoPeriodo, type FiltroPeriodo } from "@/lib/periodo";
 import { calcularTotais } from "@/lib/totais";
 
 const RAPIDOS: { valor: FiltroRapido; rotulo: string }[] = [
@@ -27,7 +27,7 @@ const RAPIDOS: { valor: FiltroRapido; rotulo: string }[] = [
 
 /** Extrato: saldo do período, filtros rápidos, painel de filtros e lista de movimentações. */
 export function TelaResumo() {
-  const [periodo, setPeriodo] = useState<Periodo>("semana");
+  const [periodo, setPeriodo] = useState<FiltroPeriodo>({ tipo: "semana" });
   const [rapido, setRapido] = useState<FiltroRapido>("todos");
   const [filtros, setFiltros] = useState<Filtros>(FILTROS_VAZIOS);
   const [painelAberto, setPainelAberto] = useState(false);
@@ -68,8 +68,8 @@ export function TelaResumo() {
         </button>
       </header>
 
-      <SeletorPeriodo valor={periodo} aoMudar={setPeriodo} />
-      <CartaoSaldo nomePeriodo={NOME_PERIODO[periodo]} totais={totais} />
+      <SeletorPeriodoAmplo valor={periodo} aoMudar={setPeriodo} />
+      <CartaoSaldo nomePeriodo={nomeDoPeriodo(periodo)} totais={totais} />
 
       <div role="radiogroup" aria-label="Mostrar" className="-mx-[17px] flex gap-2 overflow-x-auto px-[17px]">
         {RAPIDOS.map(({ valor, rotulo }) => {
