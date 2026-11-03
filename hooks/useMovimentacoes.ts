@@ -1,8 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import type { Periodo } from "@/components/ui/SeletorPeriodo";
-import { intervaloDoPeriodo } from "@/lib/periodo";
+import { intervaloDoPeriodo, type FiltroPeriodo } from "@/lib/periodo";
 import { criarClienteNavegador } from "@/lib/supabase/cliente";
 import { traduzirErroBanco } from "@/lib/supabase/erros-banco";
 import type { Tables } from "@/types/database";
@@ -18,7 +17,7 @@ export type Movimentacao =
 // O cliente vem junto pela FK composta (cliente_id, usuario_id), sem segunda consulta.
 const SELECT_RECEITA = "*, clientes(nome)";
 
-async function buscarPeriodo(periodo: Periodo) {
+async function buscarPeriodo(periodo: FiltroPeriodo) {
   const { inicio, fim } = intervaloDoPeriodo(periodo);
   const supabase = criarClienteNavegador();
   const [receitas, despesas] = await Promise.all([
@@ -44,7 +43,7 @@ async function buscarPeriodo(periodo: Periodo) {
 export const CHAVES_LANCAMENTOS = [["movimentacoes"], ["receitas"], ["despesas"]] as const;
 
 /** Receitas e despesas do período escolhido, mais recentes primeiro. */
-export function useMovimentacoes(periodo: Periodo) {
+export function useMovimentacoes(periodo: FiltroPeriodo) {
   return useQuery({
     queryKey: ["movimentacoes", periodo],
     queryFn: () => buscarPeriodo(periodo),

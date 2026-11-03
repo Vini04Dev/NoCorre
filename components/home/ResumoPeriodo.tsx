@@ -10,7 +10,7 @@ import { calcularTotais } from "@/lib/totais";
 /** Filtro de período e totais da Home. */
 export function ResumoPeriodo() {
   const [periodo, setPeriodo] = useState<Periodo>("semana");
-  const { data, isError } = useMovimentacoes(periodo);
+  const { data, isError } = useMovimentacoes({ tipo: periodo });
   const totais = calcularTotais(data?.receitas ?? [], data?.despesas ?? []);
   // Enquanto carrega, mostra "–" em vez de um R$ 0,00 que pareceria verdadeiro.
   const moeda = (valor: number) => (data ? formatarMoeda(valor) : "–");

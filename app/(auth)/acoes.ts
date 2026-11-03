@@ -7,7 +7,8 @@ import { traduzirErroAuth } from "@/lib/supabase/erros-auth";
 
 export type EstadoAcesso = {
   erro?: string;
-  aviso?: string;
+  /** Cadastro feito, aguardando o clique no link enviado para este email. */
+  emailPendente?: string;
   campos?: { nome?: string; email?: string };
 };
 
@@ -64,7 +65,7 @@ export async function cadastrar(_anterior: EstadoAcesso, dados: FormData): Promi
 
   // Com confirmação de email ligada, o Supabase não devolve sessão até o clique no link.
   if (!data.session) {
-    return { aviso: `Enviamos um link de confirmação para ${email}. Abra o email para ativar sua conta.` };
+    return { emailPendente: email };
   }
 
   redirect("/");
