@@ -71,6 +71,27 @@ export async function cadastrar(_anterior: EstadoAcesso, dados: FormData): Promi
   redirect("/");
 }
 
+export type EstadoRecuperacao = { erro?: string; enviado?: boolean; email?: string };
+
+export async function recuperarSenha(
+  _anterior: EstadoRecuperacao,
+  dados: FormData,
+): Promise<EstadoRecuperacao> {
+  const email = texto(dados, "email");
+  if (!email) return { erro: "Informe seu email." };
+
+  const origem = (await headers()).get("origin") ?? "";
+  const supabase = await criarClienteServidor();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    // O link entra pela rota de confirmação e segue para a tela de nova senha.
+    redirectTo: `${origem}/auth/confirmar?proximo=/redefinir-senha`,
+  });
+  // Limite de envio é o único erro que vale mostrar. "Email não cadastrado" o
+  // Supabase não informa de propósito, para ninguém descobrir quem tem conta.
+  if (error?.code === "over_email_send_rate_limit") return { erro: traduzirErroAuth(error), email };
+  return { enviado: true, email };
+}
+
 export async function sair() {
   const supabase = await criarClienteServidor();
   await supabase.auth.signOut();

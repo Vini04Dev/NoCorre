@@ -26,6 +26,10 @@ export async function GET(request: NextRequest) {
     confirmado = !error;
   }
 
-  const destino = confirmado ? "/" : "/entrar?erro=confirmacao";
+  // "proximo" vem do link de recuperação de senha. Só caminhos internos, para o
+  // link não poder mandar a pessoa para outro site.
+  const proximo = parametros.get("proximo");
+  const interno = proximo?.startsWith("/") && !proximo.startsWith("//") ? proximo : "/";
+  const destino = confirmado ? interno : "/entrar?erro=confirmacao";
   return NextResponse.redirect(new URL(destino, request.url));
 }

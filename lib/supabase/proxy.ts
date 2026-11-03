@@ -4,7 +4,7 @@ import type { Database } from "@/types/database";
 import { supabaseChave, supabaseUrl } from "./config";
 
 /** Telas que qualquer pessoa pode abrir sem estar logada. */
-const ROTAS_PUBLICAS = ["/entrar", "/cadastrar", "/auth"];
+const ROTAS_PUBLICAS = ["/entrar", "/cadastrar", "/esqueci-senha", "/auth"];
 
 function ehRotaPublica(caminho: string) {
   return ROTAS_PUBLICAS.some((rota) => caminho === rota || caminho.startsWith(`${rota}/`));
