@@ -157,9 +157,9 @@ export type Database = {
           data_inicio: string
           id: string
           nome: string
+          parametro: Database["public"]["Enums"]["parametro_meta"]
           parcela_atual: number | null
           parcela_total: number | null
-          parametro: Database["public"]["Enums"]["parametro_meta"]
           status: Database["public"]["Enums"]["status_meta"]
           usuario_id: string
           valor_alvo: number
@@ -172,9 +172,9 @@ export type Database = {
           data_inicio: string
           id?: string
           nome: string
+          parametro: Database["public"]["Enums"]["parametro_meta"]
           parcela_atual?: number | null
           parcela_total?: number | null
-          parametro: Database["public"]["Enums"]["parametro_meta"]
           status?: Database["public"]["Enums"]["status_meta"]
           usuario_id?: string
           valor_alvo: number
@@ -187,9 +187,9 @@ export type Database = {
           data_inicio?: string
           id?: string
           nome?: string
+          parametro?: Database["public"]["Enums"]["parametro_meta"]
           parcela_atual?: number | null
           parcela_total?: number | null
-          parametro?: Database["public"]["Enums"]["parametro_meta"]
           status?: Database["public"]["Enums"]["status_meta"]
           usuario_id?: string
           valor_alvo?: number
