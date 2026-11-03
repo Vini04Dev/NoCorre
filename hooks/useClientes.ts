@@ -1,15 +1,13 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { reduzirFoto } from "@/lib/foto";
 import { criarClienteNavegador } from "@/lib/supabase/cliente";
 import { traduzirErroBanco } from "@/lib/supabase/erros-banco";
+import { apagarFoto, enviarFoto, urlsAssinadas } from "@/lib/supabase/fotos";
 import type { Enums, Tables } from "@/types/database";
 
-const BUCKET = "fotos-clientes";
+const BUCKET = "fotos-clientes" as const;
 const CHAVE = ["clientes"] as const;
-/** Validade das URLs assinadas das fotos. A lista é recarregada bem antes disso. */
-const VALIDADE_FOTO_SEGUNDOS = 60 * 60;
 
 export type TipoCliente = Enums<"tipo_cliente">;
 export type Cliente = Tables<"clientes"> & { fotoUrl: string | null };
@@ -24,15 +22,11 @@ async function buscarClientes(): Promise<Cliente[]> {
   const { data, error } = await supabase.from("clientes").select("*").order("nome");
   if (error) throw new Error(traduzirErroBanco(error));
 
-  // O bucket é privado: troca o caminho salvo por uma URL temporária, todas numa chamada só.
-  const caminhos = data.flatMap((cliente) => (cliente.foto ? [cliente.foto] : []));
-  const urls = new Map<string, string>();
-  if (caminhos.length > 0) {
-    const { data: assinadas } = await supabase.storage
-      .from(BUCKET)
-      .createSignedUrls(caminhos, VALIDADE_FOTO_SEGUNDOS);
-    assinadas?.forEach(({ path, signedUrl }) => path && signedUrl && urls.set(path, signedUrl));
-  }
+  // O bucket é privado: troca o caminho salvo por uma URL temporária.
+  const urls = await urlsAssinadas(
+    BUCKET,
+    data.flatMap((cliente) => (cliente.foto ? [cliente.foto] : [])),
+  );
 
   return data.map((cliente) => ({
     ...cliente,
@@ -61,31 +55,9 @@ type SalvarCliente = {
   novaFoto?: File | null;
 };
 
-async function enviarFoto(arquivo: File) {
-  const supabase = criarClienteNavegador();
-  const { data: sessao } = await supabase.auth.getClaims();
-  const usuarioId = sessao?.claims.sub;
-  if (!usuarioId) throw new Error("Sua sessão expirou. Entre de novo.");
-
-  // A primeira pasta precisa ser o id do usuário: é o que as políticas do bucket conferem.
-  const caminho = `${usuarioId}/${crypto.randomUUID()}.jpg`;
-  const foto = await reduzirFoto(arquivo);
-  const { error } = await supabase.storage
-    .from(BUCKET)
-    .upload(caminho, foto, { contentType: "image/jpeg" });
-  if (error) throw new Error("Não foi possível enviar a foto. Tente de novo.");
-  return caminho;
-}
-
-async function apagarFoto(caminho: string | null) {
-  if (!caminho) return;
-  // Falhar aqui só deixa um arquivo órfão no bucket; não vale interromper quem está usando.
-  await criarClienteNavegador().storage.from(BUCKET).remove([caminho]);
-}
-
 async function salvarCliente({ id, dados, fotoAtual, novaFoto }: SalvarCliente) {
   const supabase = criarClienteNavegador();
-  const fotoEnviada = novaFoto ? await enviarFoto(novaFoto) : null;
+  const fotoEnviada = novaFoto ? await enviarFoto(BUCKET, novaFoto) : null;
   const foto = novaFoto === undefined ? fotoAtual : fotoEnviada;
   const linha = { ...dados, foto };
 
@@ -94,10 +66,10 @@ async function salvarCliente({ id, dados, fotoAtual, novaFoto }: SalvarCliente) 
     : await supabase.from("clientes").insert(linha);
 
   if (error) {
-    await apagarFoto(fotoEnviada);
+    await apagarFoto(BUCKET, fotoEnviada);
     throw new Error(traduzirErroBanco(error));
   }
-  if (novaFoto !== undefined) await apagarFoto(fotoAtual);
+  if (novaFoto !== undefined) await apagarFoto(BUCKET, fotoAtual);
 }
 
 async function excluirCliente(cliente: Cliente) {
@@ -110,7 +82,7 @@ async function excluirCliente(cliente: Cliente) {
       }),
     );
   }
-  await apagarFoto(cliente.foto);
+  await apagarFoto(BUCKET, cliente.foto);
 }
 
 export function useSalvarCliente() {
