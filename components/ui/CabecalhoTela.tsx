@@ -2,12 +2,16 @@ import Link from "next/link";
 
 type Props = {
   titulo: string;
-  /** Quando informado, mostra a seta "‹" e o título menor, como nas telas de formulário. */
+  /** Quando informado, mostra a seta "‹" de voltar. */
   voltarPara?: string;
+  /** Título de 24 px das telas principais de módulo (ex.: Cadastro). Sem ele, formulários usam 20 px. */
+  tituloGrande?: boolean;
   acao?: React.ReactNode;
 };
 
-export function CabecalhoTela({ titulo, voltarPara, acao }: Props) {
+export function CabecalhoTela({ titulo, voltarPara, tituloGrande, acao }: Props) {
+  const tamanho = tituloGrande ? "text-2xl" : voltarPara ? "text-xl" : "text-[22px]";
+
   return (
     <header className="flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -16,7 +20,7 @@ export function CabecalhoTela({ titulo, voltarPara, acao }: Props) {
             ‹
           </Link>
         )}
-        <h1 className={`font-extrabold ${voltarPara ? "text-xl" : "text-[22px]"}`}>{titulo}</h1>
+        <h1 className={`font-extrabold ${tamanho}`}>{titulo}</h1>
       </div>
       {acao}
     </header>

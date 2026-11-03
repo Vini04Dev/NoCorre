@@ -72,12 +72,19 @@ cadastra. O nome vem do formulário de cadastro (`raw_user_meta_data.nome`).
 | `nome`       | `varchar(100)` | not null                                |
 | `tipo`       | `tipo_cliente` | not null                                |
 | `telefone`   | `varchar(20)`  | opcional                                |
-| `foto`       | `text`         | opcional, URL do arquivo no Storage     |
+| `foto`       | `text`         | opcional, caminho do arquivo no Storage |
 | `observacao` | `text`         | opcional                                |
 | `created_at` | `timestamptz`  |                                         |
 
 `unique (id, usuario_id)` existe só para servir de alvo da FK composta de
 `receitas` (ver Decisões).
+
+**Fotos (Storage).** Ficam no bucket privado `fotos-clientes`, no caminho
+`<usuario_id>/<arquivo>.jpg`. A coluna `foto` guarda esse caminho, não uma URL:
+como o bucket é privado, o app gera na hora uma URL assinada (temporária) para
+exibir a imagem. As políticas de `storage.objects` só liberam leitura e escrita
+quando a primeira pasta do caminho é o `auth.uid()` de quem pede. Limite de
+1 MB por arquivo; o app reduz a foto para 512 px antes de enviar.
 
 ### receitas
 
