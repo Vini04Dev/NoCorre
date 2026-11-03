@@ -1,4 +1,5 @@
 import { BarraNavegacao } from "@/components/navegacao/BarraNavegacao";
+import { FaixaStatus } from "@/components/navegacao/FaixaStatus";
 
 /**
  * Casca das telas logadas: coluna com largura de celular e navegação inferior.
@@ -7,6 +8,7 @@ import { BarraNavegacao } from "@/components/navegacao/BarraNavegacao";
 export default function LayoutApp({ children }: LayoutProps<"/">) {
   return (
     <div className="mx-auto min-h-dvh max-w-[430px] pb-[calc(env(safe-area-inset-bottom)+96px)]">
+      <FaixaStatus />
       {children}
       <BarraNavegacao />
     </div>

@@ -22,10 +22,12 @@ export const metadata: Metadata = {
   applicationName: "No Corre!",
   // iPhone: o Safari/Chrome do iOS ignora parte do manifest. Isto faz o app
   // adicionado à Tela de Início abrir em tela cheia, com o nome certo.
+  // "black-translucent": a página desenha por baixo da barra de status (com
+  // "default" o iOS põe uma faixa branca no topo). O fundo vem do FaixaStatus.
   appleWebApp: {
     capable: true,
     title: "No Corre!",
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
   },
 };
 
