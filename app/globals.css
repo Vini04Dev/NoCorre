@@ -1,26 +1,39 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/*
+ * Tokens do design (Figma, Page 1). Viram classes do Tailwind:
+ * bg-marinho, text-positivo, border-cinza-claro etc.
+ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-marinho: #2b2d42;
+  --color-dourado-claro: #ffd36a;
+  --color-dourado: #e0a92e;
+  --color-dourado-icone: #c89e3b;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-cinza-escuro: #9196a2;
+  --color-cinza: #b0b6bf;
+  --color-cinza-claro: #dfe1e6;
+  --color-cinza-fundo: #f3f4f6;
+  --color-fundo: #f9fafb;
+  --color-painel: #e8e8e8;
+  --color-texto-segmento: #1f2937;
+
+  --color-positivo: #4caf00;
+  --color-recebido: #347701;
+  --color-pendente: #c5a800;
+  --color-negativo: #cc0000;
+
+  --font-sans: var(--font-poppins);
+  --font-inter: var(--font-inter);
+
+  --shadow-cartao: 0px 4px 4px 0px rgba(0, 0, 0, 0.1);
+  --shadow-segmento: 0px 4px 4px 0px rgba(0, 0, 0, 0.13);
+  --shadow-segmento-ativo: 0px 4px 4px 0px rgba(0, 0, 0, 0.09);
+  --shadow-cabecalho: 0px 4px 4px 0px rgba(0, 0, 0, 0.35);
+  --shadow-navegacao: 0px 4px 11.7px 0px rgba(0, 0, 0, 0.55);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-fundo);
+  color: var(--color-marinho);
 }
