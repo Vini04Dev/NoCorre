@@ -8,8 +8,9 @@ import { caminhoDoDetalhe, lerSequencia, type ItemSequencia } from "@/lib/sequen
 /** Distância mínima, em px, para um arrasto lateral contar como "passar". */
 const ARRASTO_MINIMO = 60;
 
+// Sem lançamento daquele lado, a seta some (invisible) mas mantém o lugar.
 const CLASSE_SETA =
-  "grid size-9 place-items-center rounded-full border border-black/8 bg-white shadow-cartao disabled:opacity-30";
+  "pointer-events-auto grid size-8 place-items-center rounded-full border border-black/8 bg-white/90 shadow-cartao disabled:invisible";
 
 /**
  * Setas "anterior / próximo" no detalhe, seguindo a lista do extrato de onde o
@@ -46,28 +47,31 @@ export function NavegacaoDetalhe({ atual }: { atual: ItemSequencia }) {
   if (indice < 0 || sequencia.length < 2) return null;
 
   return (
-    <nav aria-label="Outros lançamentos da lista" className="flex items-center justify-between">
-      <button
-        type="button"
-        onClick={() => anterior && router.replace(caminhoDoDetalhe(anterior))}
-        disabled={!anterior}
-        aria-label="Lançamento anterior"
-        className={CLASSE_SETA}
-      >
-        <Image src="/icones/voltar.svg" alt="" width={20} height={20} />
-      </button>
-      <span className="text-xs font-semibold text-cinza-escuro">
+    <nav aria-label="Outros lançamentos da lista">
+      <p className="text-center text-xs font-semibold text-cinza-escuro">
         {indice + 1} de {sequencia.length}
-      </span>
-      <button
-        type="button"
-        onClick={() => proximo && router.replace(caminhoDoDetalhe(proximo))}
-        disabled={!proximo}
-        aria-label="Próximo lançamento"
-        className={CLASSE_SETA}
-      >
-        <Image src="/icones/voltar.svg" alt="" width={20} height={20} className="rotate-180" />
-      </button>
+      </p>
+      {/* Setas nos flancos da tela, na altura do meio, presas à coluna de 430 px do app. */}
+      <div className="pointer-events-none fixed inset-x-0 top-1/2 z-20 mx-auto flex max-w-[430px] -translate-y-1/2 justify-between px-1">
+        <button
+          type="button"
+          onClick={() => anterior && router.replace(caminhoDoDetalhe(anterior))}
+          disabled={!anterior}
+          aria-label="Lançamento anterior"
+          className={CLASSE_SETA}
+        >
+          <Image src="/icones/voltar.svg" alt="" width={18} height={18} />
+        </button>
+        <button
+          type="button"
+          onClick={() => proximo && router.replace(caminhoDoDetalhe(proximo))}
+          disabled={!proximo}
+          aria-label="Próximo lançamento"
+          className={CLASSE_SETA}
+        >
+          <Image src="/icones/voltar.svg" alt="" width={18} height={18} className="rotate-180" />
+        </button>
+      </div>
     </nav>
   );
 }
