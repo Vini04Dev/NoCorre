@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:tipos": "supabase gen types --remote --schema public > types/database.ts",
+    "db:testar": "supabase db query --remote -f supabase/testes/rls.sql"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

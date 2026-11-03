@@ -189,6 +189,19 @@ calcula o valor uma vez por consulta, e não uma vez por linha.
 em `perfis` com o mesmo `id` e o nome enviado no cadastro. Sem nome, usa a
 parte do e-mail antes do `@`, para a linha nunca deixar de ser criada.
 
+## Como aplicar e testar
+
+O SQL do banco vive em `supabase/migrations/`, em ordem de data. Com o projeto
+vinculado pela CLI (`npx supabase login` e `npx supabase link`):
+
+| Comando              | O que faz                                                    |
+|----------------------|--------------------------------------------------------------|
+| `npx supabase db push --remote` | Aplica no projeto as migrations que ainda não rodaram |
+| `npm run db:tipos`   | Gera `types/database.ts` a partir do banco                    |
+| `npm run db:testar`  | Roda `supabase/testes/rls.sql`, que tenta furar o RLS e as constraints e desfaz tudo no final |
+
+Toda mudança no banco é uma migration nova. Migration já aplicada não é editada.
+
 ## Decisões
 
 - **`receitas` no lugar de `entregas`.** O app registra entregas, corridas,
