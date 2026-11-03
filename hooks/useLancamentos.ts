@@ -19,13 +19,18 @@ function verificar(error: Parameters<typeof traduzirErroBanco>[0] | null) {
   if (error) throw new Error(traduzirErroBanco(error));
 }
 
-/** Toda mudança em lançamento recarrega Home, Resumo, pendentes e detalhes. */
+/**
+ * Toda mudança em lançamento recarrega Home, Resumo, pendentes, detalhes e metas.
+ * Sem esperar o recarregamento: ao excluir, o detalhe aberto recarregaria vazio e
+ * sairia da tela antes do `onSuccess` de quem chamou, que faz a navegação.
+ */
 function useMutacaoLancamento<T>(executar: (variaveis: T) => Promise<void>) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: executar,
-    onSuccess: () =>
-      Promise.all(CHAVES_LANCAMENTOS.map((queryKey) => queryClient.invalidateQueries({ queryKey }))),
+    onSuccess: () => {
+      CHAVES_LANCAMENTOS.forEach((queryKey) => queryClient.invalidateQueries({ queryKey }));
+    },
   });
 }
 

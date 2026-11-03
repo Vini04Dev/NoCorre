@@ -33,7 +33,7 @@ usuário) e RLS ligada: cada pessoa só lê e altera as próprias linhas.
 | `status_pagamento` | `pago`, `pendente`                                       |
 | `tipo_categoria`   | `receita`, `despesa`                                     |
 | `cor_evento`       | `amarelo`, `verde`, `vermelho`, `azul`, `roxo`, `cinza`  |
-| `parametro_meta`   | `quantidade`, `receita`, `despesa`                       |
+| `parametro_meta`   | `quantidade`, `receita`, `despesa`, `conta`              |
 | `status_meta`      | `ativa`, `inativa`                                       |
 
 ## Tabelas
@@ -131,9 +131,16 @@ Entregas, corridas, diárias, gorjetas: tudo o que entra de dinheiro.
 | `valor_unitario` | `numeric(10,2)` | not null, `>= 0`                                |
 | `valor_total`    | `numeric(12,2)` | **generated**: `quantidade * valor_unitario`    |
 | `observacao`     | `text`          | opcional                                        |
+| `meta_id`        | `uuid`          | opcional, conta a pagar que esta despesa abate  |
 | `created_at`     | `timestamptz`   |                                                 |
 
-- Índice em `(usuario_id, data_hora)`.
+- FK composta `(meta_id, usuario_id) references metas (id, usuario_id) on delete set null (meta_id)`:
+  excluir a conta mantém a despesa no histórico, só sem o vínculo.
+- Trigger `conferir_pagamento_conta` (before insert/update): a meta ligada precisa
+  ser do parâmetro `conta`, e a soma das despesas ligadas não pode passar do
+  `valor_alvo`. Erro `23514` com `message` `meta_nao_e_conta` ou
+  `pagamento_acima_da_conta` (o `detail` traz quanto ainda falta pagar).
+- Índices em `(usuario_id, data_hora)` e `(meta_id, usuario_id)`.
 
 ### categorias
 
@@ -177,12 +184,34 @@ o banco.
 | `valor_alvo`  | `numeric(12,2)`  | not null, `> 0`                 |
 | `data_inicio` | `date`           | not null                        |
 | `data_fim`    | `date`           | not null, `>= data_inicio`      |
-| `status`      | `status_meta`    | not null, default `ativa`       |
+| `status`      | `status_meta`    | not null, default `ativa` (`inativa` = pausada) |
+| `categoria`   | `varchar(50)`    | opcional, filtro pelo `tipo` da receita/despesa |
+| `cliente_id`  | `uuid`           | opcional, filtro de receitas por cliente |
+| `parcela_atual` | `smallint`     | opcional, só em `conta`         |
+| `parcela_total` | `smallint`     | opcional, só em `conta`, `>= parcela_atual` |
 | `created_at`  | `timestamptz`    |                                 |
 
-O progresso não é coluna: é calculado na hora a partir de `receitas` e
-`despesas` do período. "Encerrada" também é calculado (meta batida ou período
-terminado), não é um valor de `status`.
+- `unique (id, usuario_id)`, alvo da FK composta de `despesas.meta_id`.
+- FK composta `(cliente_id, usuario_id) references clientes (id, usuario_id) on delete no action`.
+- `conta` não tem filtro (`categoria` e `cliente_id` nulos); `despesa` não filtra por cliente.
+- Parcelas vão juntas (as duas nulas ou `1 <= parcela_atual <= parcela_total`).
+- Trigger `conferir_edicao_conta` (before update): conta com pagamentos não
+  muda de parâmetro (`conta_com_pagamentos`) e o `valor_alvo` não fica abaixo
+  do já pago (`valor_abaixo_do_pago`).
+
+O progresso não é coluna: é calculado na hora.
+
+| Parâmetro    | O que soma                                                      |
+|--------------|-----------------------------------------------------------------|
+| `receita`    | `valor_total` das receitas **pagas** do período (e do filtro)   |
+| `quantidade` | `quantidade` de todas as receitas do período (e do filtro)      |
+| `despesa`    | `valor_total` das despesas do período (e da categoria): é um limite |
+| `conta`      | `valor_total` das despesas com `meta_id` igual à conta, de qualquer data |
+
+"Encerrada" também é calculado, não é um valor de `status`: receita e entregas
+encerram quando batem o alvo ou quando o período termina; limite de despesa só
+no fim do período; conta a pagar quando é quitada (enquanto não for, continua
+ativa, e passa a "em atraso" depois do fim do período).
 
 ## Segurança (RLS)
 
@@ -253,5 +282,10 @@ Toda mudança no banco é uma migration nova. Migration já aplicada não é edi
 - **E-mail, senha e data de cadastro saíram de `perfis`.** O Supabase Auth já
   guarda isso em `auth.users`, com a senha criptografada. Duplicar seria risco
   sem ganho.
+- **Conta a pagar ligada à despesa, e não ao período.** Duas contas no mesmo
+  mês somariam o mesmo pagamento se o progresso viesse do período. O vínculo
+  `despesas.meta_id` diz qual conta cada pagamento abate. O teto (não pagar
+  acima do valor) fica num trigger com `for update` na conta, para valer também
+  com dois lançamentos simultâneos.
 - **`on delete cascade` em `usuario_id`.** Se a conta for excluída, os dados
   da pessoa vão junto.

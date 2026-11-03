@@ -76,6 +76,7 @@ export type Database = {
           created_at: string
           data_hora: string
           id: string
+          meta_id: string | null
           observacao: string | null
           quantidade: number
           tipo: string
@@ -87,6 +88,7 @@ export type Database = {
           created_at?: string
           data_hora?: string
           id?: string
+          meta_id?: string | null
           observacao?: string | null
           quantidade?: number
           tipo: string
@@ -98,6 +100,7 @@ export type Database = {
           created_at?: string
           data_hora?: string
           id?: string
+          meta_id?: string | null
           observacao?: string | null
           quantidade?: number
           tipo?: string
@@ -105,7 +108,15 @@ export type Database = {
           valor_total?: number | null
           valor_unitario?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "despesas_meta_fk"
+            columns: ["meta_id", "usuario_id"]
+            isOneToOne: false
+            referencedRelation: "metas"
+            referencedColumns: ["id", "usuario_id"]
+          },
+        ]
       }
       eventos: {
         Row: {
@@ -139,39 +150,59 @@ export type Database = {
       }
       metas: {
         Row: {
+          categoria: string | null
+          cliente_id: string | null
           created_at: string
           data_fim: string
           data_inicio: string
           id: string
           nome: string
           parametro: Database["public"]["Enums"]["parametro_meta"]
+          parcela_atual: number | null
+          parcela_total: number | null
           status: Database["public"]["Enums"]["status_meta"]
           usuario_id: string
           valor_alvo: number
         }
         Insert: {
+          categoria?: string | null
+          cliente_id?: string | null
           created_at?: string
           data_fim: string
           data_inicio: string
           id?: string
           nome: string
           parametro: Database["public"]["Enums"]["parametro_meta"]
+          parcela_atual?: number | null
+          parcela_total?: number | null
           status?: Database["public"]["Enums"]["status_meta"]
           usuario_id?: string
           valor_alvo: number
         }
         Update: {
+          categoria?: string | null
+          cliente_id?: string | null
           created_at?: string
           data_fim?: string
           data_inicio?: string
           id?: string
           nome?: string
           parametro?: Database["public"]["Enums"]["parametro_meta"]
+          parcela_atual?: number | null
+          parcela_total?: number | null
           status?: Database["public"]["Enums"]["status_meta"]
           usuario_id?: string
           valor_alvo?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "metas_cliente_fk"
+            columns: ["cliente_id", "usuario_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id", "usuario_id"]
+          },
+        ]
       }
       perfis: {
         Row: {
@@ -276,7 +307,7 @@ export type Database = {
     Enums: {
       cor_evento: "amarelo" | "verde" | "vermelho" | "azul" | "roxo" | "cinza"
       forma_pagamento: "pix" | "dinheiro"
-      parametro_meta: "quantidade" | "receita" | "despesa"
+      parametro_meta: "quantidade" | "receita" | "despesa" | "conta"
       status_meta: "ativa" | "inativa"
       status_pagamento: "pago" | "pendente"
       tipo_categoria: "receita" | "despesa"
@@ -410,7 +441,7 @@ export const Constants = {
     Enums: {
       cor_evento: ["amarelo", "verde", "vermelho", "azul", "roxo", "cinza"],
       forma_pagamento: ["pix", "dinheiro"],
-      parametro_meta: ["quantidade", "receita", "despesa"],
+      parametro_meta: ["quantidade", "receita", "despesa", "conta"],
       status_meta: ["ativa", "inativa"],
       status_pagamento: ["pago", "pendente"],
       tipo_categoria: ["receita", "despesa"],

@@ -38,8 +38,8 @@ async function buscarIntervalo(inicio: Date, fim: Date) {
   return { receitas: receitas.data as Receita[], despesas: despesas.data };
 }
 
-/** Chaves de cache que qualquer mudança em lançamentos precisa recarregar. */
-export const CHAVES_LANCAMENTOS = [["movimentacoes"], ["receitas"], ["despesas"]] as const;
+/** Chaves de cache que qualquer mudança em lançamentos precisa recarregar (o progresso das metas também). */
+export const CHAVES_LANCAMENTOS = [["movimentacoes"], ["receitas"], ["despesas"], ["metas"]] as const;
 
 /** Receitas e despesas do período escolhido, mais recentes primeiro. */
 export function useMovimentacoes(periodo: FiltroPeriodo) {

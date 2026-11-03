@@ -4,7 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { sair } from "@/app/(auth)/acoes";
 import { useClientes } from "@/hooks/useClientes";
+import { CirculoProgresso } from "@/components/metas/CirculoProgresso";
+import { useMetas } from "@/hooks/useMetas";
 import { useEstatisticasPerfil, usePerfil } from "@/hooks/usePerfil";
+import { corDaMeta, textoProgresso } from "@/lib/metas";
 
 const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 const compacto = new Intl.NumberFormat("pt-BR", { notation: "compact", maximumFractionDigits: 1 });
@@ -37,10 +40,56 @@ function ItemConfiguracao({ href, icone, rotulo }: { href: string; icone: string
   );
 }
 
+/** As três metas ativas que vencem primeiro, com atalho para a tela de Metas. */
+function MetasEmAndamento() {
+  const { data: metas } = useMetas();
+  const ativas = (metas ?? []).filter((meta) => !meta.encerrada).slice(0, 3);
+
+  if (ativas.length === 0) {
+    return (
+      <Link
+        href="/metas/nova"
+        className="flex items-center gap-3 rounded-[12px] border border-dashed border-cinza bg-white px-4 py-3"
+      >
+        <Image src="/icones/metas.svg" alt="" width={28} height={28} className="rounded-full bg-marinho p-1" />
+        <p className="text-xs">
+          <strong className="block">Nenhuma meta ativa</strong>
+          <span className="text-cinza-escuro">Crie metas de receita, entregas, limite de despesa ou contas a pagar.</span>
+        </p>
+      </Link>
+    );
+  }
+
+  return (
+    <ul className="rounded-[12px] border border-cinza-claro bg-white px-3.5 py-1">
+      {ativas.map((meta) => (
+        <li key={meta.id} className="border-b border-cinza-claro last:border-b-0">
+          <Link href={`/metas/${meta.id}`} className={CLASSE_ITEM}>
+            <CirculoProgresso percentual={meta.percentual} traco={corDaMeta(meta).traco} tamanho={36} espessura={4} />
+            <span className="flex min-w-0 flex-1 flex-col">
+              <span className="truncate text-xs font-semibold">{meta.nome}</span>
+              <span className="text-[10px] text-cinza-escuro">{textoProgresso(meta)}</span>
+            </span>
+            <span aria-hidden className="text-lg font-semibold text-cinza">
+              ›
+            </span>
+          </Link>
+        </li>
+      ))}
+      <li>
+        <Link href="/metas" className="block py-2 text-center text-[11px] font-semibold text-dourado">
+          Ver todas as metas
+        </Link>
+      </li>
+    </ul>
+  );
+}
+
 export function TelaPerfil() {
   const { data: perfil, isPending, isError, error } = usePerfil();
   const { data: estatisticas } = useEstatisticasPerfil();
   const { data: clientes } = useClientes();
+  const { data: metas } = useMetas();
 
   if (isPending) return <p className="p-6 text-center text-[13px] text-cinza-escuro">Carregando...</p>;
   if (isError || !perfil) {
@@ -50,8 +99,10 @@ export function TelaPerfil() {
   const desde = new Date(perfil.created_at);
   const numeros = [
     { valor: estatisticas ? estatisticas.entregas.toLocaleString("pt-BR") : "–", rotulo: "entregas" },
-    // Metas ainda não existe: o número fica reservado até a etapa de Metas.
-    { valor: "–", rotulo: "metas batidas" },
+    {
+      valor: metas ? String(metas.filter((meta) => meta.situacao === "batida" || meta.situacao === "quitada").length) : "–",
+      rotulo: "metas batidas",
+    },
     { valor: clientes ? String(clientes.length) : "–", rotulo: "clientes" },
     { valor: estatisticas ? `R$ ${compacto.format(estatisticas.receitaTotal)}` : "–", rotulo: "receita total" },
   ];
@@ -102,14 +153,8 @@ export function TelaPerfil() {
         </dl>
       </section>
 
-      <Secao titulo="METAS DA SEMANA">
-        <div className="flex items-center gap-3 rounded-[12px] border border-dashed border-cinza bg-white px-4 py-3">
-          <Image src="/icones/metas.svg" alt="" width={28} height={28} className="rounded-full bg-marinho p-1" />
-          <p className="text-xs">
-            <strong className="block">Em breve</strong>
-            <span className="text-cinza-escuro">Defina metas de entregas, receita e limite de despesas.</span>
-          </p>
-        </div>
+      <Secao titulo="METAS EM ANDAMENTO">
+        <MetasEmAndamento />
       </Secao>
 
       <Secao titulo="MEU VEÍCULO">
