@@ -7,6 +7,7 @@ import { useState } from "react";
 import { AvisoErro } from "@/components/ui/AvisoErro";
 import { Botao, classeBotao } from "@/components/ui/Botao";
 import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
+import { NavegacaoDetalhe } from "./NavegacaoDetalhe";
 import { ConfirmarExclusao } from "@/components/ui/ConfirmarExclusao";
 import { useExcluirLancamento, useMarcarComoPago } from "@/hooks/useLancamentos";
 import { useDespesa, useReceita, type Despesa, type Receita } from "@/hooks/useMovimentacoes";
@@ -93,6 +94,7 @@ function Conteudo({ titulo, receita, despesa }: { titulo: string; receita?: Rece
     <div className="flex min-h-dvh flex-col">
       <main className="flex flex-col gap-3 px-[17px] pt-[calc(env(safe-area-inset-top)+12px)]">
         <CabecalhoTela titulo={titulo} voltarPara="/resumo" />
+        <NavegacaoDetalhe atual={{ tipo: receita ? "receita" : "despesa", id: lancamento.id }} />
         <AvisoErro mensagem={excluir.error?.message ?? marcarPago.error?.message} />
 
         <section className="flex flex-col gap-2 rounded-[12px] border border-black/8 bg-white p-4 shadow-cartao">

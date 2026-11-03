@@ -1,4 +1,5 @@
-import type { Periodo } from "@/components/ui/SeletorPeriodo";
+/** Atalhos de período da Home, que também valem no Resumo e nos Relatórios. */
+export type Periodo = "dia" | "semana" | "mes";
 
 /**
  * Período escolhido no Resumo e nos Relatórios. Além de dia, semana e mês

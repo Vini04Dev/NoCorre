@@ -26,8 +26,10 @@ const RAPIDOS: { valor: FiltroRapido; rotulo: string }[] = [
 ];
 
 /** Extrato: saldo do período, filtros rápidos, painel de filtros e lista de movimentações. */
-export function TelaResumo() {
-  const [periodo, setPeriodo] = useState<FiltroPeriodo>({ tipo: "semana" });
+export function TelaResumo({ dia }: { dia?: string }) {
+  const [periodo, setPeriodo] = useState<FiltroPeriodo>(
+    dia ? { tipo: "personalizado", de: dia, ate: dia } : { tipo: "semana" },
+  );
   const [rapido, setRapido] = useState<FiltroRapido>("todos");
   const [filtros, setFiltros] = useState<Filtros>(FILTROS_VAZIOS);
   const [painelAberto, setPainelAberto] = useState(false);

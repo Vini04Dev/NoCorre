@@ -1,7 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import type { Movimentacao } from "@/hooks/useMovimentacoes";
 import { horaCurta, rotuloDia } from "@/lib/data";
+import { salvarSequencia } from "@/lib/sequencia-extrato";
 import { formatarMoeda } from "@/lib/formatar";
 
 const ROTULO_FORMA = { pix: "Pix", dinheiro: "Dinheiro" } as const;
@@ -32,6 +35,10 @@ function descrever(movimentacao: Movimentacao) {
 
 /** Extrato agrupado por dia (HOJE, ONTEM, 06 SET), na ordem em que chega. */
 export function ListaMovimentacoes({ movimentacoes }: { movimentacoes: Movimentacao[] }) {
+  // Ao abrir um item, guarda a lista inteira para o detalhe navegar entre eles.
+  const lembrarSequencia = () =>
+    salvarSequencia(movimentacoes.map(({ tipo, dados }) => ({ tipo, id: dados.id })));
+
   const grupos = new Map<string, Movimentacao[]>();
   for (const movimentacao of movimentacoes) {
     const rotulo = rotuloDia(new Date(movimentacao.dados.data_hora));
@@ -51,7 +58,7 @@ export function ListaMovimentacoes({ movimentacoes }: { movimentacoes: Movimenta
               const receita = movimentacao.tipo === "receita";
               return (
                 <li key={movimentacao.dados.id} className="border-b border-cinza-claro last:border-b-0">
-                  <Link href={item.href} className="flex items-center gap-3 px-4 py-2">
+                  <Link href={item.href} onClick={lembrarSequencia} className="flex items-center gap-3 px-4 py-2">
                     <span
                       className={`grid size-10 shrink-0 place-items-center rounded-full ${
                         receita ? "bg-dourado-claro" : "bg-cinza-claro"
