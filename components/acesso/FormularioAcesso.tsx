@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { cadastrar, entrar, type EstadoAcesso } from "@/app/(auth)/acoes";
 import { Botao } from "@/components/ui/Botao";
+import { AguardandoConfirmacao } from "./AguardandoConfirmacao";
 import { CampoAcesso } from "./CampoAcesso";
 
 type Props = {
@@ -15,17 +16,18 @@ type Props = {
 /** Formulário de login ou de cadastro. As duas telas só mudam o campo Nome e os textos. */
 export function FormularioAcesso({ modo, erroInicial }: Props) {
   const cadastro = modo === "cadastrar";
+  // A senha fica só na memória desta aba, para entrar sozinho assim que o email for confirmado.
+  const [senha, setSenha] = useState("");
   const [estado, acao, enviando] = useActionState<EstadoAcesso, FormData>(
-    cadastro ? cadastrar : entrar,
+    (anterior, dados) => {
+      setSenha(String(dados.get("senha") ?? ""));
+      return (cadastro ? cadastrar : entrar)(anterior, dados);
+    },
     { erro: erroInicial },
   );
 
-  if (estado.aviso) {
-    return (
-      <p role="status" className="rounded-[10px] bg-white p-4 text-sm font-medium">
-        {estado.aviso}
-      </p>
-    );
+  if (estado.emailPendente) {
+    return <AguardandoConfirmacao email={estado.emailPendente} senha={senha} />;
   }
 
   return (
