@@ -2,7 +2,8 @@
 
 type Props<T extends string> = {
   rotulo: string;
-  opcoes: { valor: T; rotulo: string }[];
+  /** `cor` pinta o texto da opção quando ativa (ex.: Pago em verde). */
+  opcoes: { valor: T; rotulo: string; cor?: string }[];
   valor: T;
   aoMudar: (valor: T) => void;
 };
@@ -23,7 +24,7 @@ export function Alternador<T extends string>({ rotulo, opcoes, valor, aoMudar }:
               aria-checked={ativo}
               onClick={() => aoMudar(opcao.valor)}
               className={`flex-1 rounded-lg py-[7px] text-[13px] ${
-                ativo ? "bg-white font-semibold shadow-cartao" : "font-medium text-cinza-escuro"
+                ativo ? `bg-white font-semibold shadow-cartao ${opcao.cor ?? ""}` : "font-medium text-cinza-escuro"
               }`}
             >
               {opcao.rotulo}

@@ -21,7 +21,7 @@ export function CampoTexto({ rotulo, opcional, erro, className = "", ...props }:
         id={id}
         aria-invalid={erro ? true : undefined}
         aria-describedby={erro ? idErro : undefined}
-        className={`rounded-[10px] border bg-white px-[14px] py-[11px] text-[13px] outline-none focus:border-dourado ${
+        className={`min-w-0 rounded-[10px] border bg-white px-[14px] py-[11px] text-[13px] outline-none focus:border-dourado ${
           erro ? "border-negativo" : "border-cinza-claro"
         } ${className}`}
         {...props}
