@@ -9,6 +9,7 @@ import { Alternador } from "@/components/ui/Alternador";
 import { AvisoErro } from "@/components/ui/AvisoErro";
 import { Botao } from "@/components/ui/Botao";
 import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
+import { CampoTexto } from "@/components/ui/CampoTexto";
 import { SeletorChips } from "@/components/ui/SeletorChips";
 import { useClientes } from "@/hooks/useClientes";
 import { useNovaReceita } from "@/hooks/useLancamentos";
@@ -48,6 +49,7 @@ export function FormularioReceita() {
   }));
   const [forma, setForma] = useState<FormaPagamento | null>(null);
   const [situacao, setSituacao] = useState<StatusPagamento>("pago");
+  const [observacao, setObservacao] = useState("");
   const [erros, setErros] = useState<Erros>({});
 
   function enviar(evento: React.FormEvent) {
@@ -67,6 +69,7 @@ export function FormularioReceita() {
         valor_unitario: valores.centavos / 100,
         forma_pagamento: forma,
         status_pagamento: situacao,
+        observacao: observacao.trim() || null,
       },
       { onSuccess: () => router.push("/") },
     );
@@ -125,6 +128,13 @@ export function FormularioReceita() {
           desmarcavel
         />
         <Alternador rotulo="Situação" opcoes={SITUACOES} valor={situacao} aoMudar={setSituacao} />
+        <CampoTexto
+          rotulo="Observação"
+          opcional
+          value={observacao}
+          onChange={(evento) => setObservacao(evento.target.value)}
+          placeholder="Ex.: entrega no bairro Centro"
+        />
       </div>
 
       <div className="sticky bottom-0 mt-auto bg-fundo px-5 pt-2.5 pb-[calc(env(safe-area-inset-bottom)+26px)]">
