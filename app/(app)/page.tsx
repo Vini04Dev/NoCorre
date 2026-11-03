@@ -1,3 +1,4 @@
+import { AvisoPrimeiroUso } from "@/components/home/AvisoPrimeiroUso";
 import { CabecalhoHome } from "@/components/home/CabecalhoHome";
 import { CartaoModulo } from "@/components/home/CartaoModulo";
 import { ResumoPeriodo } from "@/components/home/ResumoPeriodo";
@@ -38,6 +39,7 @@ export default async function Home() {
           />
         </nav>
       </main>
+      <AvisoPrimeiroUso />
     </>
   );
 }

@@ -6,6 +6,7 @@ import { AvisoErro } from "@/components/ui/AvisoErro";
 import { Botao } from "@/components/ui/Botao";
 import { CampoTexto } from "@/components/ui/CampoTexto";
 import { ConfirmarExclusao } from "@/components/ui/ConfirmarExclusao";
+import { PainelInferior } from "@/components/ui/PainelInferior";
 import { useExcluirCategoria, useSalvarCategoria, type Categoria } from "@/hooks/useCategorias";
 import { CATEGORIAS_PADRAO, ROTULO_TIPO_CATEGORIA, type TipoCategoria } from "@/lib/categorias-padrao";
 
@@ -29,7 +30,7 @@ export function PainelCategoria({ categoria, aoFechar }: Props) {
   const [erroNome, setErroNome] = useState<string>();
   const [confirmando, setConfirmando] = useState(false);
 
-  function enviar(evento: React.FormEvent) {
+  function enviar(evento: React.FormEvent<HTMLFormElement>) {
     evento.preventDefault();
     const nomeLimpo = nome.trim();
     if (!nomeLimpo) {
@@ -48,17 +49,8 @@ export function PainelCategoria({ categoria, aoFechar }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex flex-col justify-end bg-black/40 backdrop-blur-[2px]">
-      <button type="button" aria-label="Fechar" onClick={aoFechar} className="flex-1 cursor-default" />
-      <form
-        onSubmit={enviar}
-        noValidate
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="painel-categoria-titulo"
-        className="mx-auto flex w-full max-w-[430px] flex-col gap-3 rounded-t-[20px] bg-white px-5 pt-2.5 pb-[calc(env(safe-area-inset-bottom)+20px)]"
-      >
-        <span aria-hidden className="mx-auto h-1 w-10 rounded-full bg-cinza-claro" />
+    <>
+      <PainelInferior idTitulo="painel-categoria-titulo" aoFechar={aoFechar} aoEnviar={enviar}>
         <div className="flex items-center justify-between">
           <h2 id="painel-categoria-titulo" className="text-lg font-extrabold">
             {categoria ? "Editar categoria" : "Nova categoria"}
@@ -91,7 +83,7 @@ export function PainelCategoria({ categoria, aoFechar }: Props) {
             {salvar.isPending ? "Salvando..." : "Salvar"}
           </Botao>
         </div>
-      </form>
+      </PainelInferior>
 
       {confirmando && categoria && (
         <ConfirmarExclusao
@@ -104,6 +96,6 @@ export function PainelCategoria({ categoria, aoFechar }: Props) {
           }
         />
       )}
-    </div>
+    </>
   );
 }
