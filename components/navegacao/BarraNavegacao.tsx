@@ -65,11 +65,11 @@ export function BarraNavegacao() {
             onClick={() => setPainelAberto(true)}
             aria-label="Novo lançamento"
             aria-haspopup="dialog"
-            className="absolute -top-8 grid size-[67px] place-items-center"
+            className="absolute -top-10 grid size-20 place-items-center"
           >
-            <Image src="/icones/botao-mais-fundo.svg" alt="" width={67} height={67} className="absolute" />
-            <Image src="/icones/botao-mais-circulo.svg" alt="" width={53} height={53} className="absolute" />
-            <Image src="/icones/mais.svg" alt="" width={46} height={46} className="absolute" />
+            <Image src="/icones/botao-mais-fundo.svg" alt="" width={80} height={80} className="absolute" />
+            <Image src="/icones/botao-mais-circulo.svg" alt="" width={64} height={64} className="absolute" />
+            <Image src="/icones/mais.svg" alt="" width={55} height={55} className="absolute" />
           </button>
         </div>
 

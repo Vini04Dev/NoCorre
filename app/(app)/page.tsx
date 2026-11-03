@@ -41,10 +41,7 @@ export default async function Home() {
               icone="/icones/cadastro.svg"
               tamanhoIcone={41}
             />
-            <p className="rounded-[12px] border border-dashed border-cinza px-4 py-3 text-center text-xs text-cinza-escuro">
-              <strong className="block text-marinho">Mais módulos em breve</strong>
-              Novidades a caminho para facilitar o seu corre.
-            </p>
+            <p className="text-center text-xs text-cinza-escuro">Mais módulos em breve.</p>
           </nav>
         </Secao>
       </main>
