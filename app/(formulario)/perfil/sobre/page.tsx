@@ -14,11 +14,11 @@ const TOPICOS = [
   {
     titulo: "Seus dados",
     texto:
-      "Cada conta só enxerga os próprios dados: a regra fica no banco, não só no app. Você pode excluir a conta e tudo o que está nela em Senha e segurança.",
+      "Tudo seguro com o No Corre! Criptografia end-to-end, seus dados estão protegidos aqui! Você pode excluir a conta e tudo o que está nela em Senha e segurança.",
   },
   {
     titulo: "Código aberto",
-    texto: "O No Corre! é um projeto de portfólio com código aberto no GitHub.",
+    texto: "O No Corre! é um projeto de portfólio com código aberto no GitHub. Sinta-se à vontade para contribuir, abrir issues e sugerir melhorias.",
   },
 ];
 
