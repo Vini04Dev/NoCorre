@@ -11,6 +11,7 @@ declare
   bia uuid := '22222222-2222-2222-2222-222222222222';
   cli uuid;
   rec uuid;
+  conta uuid;
   n int;
   v numeric;
   nome_txt text;
@@ -65,6 +66,31 @@ begin
   if not ok then raise exception 'FALHA 5: evento invertido'; end if;
   log := log || '5 evento check ok; ';
 
+  -- conta a pagar: pagamentos ligados não passam do valor
+  insert into public.metas (nome, parametro, valor_alvo, data_inicio, data_fim)
+    values ('Sicoob', 'conta', 100, current_date, current_date + 30) returning id into conta;
+  insert into public.despesas (tipo, valor_unitario, meta_id) values ('Banco', 60, conta);
+  ok := false;
+  begin
+    insert into public.despesas (tipo, valor_unitario, meta_id) values ('Banco', 50, conta);
+  exception when check_violation then ok := true;
+  end;
+  if not ok then raise exception 'FALHA 13: pagou acima do valor da conta'; end if;
+  ok := false;
+  begin
+    update public.metas set valor_alvo = 50 where id = conta;
+  exception when check_violation then ok := true;
+  end;
+  if not ok then raise exception 'FALHA 13b: valor da conta abaixo do já pago'; end if;
+  ok := false;
+  begin
+    insert into public.metas (nome, parametro, valor_alvo, data_inicio, data_fim, categoria)
+      values ('Errada', 'conta', 10, current_date, current_date, 'Lanche');
+  exception when check_violation then ok := true;
+  end;
+  if not ok then raise exception 'FALHA 13c: conta aceitou filtro de categoria'; end if;
+  log := log || '13 conta a pagar ok; ';
+
   -- como Bia
   reset role;
   perform set_config('request.jwt.claims', json_build_object('sub', bia, 'role', 'authenticated')::text, true);
@@ -101,6 +127,14 @@ begin
   end;
   if not ok then raise exception 'FALHA 9: Bia criou cliente em nome da Ana'; end if;
   log := log || '9 insert em nome de outro bloqueado; ';
+
+  ok := false;
+  begin
+    insert into public.despesas (tipo, valor_unitario, meta_id) values ('Banco', 1, conta);
+  exception when foreign_key_violation or check_violation then ok := true;
+  end;
+  if not ok then raise exception 'FALHA 14: Bia pagou conta da Ana'; end if;
+  log := log || '14 conta alheia bloqueada; ';
 
   -- visitante sem login
   reset role;

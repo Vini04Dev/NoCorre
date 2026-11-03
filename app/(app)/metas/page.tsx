@@ -1,5 +1,8 @@
-import { EmConstrucao } from "@/components/ui/EmConstrucao";
+import type { Metadata } from "next";
+import { TelaMetas } from "@/components/metas/TelaMetas";
+
+export const metadata: Metadata = { title: "Metas | No Corre!" };
 
 export default function Pagina() {
-  return <EmConstrucao titulo="Metas" voltarPara="/" />;
+  return <TelaMetas />;
 }
