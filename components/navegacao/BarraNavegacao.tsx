@@ -3,6 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { PainelLancamento } from "@/components/lancamentos/PainelLancamento";
 
 type ItemNavegacao = {
   href: string;
@@ -45,6 +47,7 @@ function LinkNavegacao({ item, ativo }: { item: ItemNavegacao; ativo: boolean })
 
 export function BarraNavegacao() {
   const pathname = usePathname();
+  const [painelAberto, setPainelAberto] = useState(false);
 
   return (
     <nav
@@ -57,21 +60,24 @@ export function BarraNavegacao() {
         ))}
 
         <div className="relative flex justify-center">
-          <Link
-            href="/novo"
+          <button
+            type="button"
+            onClick={() => setPainelAberto(true)}
             aria-label="Novo lançamento"
+            aria-haspopup="dialog"
             className="absolute -top-8 grid size-[67px] place-items-center"
           >
             <Image src="/icones/botao-mais-fundo.svg" alt="" width={67} height={67} className="absolute" />
             <Image src="/icones/botao-mais-circulo.svg" alt="" width={53} height={53} className="absolute" />
             <Image src="/icones/mais.svg" alt="" width={46} height={46} className="absolute" />
-          </Link>
+          </button>
         </div>
 
         {itensDireita.map((item) => (
           <LinkNavegacao key={item.href} item={item} ativo={estaAtivo(pathname, item.href)} />
         ))}
       </div>
+      {painelAberto && <PainelLancamento aoFechar={() => setPainelAberto(false)} />}
     </nav>
   );
 }
