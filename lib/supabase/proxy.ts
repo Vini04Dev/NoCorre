@@ -4,7 +4,7 @@ import type { Database } from "@/types/database";
 import { supabaseChave, supabaseUrl } from "./config";
 
 /** Telas que qualquer pessoa pode abrir sem estar logada. */
-const ROTAS_PUBLICAS = ["/entrar", "/cadastrar", "/esqueci-senha", "/auth"];
+const ROTAS_PUBLICAS = ["/entrar", "/cadastrar", "/esqueci-senha", "/auth", "/apresentacao"];
 
 function ehRotaPublica(caminho: string) {
   return ROTAS_PUBLICAS.some((rota) => caminho === rota || caminho.startsWith(`${rota}/`));
@@ -44,6 +44,12 @@ export async function atualizarSessao(request: NextRequest) {
   const logado = Boolean(data?.claims);
   const caminho = request.nextUrl.pathname;
 
+  // Visitante em "/" vê a landing page no mesmo endereço; logado, "/" continua sendo a Home.
+  if (!logado && caminho === "/") {
+    const reescrita = NextResponse.rewrite(new URL("/apresentacao", request.url), { request });
+    resposta.cookies.getAll().forEach((cookie) => reescrita.cookies.set(cookie));
+    return reescrita;
+  }
   if (!logado && !ehRotaPublica(caminho)) {
     return redirecionar(request, resposta, "/entrar");
   }
