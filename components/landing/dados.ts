@@ -18,15 +18,18 @@ export const NUMEROS = [
   { ate: 4.9, prefixo: "", sufixo: "/5", rotulo: "de satisfação", casas: 1 },
 ];
 
-/** Entregas por dia; a receita total da semana fica em RECEITA_TOTAL_SEMANA. */
+/**
+ * Entregas por dia. 176 entregas a uns R$ 8 cada (média de R$ 7 a R$ 9 na cidade)
+ * dão a receita da semana em RECEITA_TOTAL_SEMANA.
+ */
 export const ENTREGAS_SEMANA = [
-  { dia: "Seg", entregas: 35 },
-  { dia: "Ter", entregas: 25 },
-  { dia: "Qua", entregas: 40 },
-  { dia: "Qui", entregas: 30 },
-  { dia: "Sex", entregas: 70 },
-  { dia: "Sáb", entregas: 55 },
-  { dia: "Dom", entregas: 25 },
+  { dia: "Seg", entregas: 22 },
+  { dia: "Ter", entregas: 18 },
+  { dia: "Qua", entregas: 25 },
+  { dia: "Qui", entregas: 20 },
+  { dia: "Sex", entregas: 40 },
+  { dia: "Sáb", entregas: 34 },
+  { dia: "Dom", entregas: 17 },
 ];
 
 export const RECEITA_TOTAL_SEMANA = 1412;

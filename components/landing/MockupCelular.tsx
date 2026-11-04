@@ -71,7 +71,7 @@ const LINHAS = [
   { rotulo: "RECEBIDOS", valor: 1412, cor: "text-recebido" },
   { rotulo: "PENDENTES", valor: 96, cor: "text-pendente" },
   { rotulo: "DESPESAS", valor: 327.5, cor: "text-negativo" },
-  { rotulo: "ENTREGAS", valor: 280, cor: "text-positivo", inteiro: true },
+  { rotulo: "ENTREGAS", valor: 176, cor: "text-positivo", inteiro: true },
 ];
 
 export function TelaSaldo({ ativa }: PropsTela) {
@@ -195,7 +195,7 @@ export function TelaMeta({ ativa }: PropsTela) {
           className={`flex w-full items-center gap-2 rounded-lg bg-white px-3 py-2.5 text-[10px] shadow-cartao ${entrada(ativa, 8).className}`}
         >
           <span className="size-2 rounded-full bg-dourado" />
-          <span className="flex-1">1.200 entregas no mês</span>
+          <span className="flex-1">700 entregas no mês</span>
           <b className="tabular-nums">{Math.round(92 * t)}%</b>
         </div>
       </div>

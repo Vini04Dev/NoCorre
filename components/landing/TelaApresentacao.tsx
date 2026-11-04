@@ -225,13 +225,29 @@ function ChamadaFinal({ logado }: { logado: boolean }) {
   return (
     <section id="entrar" className="scroll-mt-14 px-5 pb-20 sm:px-8">
       <Revelar como="zoom">
-        <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-6 overflow-hidden rounded-[36px] bg-[linear-gradient(160deg,#2b2d42,#151622)] px-6 py-20 text-center ring-1 ring-white/10 sm:py-28">
+        {/* Cinza por padrão; a luz do fundo (FundoAnimado) para em cima dele e define
+            --aceso, que acende o brilho dourado e a borda. */}
+        <div
+          data-luz-alvo
+          className="relative mx-auto flex max-w-6xl flex-col items-center gap-6 overflow-hidden rounded-[36px] bg-[linear-gradient(160deg,#2a2b33,#16171c)] px-6 py-20 text-center sm:py-28"
+        >
           <div
             aria-hidden
-            className="pointer-events-none absolute -bottom-40 left-1/2 size-[520px] -translate-x-1/2 rounded-full bg-dourado/30 blur-[120px]"
+            style={{ opacity: "var(--aceso, 0)" }}
+            className="pointer-events-none absolute inset-0 bg-[linear-gradient(160deg,#2b2d42,#151622)] transition-opacity duration-300"
+          />
+          <div
+            aria-hidden
+            style={{ opacity: "var(--aceso, 0)", transform: "translateX(-50%) scale(calc(0.6 + var(--aceso, 0) * 0.4))" }}
+            className="pointer-events-none absolute -bottom-40 left-1/2 size-[520px] rounded-full bg-dourado/30 blur-[120px] transition-[opacity,transform] duration-300"
+          />
+          <div
+            aria-hidden
+            style={{ opacity: "calc(0.4 + var(--aceso, 0) * 0.6)" }}
+            className="pointer-events-none absolute inset-0 rounded-[36px] ring-1 ring-white/10 ring-inset"
           />
           <h2 className="relative max-w-3xl font-titulo text-4xl font-bold tracking-[-0.03em] text-white sm:text-6xl">
-            Bora pro corre!
+            Bora Correr?
           </h2>
           <p className="relative max-w-xl text-lg text-cinza-claro">
             {logado ? "Sua conta já está aberta neste aparelho." : "Crie sua conta grátis ou entre para continuar de onde parou."}

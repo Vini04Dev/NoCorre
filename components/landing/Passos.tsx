@@ -36,11 +36,14 @@ export function Passos() {
     if (!caixa) return;
     function medir() {
       // offsetLeft/Top ignoram o transform da entrada: mede a posição final dos números.
-      const centros = numeros.current.map((numero) => {
-        const card = numero!.offsetParent as HTMLElement;
+      // O ResizeObserver pode disparar enquanto a tela é desmontada (refs já nulos).
+      const elementos = numeros.current.filter((numero): numero is HTMLSpanElement => Boolean(numero?.offsetParent));
+      if (elementos.length !== PASSOS.length) return;
+      const centros = elementos.map((numero) => {
+        const card = numero.offsetParent as HTMLElement;
         return {
-          x: card.offsetLeft + numero!.offsetLeft + numero!.offsetWidth / 2,
-          y: card.offsetTop + numero!.offsetTop + numero!.offsetHeight / 2,
+          x: card.offsetLeft + numero.offsetLeft + numero.offsetWidth / 2,
+          y: card.offsetTop + numero.offsetTop + numero.offsetHeight / 2,
         };
       });
       setCaminhos(centros.slice(1).map((ponto, i) => curva(centros[i], ponto)));

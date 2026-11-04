@@ -2,6 +2,7 @@
 
 import { useVisivel } from "./animacao";
 import { Contador } from "./Contador";
+import { Notificacoes } from "./Notificacoes";
 import { CATEGORIAS_DESPESA, ENTREGAS_SEMANA, RECEITA_TOTAL_SEMANA, SALDO_MES } from "./dados";
 
 const TRANSICAO = "transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none";
@@ -178,19 +179,8 @@ function Destaque() {
         <Contador ate={92} sufixo="%" />
       </span>
       <span className="text-sm text-cinza-claro">
-        <Contador ate={1104} /> de 1.200 entregas. Faltam 96 em 4 dias.
+        <Contador ate={644} /> de 700 entregas. Faltam 56 em 4 dias.
       </span>
-    </Cartao>
-  );
-}
-
-function Aviso({ titulo, texto }: { titulo: string; texto: string }) {
-  return (
-    <Cartao className="justify-center gap-2">
-      <span className="text-sm text-cinza">Aviso do app</span>
-      <p className="text-lg leading-snug font-semibold text-white">
-        {titulo} <span className="text-cinza">{texto}</span>
-      </p>
     </Cartao>
   );
 }
@@ -203,10 +193,7 @@ export function Graficos() {
       <Destaque />
       <Rosca />
       <Linha className="lg:col-span-2" />
-      <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:col-span-3">
-        <Aviso titulo="Sexta é o seu melhor dia." texto="Você faz 75% mais entregas que a média da semana." />
-        <Aviso titulo="Combustível é sua maior despesa." texto="Ele leva 44% de tudo o que você gastou no mês." />
-      </div>
+      <Notificacoes />
     </div>
   );
 }
