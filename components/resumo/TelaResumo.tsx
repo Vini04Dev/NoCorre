@@ -6,6 +6,7 @@ import { CartaoSaldo } from "./CartaoSaldo";
 import { ListaMovimentacoes } from "./ListaMovimentacoes";
 import { PainelFiltros } from "./PainelFiltros";
 import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
+import { useEstadoDaTela } from "@/hooks/useEstadoDaTela";
 import { useMovimentacoes, usePendentes } from "@/hooks/useMovimentacoes";
 import {
   FILTROS_VAZIOS,
@@ -27,11 +28,15 @@ const RAPIDOS: { valor: FiltroRapido; rotulo: string }[] = [
 
 /** Extrato: saldo do período, filtros rápidos, painel de filtros e lista de movimentações. */
 export function TelaResumo({ dia }: { dia?: string }) {
-  const [periodo, setPeriodo] = useState<FiltroPeriodo>(
-    dia ? { tipo: "personalizado", de: dia, ate: dia } : { tipo: "semana" },
+  // Vindo do calendário da Home (?dia=), vale o dia clicado e o período salvo fica intacto.
+  const [periodoSalvo, setPeriodoSalvo] = useEstadoDaTela<FiltroPeriodo>("resumo:periodo", { tipo: "semana" });
+  const [periodoDoDia, setPeriodoDoDia] = useState<FiltroPeriodo | null>(
+    dia ? { tipo: "personalizado", de: dia, ate: dia } : null,
   );
-  const [rapido, setRapido] = useState<FiltroRapido>("todos");
-  const [filtros, setFiltros] = useState<Filtros>(FILTROS_VAZIOS);
+  const periodo = periodoDoDia ?? periodoSalvo;
+  const setPeriodo = dia ? setPeriodoDoDia : setPeriodoSalvo;
+  const [rapido, setRapido] = useEstadoDaTela<FiltroRapido>("resumo:rapido", "todos");
+  const [filtros, setFiltros] = useEstadoDaTela<Filtros>("resumo:filtros", FILTROS_VAZIOS);
   const [painelAberto, setPainelAberto] = useState(false);
 
   const movimentacoes = useMovimentacoes(periodo);
