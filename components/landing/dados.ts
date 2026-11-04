@@ -14,29 +14,32 @@ export const LINKS_NAVEGACAO = [
 
 export const NUMEROS = [
   { ate: 1200, prefixo: "+", sufixo: "", rotulo: "lançamentos no teste piloto" },
-  { ate: 20, prefixo: "", sufixo: " entregadores", rotulo: "usando em Paraíso" },
+  { ate: 20, prefixo: "", sufixo: "", rotulo: "entregadores usando em Paraíso" },
   { ate: 4.9, prefixo: "", sufixo: "/5", rotulo: "de satisfação", casas: 1 },
 ];
 
-export const RECEITA_SEMANA = [
-  { dia: "Seg", valor: 35 },
-  { dia: "Ter", valor: 25 },
-  { dia: "Qua", valor: 40 },
-  { dia: "Qui", valor: 30 },
-  { dia: "Sex", valor: 70 },
-  { dia: "Sáb", valor: 55 },
-  { dia: "Dom", valor: 25 },
+/** Entregas por dia; a receita total da semana fica em RECEITA_TOTAL_SEMANA. */
+export const ENTREGAS_SEMANA = [
+  { dia: "Seg", entregas: 35 },
+  { dia: "Ter", entregas: 25 },
+  { dia: "Qua", entregas: 40 },
+  { dia: "Qui", entregas: 30 },
+  { dia: "Sex", entregas: 70 },
+  { dia: "Sáb", entregas: 55 },
+  { dia: "Dom", entregas: 25 },
 ];
 
+export const RECEITA_TOTAL_SEMANA = 1412;
+
 export const CATEGORIAS_DESPESA = [
-  { nome: "Combustível", valor: 180, cor: "#ffd36a" },
-  { nome: "Manutenção", valor: 90, cor: "#4caf00" },
-  { nome: "Alimentação", valor: 70, cor: "#9196a2" },
-  { nome: "Diária Central", valor: 60, cor: "#5b6b9a" },
+  { nome: "Combustível", valor: 412, cor: "#ffd36a" },
+  { nome: "Manutenção", valor: 238, cor: "#4caf00" },
+  { nome: "Alimentação", valor: 164, cor: "#9196a2" },
+  { nome: "Diária Central", valor: 120, cor: "#5b6b9a" },
 ];
 
 /** Saldo acumulado a cada 3 dias do mês. */
-export const SALDO_MES = [40, 110, 160, 240, 220, 330, 420, 510, 640, 780];
+export const SALDO_MES = [380, 920, 1350, 1980, 1860, 2610, 3190, 3620, 3980, 4310];
 
 export const PERFIS = ["Apps de entrega", "Centrais de motoboy", "Mototáxi", "Pizzarias e demais estabelecimentos", "Entregas avulsas"];
 

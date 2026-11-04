@@ -2,7 +2,7 @@
 
 import { useVisivel } from "./animacao";
 import { Contador } from "./Contador";
-import { CATEGORIAS_DESPESA, RECEITA_SEMANA, SALDO_MES } from "./dados";
+import { CATEGORIAS_DESPESA, ENTREGAS_SEMANA, RECEITA_TOTAL_SEMANA, SALDO_MES } from "./dados";
 
 const TRANSICAO = "transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none";
 
@@ -26,20 +26,25 @@ function Rotulo({ titulo, valor }: { titulo: string; valor: React.ReactNode }) {
 /** Barras da receita por dia: crescem uma depois da outra. */
 function Barras() {
   const [ref, visivel] = useVisivel<HTMLDivElement>();
-  const maior = Math.max(...RECEITA_SEMANA.map((dia) => dia.valor));
-  const total = RECEITA_SEMANA.reduce((soma, dia) => soma + dia.valor, 0);
+  const maior = Math.max(...ENTREGAS_SEMANA.map((dia) => dia.entregas));
+  const entregas = ENTREGAS_SEMANA.reduce((soma, dia) => soma + dia.entregas, 0);
 
   return (
     <Cartao className="lg:col-span-2">
-      <Rotulo titulo="Receita da semana" valor={<Contador ate={total} prefixo="R$ " />} />
-      <div ref={ref} className="flex h-56 items-end gap-2 sm:gap-4" role="img" aria-label="Receita por dia da semana">
-        {RECEITA_SEMANA.map(({ dia, valor }, indice) => (
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-1">
+        <Rotulo titulo="Receita da semana" valor={<Contador ate={RECEITA_TOTAL_SEMANA} prefixo="R$ " />} />
+        <span className="pb-1 text-sm text-cinza">
+          <Contador ate={entregas} /> entregas
+        </span>
+      </div>
+      <div ref={ref} className="flex h-56 items-end gap-2 sm:gap-4" role="img" aria-label="Entregas por dia da semana">
+        {ENTREGAS_SEMANA.map(({ dia, entregas: valor }, indice) => (
           <div key={dia} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
             <span
               style={{ transitionDelay: `${indice * 90 + 500}ms` }}
               className={`text-[11px] font-semibold text-cinza-claro ${TRANSICAO} ${visivel ? "opacity-100" : "opacity-0"}`}
             >
-              R$ {valor}
+              {valor}
             </span>
             <div
               style={{ height: visivel ? `${(valor / maior) * 100}%` : "0%", transitionDelay: `${indice * 90}ms` }}
@@ -109,7 +114,7 @@ function Rosca() {
 }
 
 /** Linha do saldo do mês: o traço corre da esquerda para a direita e a área aparece depois. */
-function Linha() {
+function Linha({ className = "" }: { className?: string }) {
   const [ref, visivel] = useVisivel<HTMLDivElement>();
   const largura = 300;
   const altura = 120;
@@ -123,7 +128,7 @@ function Linha() {
   const [ultimoX, ultimoY] = pontos[pontos.length - 1];
 
   return (
-    <Cartao>
+    <Cartao className={className}>
       <Rotulo titulo="Saldo acumulado no mês" valor={<Contador ate={SALDO_MES[SALDO_MES.length - 1]} prefixo="R$ " />} />
       <div ref={ref}>
         <svg viewBox={`0 0 ${largura} ${altura}`} className="w-full overflow-visible" role="img" aria-label="Saldo subindo ao longo do mês">
@@ -173,8 +178,19 @@ function Destaque() {
         <Contador ate={92} sufixo="%" />
       </span>
       <span className="text-sm text-cinza-claro">
-        <Contador ate={138} /> de 150 entregas. Faltam 12 em 4 dias.
+        <Contador ate={1104} /> de 1.200 entregas. Faltam 96 em 4 dias.
       </span>
+    </Cartao>
+  );
+}
+
+function Aviso({ titulo, texto }: { titulo: string; texto: string }) {
+  return (
+    <Cartao className="justify-center gap-2">
+      <span className="text-sm text-cinza">Aviso do app</span>
+      <p className="text-lg leading-snug font-semibold text-white">
+        {titulo} <span className="text-cinza">{texto}</span>
+      </p>
     </Cartao>
   );
 }
@@ -186,16 +202,11 @@ export function Graficos() {
       <Barras />
       <Destaque />
       <Rosca />
-      <Linha />
-      <Cartao className="justify-center gap-3">
-        <span className="text-sm text-cinza">Avisos do app</span>
-        <p className="text-lg leading-snug font-semibold text-white">
-          Sexta é o seu melhor dia. <span className="text-cinza">Você fatura 75% mais que a média.</span>
-        </p>
-        <p className="text-lg leading-snug font-semibold text-white">
-          Combustível subiu. <span className="text-cinza">R$ 18 a mais que a semana passada.</span>
-        </p>
-      </Cartao>
+      <Linha className="lg:col-span-2" />
+      <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:col-span-3">
+        <Aviso titulo="Sexta é o seu melhor dia." texto="Você faz 75% mais entregas que a média da semana." />
+        <Aviso titulo="Combustível é sua maior despesa." texto="Ele leva 44% de tudo o que você gastou no mês." />
+      </div>
     </div>
   );
 }

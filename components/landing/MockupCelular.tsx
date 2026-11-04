@@ -67,11 +67,11 @@ function Topo({ titulo, subtitulo }: { titulo: string; subtitulo?: string }) {
 }
 
 const LINHAS = [
-  { rotulo: "SALDO", valor: 187.5, cor: "text-positivo" },
-  { rotulo: "RECEBIDOS", valor: 280, cor: "text-recebido" },
-  { rotulo: "PENDENTES", valor: 35, cor: "text-pendente" },
-  { rotulo: "DESPESAS", valor: 92.5, cor: "text-negativo" },
-  { rotulo: "ENTREGAS", valor: 35, cor: "text-positivo", inteiro: true },
+  { rotulo: "SALDO", valor: 1084.5, cor: "text-positivo" },
+  { rotulo: "RECEBIDOS", valor: 1412, cor: "text-recebido" },
+  { rotulo: "PENDENTES", valor: 96, cor: "text-pendente" },
+  { rotulo: "DESPESAS", valor: 327.5, cor: "text-negativo" },
+  { rotulo: "ENTREGAS", valor: 280, cor: "text-positivo", inteiro: true },
 ];
 
 export function TelaSaldo({ ativa }: PropsTela) {
@@ -162,7 +162,7 @@ export function TelaLancamento({ ativa }: PropsTela) {
 export function TelaMeta({ ativa }: PropsTela) {
   const t = suave(useProgresso(ativa, 1600, 300));
   const volta = 2 * Math.PI * 38;
-  const percentual = 70 * t;
+  const percentual = 71 * t;
   return (
     <>
       <Topo titulo="Metas" />
@@ -185,17 +185,17 @@ export function TelaMeta({ ativa }: PropsTela) {
         </div>
         <p className="text-[12px] font-bold">Meta da semana</p>
         <p className="text-[10px] text-cinza-escuro tabular-nums">
-          {moeda(280 * t)} de R$ 400,00
+          {moeda(1412 * t)} de R$ 2.000,00
         </p>
         <div {...entrada(ativa, 6)} className={`w-full rounded-lg bg-white px-3 py-2.5 text-center text-[10px] shadow-cartao ${entrada(ativa, 6).className}`}>
-          Faltam <b>R$ 120</b> em 2 dias
+          Faltam <b>R$ 588</b> em 2 dias
         </div>
         <div
           {...entrada(ativa, 8)}
           className={`flex w-full items-center gap-2 rounded-lg bg-white px-3 py-2.5 text-[10px] shadow-cartao ${entrada(ativa, 8).className}`}
         >
           <span className="size-2 rounded-full bg-dourado" />
-          <span className="flex-1">150 entregas no mês</span>
+          <span className="flex-1">1.200 entregas no mês</span>
           <b className="tabular-nums">{Math.round(92 * t)}%</b>
         </div>
       </div>
@@ -245,7 +245,8 @@ const EMAIL = "parceiro@nocorre.app";
 
 /**
  * Abertura do celular: a tela de Entrar se preenche sozinha (e-mail, senha,
- * toque no botão) e passa para a Home já logada.
+ * toque no botão) e termina com a confirmação no próprio botão. Não abre a Home:
+ * a animação dos valores já aparece em "Quanto sobrou. Agora."
  */
 export function TelaEntrar({ ativa }: PropsTela) {
   const t = useProgresso(ativa, 4200, 200);
@@ -291,18 +292,13 @@ export function TelaEntrar({ ativa }: PropsTela) {
           >
             {carregando ? (
               <span className="size-3.5 animate-spin rounded-full border-2 border-marinho border-t-transparent" />
+            ) : entrou ? (
+              "✓ Bem-vindo, Parceiro!"
             ) : (
               "Entrar"
             )}
           </div>
         </div>
-      </div>
-      <div
-        className={`absolute inset-0 bg-fundo transition-[opacity,transform] duration-500 ease-out ${
-          entrou ? "translate-x-0 opacity-100" : "pointer-events-none translate-x-6 opacity-0"
-        }`}
-      >
-        <TelaSaldo ativa={entrou} />
       </div>
     </>
   );

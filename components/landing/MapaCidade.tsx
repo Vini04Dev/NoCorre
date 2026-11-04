@@ -101,7 +101,7 @@ export function MapaCidade() {
     <section ref={secao} aria-label="Onde o No Corre! roda" className="relative h-[320vh]">
       <div className="sticky top-0 flex h-dvh flex-col overflow-hidden lg:flex-row">
         <div className="relative z-10 flex flex-col gap-3 px-5 pt-24 sm:px-8 lg:w-[42%] lg:justify-center lg:pt-0 lg:pl-[max(2rem,calc((100vw-72rem)/2+2rem))]">
-          <span className="font-mono text-[11px] tracking-[0.18em] text-dourado-claro uppercase">DE ONDE A GENTE VEM</span>
+          <span className="text-xs font-semibold tracking-[0.14em] text-dourado-claro uppercase">DE ONDE A GENTE VEM</span>
           <div className="relative min-h-[150px] sm:min-h-[170px]">
             {ETAPAS.map(({ titulo, texto }, indice) => (
               <div

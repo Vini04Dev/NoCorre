@@ -35,14 +35,20 @@ const PASSOS = [
  * texto que está no meio da tela.
  */
 export function HistoriaApp() {
-  const [ativo, setAtivo] = useState(0);
+  // -1: nenhum passo lido ainda (a seção está abaixo da tela). O celular mostra a
+  // primeira tela parada e só anima quando o primeiro texto chega ao meio.
+  const [ativo, setAtivo] = useState(-1);
+  const exibido = Math.max(ativo, 0);
   const passos = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     const observador = new IntersectionObserver(
       (entradas) => {
         entradas.forEach((entrada) => {
-          if (entrada.isIntersecting) setAtivo(Number((entrada.target as HTMLElement).dataset.indice));
+          const indice = Number((entrada.target as HTMLElement).dataset.indice);
+          if (entrada.isIntersecting) setAtivo(indice);
+          // Rolou de volta para cima do primeiro passo: zera para animar de novo na descida.
+          else if (indice === 0 && entrada.boundingClientRect.top > 0) setAtivo(-1);
         });
       },
       // Só a faixa do meio da tela conta como "lendo agora".
@@ -59,9 +65,9 @@ export function HistoriaApp() {
           {PASSOS.map(({ selo, Tela }, indice) => (
             <div
               key={selo}
-              aria-hidden={indice !== ativo}
+              aria-hidden={indice !== exibido}
               className={`absolute inset-0 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                indice === ativo ? "translate-y-0 opacity-100" : indice < ativo ? "-translate-y-6 opacity-0" : "translate-y-6 opacity-0"
+                indice === exibido ? "translate-y-0 opacity-100" : indice < exibido ? "-translate-y-6 opacity-0" : "translate-y-6 opacity-0"
               }`}
             >
               <Tela ativa={indice === ativo} />
@@ -85,7 +91,7 @@ export function HistoriaApp() {
                 indice === ativo ? "opacity-100" : "opacity-30"
               }`}
             >
-              <span className="font-mono text-[11px] tracking-[0.18em] text-dourado-claro uppercase">{selo}</span>
+              <span className="text-xs font-semibold tracking-[0.14em] text-dourado-claro uppercase">{selo}</span>
               <h3 className="text-3xl font-titulo font-bold tracking-[-0.03em] text-white sm:text-5xl">{titulo}</h3>
               <p className="max-w-md text-base text-cinza-claro sm:text-lg">{texto}</p>
             </div>

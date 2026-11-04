@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Contador } from "./Contador";
 import { DEPOIMENTOS, LINKS_NAVEGACAO, NUMEROS, PERFIS, PERGUNTAS, PLANO_GRATIS, PLANO_PRO } from "./dados";
 import { Frase } from "./Frase";
+import { FundoAnimado } from "./FundoAnimado";
 import { Graficos } from "./Graficos";
 import { Hero } from "./Hero";
 import { HistoriaApp } from "./HistoriaApp";
@@ -31,7 +32,7 @@ function Marca() {
 function Titulo({ selo, titulo, texto }: { selo: string; titulo: string; texto?: string }) {
   return (
     <Revelar className="mx-auto flex max-w-3xl flex-col items-center gap-4 text-center">
-      <span className="font-mono text-[11px] tracking-[0.18em] text-dourado-claro uppercase">{selo}</span>
+      <span className="text-xs font-semibold tracking-[0.14em] text-dourado-claro uppercase">{selo}</span>
       <h2 className="text-4xl font-titulo font-bold tracking-[-0.03em] text-white sm:text-6xl">{titulo}</h2>
       {texto && <p className="max-w-2xl text-base text-cinza-claro sm:text-xl">{texto}</p>}
     </Revelar>
@@ -107,7 +108,7 @@ function Numeros() {
 
 function ComoFunciona() {
   return (
-    <section className="py-28 sm:py-36">
+    <section className="py-16 sm:py-24">
       <div className={`${CONTEUDO} flex flex-col gap-14`}>
         <Titulo selo="COMEÇAR É RÁPIDO" titulo="Três passos. Menos de um minuto." />
         <Passos />
@@ -118,7 +119,7 @@ function ComoFunciona() {
 
 function Depoimentos() {
   return (
-    <section className="py-28 sm:py-36">
+    <section className="py-16 sm:py-24">
       <div className={`${CONTEUDO} flex flex-col gap-14`}>
         <Titulo selo="QUEM JÁ RODA COM A GENTE" titulo="Adeus, caderninho." />
         <ul className="grid gap-5 md:grid-cols-3">
@@ -146,11 +147,11 @@ function Depoimentos() {
 
 function Planos() {
   return (
-    <section id="planos" className="scroll-mt-14 py-28 sm:py-36">
+    <section id="planos" className="scroll-mt-14 py-16 sm:py-24">
       <div className={`${CONTEUDO} flex flex-col gap-14`}>
         <Titulo selo="PLANOS" titulo="Grátis para começar. Grátis para continuar." />
         <div className="mx-auto grid w-full max-w-4xl gap-5 md:grid-cols-2">
-          <Revelar como="esquerda">
+          <Revelar como="esquerda" duracao={1600}>
             <div className="flex h-full flex-col gap-6 rounded-2xl bg-dourado-claro p-8 text-marinho">
               <div className="flex items-start justify-between">
                 <h3 className="text-lg font-bold">Grátis</h3>
@@ -174,7 +175,7 @@ function Planos() {
               </Link>
             </div>
           </Revelar>
-          <Revelar como="direita" atraso={120}>
+          <Revelar como="direita" atraso={250} duracao={1600}>
             <div className="flex h-full flex-col gap-6 rounded-2xl border border-white/10 bg-white/[0.04] p-8 text-white">
               <h3 className="text-lg font-bold">Pro</h3>
               <p className="font-titulo text-5xl font-bold text-cinza">Em breve</p>
@@ -199,7 +200,7 @@ function Planos() {
 
 function Perguntas() {
   return (
-    <section id="perguntas" className="scroll-mt-14 py-28 sm:py-36">
+    <section id="perguntas" className="scroll-mt-14 py-16 sm:py-24">
       <div className={`${CONTEUDO} flex flex-col gap-12`}>
         <Titulo selo="DÚVIDAS" titulo="Perguntas frequentes" />
         <div className="mx-auto flex w-full max-w-3xl flex-col divide-y divide-white/10 border-y border-white/10">
@@ -222,10 +223,16 @@ function Perguntas() {
 
 function ChamadaFinal({ logado }: { logado: boolean }) {
   return (
-    <section id="entrar" className="scroll-mt-14 px-5 pb-24 sm:px-8">
+    <section id="entrar" className="scroll-mt-14 px-5 pb-20 sm:px-8">
       <Revelar como="zoom">
-        <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-6 overflow-hidden rounded-3xl border-t-4 border-dourado-claro bg-marinho px-6 py-20 text-center ring-1 ring-white/10 sm:py-28">
-          <h2 className="relative max-w-3xl text-4xl font-titulo font-bold tracking-[-0.03em] text-white sm:text-6xl">Bora pro corre!</h2>
+        <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-6 overflow-hidden rounded-[36px] bg-[linear-gradient(160deg,#2b2d42,#151622)] px-6 py-20 text-center ring-1 ring-white/10 sm:py-28">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -bottom-40 left-1/2 size-[520px] -translate-x-1/2 rounded-full bg-dourado/30 blur-[120px]"
+          />
+          <h2 className="relative max-w-3xl font-titulo text-4xl font-bold tracking-[-0.03em] text-white sm:text-6xl">
+            Bora pro corre!
+          </h2>
           <p className="relative max-w-xl text-lg text-cinza-claro">
             {logado ? "Sua conta já está aberta neste aparelho." : "Crie sua conta grátis ou entre para continuar de onde parou."}
           </p>
@@ -256,10 +263,10 @@ const EMAIL = "vini0102033@gmail.com";
 
 function CodigoAberto() {
   return (
-    <section id="codigo" className="scroll-mt-14 py-28 sm:py-36">
+    <section id="codigo" className="scroll-mt-14 py-16 sm:py-24">
       <div className={`${CONTEUDO} grid items-center gap-12 lg:grid-cols-2`}>
         <Revelar como="esquerda" className="flex flex-col items-start gap-6">
-          <span className="font-mono text-[11px] tracking-[0.18em] text-dourado-claro uppercase">Código aberto</span>
+          <span className="text-xs font-semibold tracking-[0.14em] text-dourado-claro uppercase">Código aberto</span>
           <h2 className="font-titulo text-4xl font-bold tracking-[-0.03em] text-white sm:text-6xl">
             Open source, à vista de todo mundo.
           </h2>
@@ -329,7 +336,8 @@ function Rodape() {
 export function TelaApresentacao({ logado }: { logado: boolean }) {
   return (
     // overflow-x-clip (e não hidden) segura os itens que entram de lado sem quebrar o sticky.
-    <div className="min-h-dvh overflow-x-clip scroll-smooth bg-[#0d0e16] text-white">
+    <div className="relative isolate min-h-dvh overflow-x-clip scroll-smooth bg-[#0d0e16] text-white">
+      <FundoAnimado />
       <BarraSuperior logado={logado} />
       <main>
         <Hero logado={logado} />
@@ -338,10 +346,10 @@ export function TelaApresentacao({ logado }: { logado: boolean }) {
           texto="Cada entrega, cada corrida, cada real que entra e sai. Tudo no seu bolso, do jeito que o corre flui."
           destaque={["entrega,", "corrida,", "real"]}
         />
-        <section id="historia" className="scroll-mt-14 pb-20">
+        <section id="historia" className="scroll-mt-14">
           <HistoriaApp />
         </section>
-        <section id="relatorios" className="scroll-mt-14 py-28 sm:py-36">
+        <section id="relatorios" className="scroll-mt-14 py-16 sm:py-24">
           <div className={`${CONTEUDO} flex flex-col gap-14`}>
             <Titulo
               selo="RELATÓRIOS"
