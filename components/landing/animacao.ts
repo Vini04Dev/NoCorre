@@ -7,7 +7,11 @@ export function prefereMenosMovimento() {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-/** Vira true na primeira vez que o elemento entra na tela (e fica true). */
+/**
+ * true enquanto o elemento já foi alcançado pela rolagem. Volta a false quando a
+ * pessoa rola de volta para cima e ele sai por baixo da tela: assim as animações
+ * "desfazem" na subida e tocam de novo na descida, como o mapa.
+ */
 export function useVisivel<T extends Element>(margem = "0px 0px -12% 0px") {
   const ref = useRef<T>(null);
   const [visivel, setVisivel] = useState(false);
@@ -17,10 +21,8 @@ export function useVisivel<T extends Element>(margem = "0px 0px -12% 0px") {
     if (!elemento) return;
     const observador = new IntersectionObserver(
       ([entrada]) => {
-        if (entrada.isIntersecting) {
-          setVisivel(true);
-          observador.disconnect();
-        }
+        if (entrada.isIntersecting) setVisivel(true);
+        else if (entrada.boundingClientRect.top > 0) setVisivel(false);
       },
       { rootMargin: margem },
     );

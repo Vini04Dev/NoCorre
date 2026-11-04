@@ -17,7 +17,11 @@ export function Contador({ ate, prefixo = "", sufixo = "", casas = 0, duracao = 
   const [valor, setValor] = useState(0);
 
   useEffect(() => {
-    if (!visivel) return;
+    if (!visivel) {
+      // Saiu por baixo (rolou para cima): volta a zero para contar de novo.
+      const quadro = requestAnimationFrame(() => setValor(0));
+      return () => cancelAnimationFrame(quadro);
+    }
     // Com menos movimento, o primeiro quadro já chega ao valor final.
     const tempo = prefereMenosMovimento() ? 0 : duracao;
     let quadro = 0;

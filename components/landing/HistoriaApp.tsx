@@ -85,8 +85,8 @@ export function HistoriaApp() {
                 indice === ativo ? "opacity-100" : "opacity-30"
               }`}
             >
-              <span className="text-xs font-semibold tracking-[0.2em] text-dourado-claro">{selo}</span>
-              <h3 className="text-3xl font-black tracking-tight text-white sm:text-5xl">{titulo}</h3>
+              <span className="font-mono text-[11px] tracking-[0.18em] text-dourado-claro uppercase">{selo}</span>
+              <h3 className="text-3xl font-titulo font-bold tracking-[-0.03em] text-white sm:text-5xl">{titulo}</h3>
               <p className="max-w-md text-base text-cinza-claro sm:text-lg">{texto}</p>
             </div>
           </div>

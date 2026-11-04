@@ -67,18 +67,18 @@ function Topo({ titulo, subtitulo }: { titulo: string; subtitulo?: string }) {
 }
 
 const LINHAS = [
-  { rotulo: "SALDO", valor: 667.5, cor: "text-positivo" },
-  { rotulo: "RECEBIDOS", valor: 880, cor: "text-recebido" },
-  { rotulo: "PENDENTES", valor: 64, cor: "text-pendente" },
-  { rotulo: "DESPESAS", valor: 212.5, cor: "text-negativo" },
-  { rotulo: "ENTREGAS", valor: 109, cor: "text-positivo", inteiro: true },
+  { rotulo: "SALDO", valor: 187.5, cor: "text-positivo" },
+  { rotulo: "RECEBIDOS", valor: 280, cor: "text-recebido" },
+  { rotulo: "PENDENTES", valor: 35, cor: "text-pendente" },
+  { rotulo: "DESPESAS", valor: 92.5, cor: "text-negativo" },
+  { rotulo: "ENTREGAS", valor: 35, cor: "text-positivo", inteiro: true },
 ];
 
 export function TelaSaldo({ ativa }: PropsTela) {
   const t = suave(useProgresso(ativa, 1500, 500));
   return (
     <>
-      <Topo titulo="SEJA BEM VINDO LUCAS! 🚀" subtitulo="Bora pro corre!?" />
+      <Topo titulo="SEJA BEM VINDO PARCEIRO! 🚀" subtitulo="Bora pro corre!?" />
       <div className="flex flex-col gap-2 px-3.5 py-3.5">
         <p className="text-[8px] font-semibold tracking-[0.5px] text-cinza">MEU SALDO</p>
         <div className="rounded-lg bg-white px-2.5 py-1.5 text-[10px] font-semibold shadow-cartao">Esta semana</div>
@@ -103,8 +103,8 @@ export function TelaLancamento({ ativa }: PropsTela) {
   // Linha do tempo: escolhe o tipo, digita a quantidade, o total sobe e o botão é tocado.
   const t = useProgresso(ativa, 2600, 300);
   const tipoEscolhido = t > 0.12;
-  const quantidade = t < 0.3 ? "" : t < 0.38 ? "1" : "12";
-  const total = quantidade === "12" ? 96 * suave(Math.min((t - 0.38) / 0.3, 1)) : quantidade === "1" ? 8 : 0;
+  const quantidade = t < 0.32 ? "" : "4";
+  const total = quantidade ? 32 * suave(Math.min((t - 0.32) / 0.3, 1)) : 0;
   const tocou = t > 0.85 && t < 0.95;
 
   return (
@@ -162,7 +162,7 @@ export function TelaLancamento({ ativa }: PropsTela) {
 export function TelaMeta({ ativa }: PropsTela) {
   const t = suave(useProgresso(ativa, 1600, 300));
   const volta = 2 * Math.PI * 38;
-  const percentual = 73 * t;
+  const percentual = 70 * t;
   return (
     <>
       <Topo titulo="Metas" />
@@ -185,17 +185,17 @@ export function TelaMeta({ ativa }: PropsTela) {
         </div>
         <p className="text-[12px] font-bold">Meta da semana</p>
         <p className="text-[10px] text-cinza-escuro tabular-nums">
-          {moeda(880 * t)} de R$ 1.200,00
+          {moeda(280 * t)} de R$ 400,00
         </p>
         <div {...entrada(ativa, 6)} className={`w-full rounded-lg bg-white px-3 py-2.5 text-center text-[10px] shadow-cartao ${entrada(ativa, 6).className}`}>
-          Faltam <b>R$ 320</b> em 2 dias
+          Faltam <b>R$ 120</b> em 2 dias
         </div>
         <div
           {...entrada(ativa, 8)}
           className={`flex w-full items-center gap-2 rounded-lg bg-white px-3 py-2.5 text-[10px] shadow-cartao ${entrada(ativa, 8).className}`}
         >
           <span className="size-2 rounded-full bg-dourado" />
-          <span className="flex-1">450 entregas no mês</span>
+          <span className="flex-1">150 entregas no mês</span>
           <b className="tabular-nums">{Math.round(92 * t)}%</b>
         </div>
       </div>
@@ -236,6 +236,73 @@ export function TelaConta({ ativa }: PropsTela) {
         <div {...entrada(ativa, 6)} className={`mt-2 rounded-lg bg-marinho py-2.5 text-center font-bold text-white ${entrada(ativa, 6).className}`}>
           Lançar pagamento
         </div>
+      </div>
+    </>
+  );
+}
+
+const EMAIL = "parceiro@nocorre.app";
+
+/**
+ * Abertura do celular: a tela de Entrar se preenche sozinha (e-mail, senha,
+ * toque no botão) e passa para a Home já logada.
+ */
+export function TelaEntrar({ ativa }: PropsTela) {
+  const t = useProgresso(ativa, 4200, 200);
+  const letras = Math.round(EMAIL.length * Math.min(Math.max((t - 0.05) / 0.32, 0), 1));
+  const pontos = Math.round(8 * Math.min(Math.max((t - 0.42) / 0.16, 0), 1));
+  const focoEmail = t > 0.03 && t < 0.4;
+  const focoSenha = t >= 0.4 && t < 0.62;
+  const tocou = t > 0.64 && t < 0.7;
+  const carregando = t >= 0.7 && t < 0.8;
+  const entrou = t >= 0.8;
+
+  const campo = (foco: boolean) =>
+    `flex h-[34px] items-center gap-2 rounded-lg border bg-white px-2.5 text-[10px] transition-colors ${
+      foco ? "border-dourado" : "border-cinza-claro"
+    }`;
+
+  return (
+    <>
+      <div className="absolute inset-0 flex flex-col bg-[linear-gradient(25deg,var(--color-marinho)_43%,var(--color-cinza)_105%)]">
+        <div className="flex flex-col items-center px-5 pt-14 pb-5 text-cinza-claro">
+          <p className="text-[18px] font-black">No Corre!</p>
+          <p className="text-[9px] font-semibold">De Entregador para Entregador</p>
+        </div>
+        <div className="mt-auto flex flex-col gap-2.5 rounded-t-[18px] bg-painel px-3.5 pt-4 pb-8">
+          <div className="grid grid-cols-2 rounded-lg bg-white p-0.5 text-center text-[10px] font-semibold">
+            <span className="rounded-md bg-marinho py-1.5 text-white">Entrar</span>
+            <span className="py-1.5 text-cinza-escuro">Cadastrar</span>
+          </div>
+          <span className="text-[10px] font-semibold">E-mail</span>
+          <div className={campo(focoEmail)}>
+            <span className="truncate">{EMAIL.slice(0, letras)}</span>
+            {focoEmail && <span className="-ml-1.5 h-3 w-px animate-pulse bg-marinho" />}
+          </div>
+          <span className="text-[10px] font-semibold">Senha</span>
+          <div className={campo(focoSenha)}>
+            <span className="tracking-[2px]">{"•".repeat(pontos)}</span>
+            {focoSenha && <span className="-ml-1.5 h-3 w-px animate-pulse bg-marinho" />}
+          </div>
+          <div
+            className={`mt-2 grid h-9 place-items-center rounded-lg bg-[linear-gradient(90deg,var(--color-dourado-claro),var(--color-dourado))] text-[11px] font-extrabold transition-transform duration-150 ${
+              tocou ? "scale-95" : "scale-100"
+            }`}
+          >
+            {carregando ? (
+              <span className="size-3.5 animate-spin rounded-full border-2 border-marinho border-t-transparent" />
+            ) : (
+              "Entrar"
+            )}
+          </div>
+        </div>
+      </div>
+      <div
+        className={`absolute inset-0 bg-fundo transition-[opacity,transform] duration-500 ease-out ${
+          entrou ? "translate-x-0 opacity-100" : "pointer-events-none translate-x-6 opacity-0"
+        }`}
+      >
+        <TelaSaldo ativa={entrou} />
       </div>
     </>
   );

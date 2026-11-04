@@ -68,7 +68,7 @@ export function Passos() {
             }`}
           >
             <div
-              className={`flex flex-col gap-4 rounded-[28px] border border-white/10 bg-[#171824] p-7 pl-9 shadow-[0_30px_60px_-25px_rgba(0,0,0,0.9)] ${
+              className={`flex flex-col gap-4 rounded-2xl border border-white/10 bg-[#171824] p-7 pl-9 shadow-[0_30px_60px_-25px_rgba(0,0,0,0.9)] ${
                 // A borda esquerda fica por baixo do card anterior: o texto começa depois dela.
                 indice > 0 ? "md:pt-10 md:pl-14" : "md:pt-10 md:pl-7"
               }`}

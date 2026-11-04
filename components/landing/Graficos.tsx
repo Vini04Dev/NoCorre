@@ -8,7 +8,7 @@ const TRANSICAO = "transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.
 
 function Cartao({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`flex min-w-0 flex-col gap-5 rounded-[28px] border border-white/8 bg-white/[0.04] p-6 sm:p-8 ${className}`}>
+    <div className={`flex min-w-0 flex-col gap-5 rounded-2xl border border-white/8 bg-white/[0.04] p-6 sm:p-8 ${className}`}>
       {children}
     </div>
   );
@@ -28,18 +28,12 @@ function Barras() {
   const [ref, visivel] = useVisivel<HTMLDivElement>();
   const maior = Math.max(...RECEITA_SEMANA.map((dia) => dia.valor));
   const total = RECEITA_SEMANA.reduce((soma, dia) => soma + dia.valor, 0);
-  const entregas = RECEITA_SEMANA.reduce((soma, dia) => soma + dia.entregas, 0);
 
   return (
     <Cartao className="lg:col-span-2">
-      <div className="flex items-end justify-between gap-4">
-        <Rotulo titulo="Receita da semana" valor={<Contador ate={total} prefixo="R$ " />} />
-        <span className="pb-1 text-sm text-cinza">
-          <Contador ate={entregas} /> entregas · ~R$ 8 cada
-        </span>
-      </div>
+      <Rotulo titulo="Receita da semana" valor={<Contador ate={total} prefixo="R$ " />} />
       <div ref={ref} className="flex h-56 items-end gap-2 sm:gap-4" role="img" aria-label="Receita por dia da semana">
-        {RECEITA_SEMANA.map(({ dia, valor, entregas: doDia }, indice) => (
+        {RECEITA_SEMANA.map(({ dia, valor }, indice) => (
           <div key={dia} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
             <span
               style={{ transitionDelay: `${indice * 90 + 500}ms` }}
@@ -55,10 +49,7 @@ function Barras() {
                   : "bg-white/20"
               } ${TRANSICAO}`}
             />
-            <span className="flex flex-col items-center text-xs text-cinza">
-              {dia}
-              <span className="text-[10px] text-cinza-escuro">{doDia} ent.</span>
-            </span>
+            <span className="text-xs text-cinza">{dia}</span>
           </div>
         ))}
       </div>
@@ -176,13 +167,13 @@ function Linha() {
 
 function Destaque() {
   return (
-    <Cartao className="justify-between bg-[linear-gradient(140deg,rgba(255,211,106,0.18),rgba(255,255,255,0.03))]">
+    <Cartao className="justify-between border-dourado-claro/30">
       <span className="text-sm text-cinza">Meta de entregas do mês</span>
-      <span className="text-6xl font-black text-dourado-claro sm:text-7xl">
+      <span className="font-titulo text-6xl font-bold text-dourado-claro sm:text-7xl">
         <Contador ate={92} sufixo="%" />
       </span>
       <span className="text-sm text-cinza-claro">
-        <Contador ate={412} /> de 450 entregas. Faltam 38 em 4 dias.
+        <Contador ate={138} /> de 150 entregas. Faltam 12 em 4 dias.
       </span>
     </Cartao>
   );
@@ -199,10 +190,10 @@ export function Graficos() {
       <Cartao className="justify-center gap-3">
         <span className="text-sm text-cinza">Avisos do app</span>
         <p className="text-lg leading-snug font-semibold text-white">
-          Sexta é o seu melhor dia. <span className="text-cinza">Você fatura 56% mais que a média.</span>
+          Sexta é o seu melhor dia. <span className="text-cinza">Você fatura 75% mais que a média.</span>
         </p>
         <p className="text-lg leading-snug font-semibold text-white">
-          Combustível subiu. <span className="text-cinza">R$ 64 a mais que a semana passada.</span>
+          Combustível subiu. <span className="text-cinza">R$ 18 a mais que a semana passada.</span>
         </p>
       </Cartao>
     </div>

@@ -25,6 +25,9 @@
 
   --font-sans: var(--font-poppins);
   --font-inter: var(--font-inter);
+  /* Só existem dentro da landing (app/apresentacao/layout.tsx). */
+  --font-titulo: var(--font-titulo);
+  --font-mono: var(--font-mono-landing), ui-monospace, monospace;
 
   --shadow-cartao: 0px 4px 4px 0px rgba(0, 0, 0, 0.1);
   --shadow-segmento: 0px 4px 4px 0px rgba(0, 0, 0, 0.13);

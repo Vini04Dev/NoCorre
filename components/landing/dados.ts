@@ -18,28 +18,27 @@ export const NUMEROS = [
   { ate: 4.9, prefixo: "", sufixo: "/5", rotulo: "de satisfação", casas: 1 },
 ];
 
-/** Uma semana de entregas, a uns R$ 8 cada (média de R$ 7 a R$ 9 na cidade). */
 export const RECEITA_SEMANA = [
-  { dia: "Seg", entregas: 14, valor: 112 },
-  { dia: "Ter", entregas: 11, valor: 88 },
-  { dia: "Qua", entregas: 16, valor: 128 },
-  { dia: "Qui", entregas: 13, valor: 104 },
-  { dia: "Sex", entregas: 24, valor: 196 },
-  { dia: "Sáb", entregas: 22, valor: 180 },
-  { dia: "Dom", entregas: 9, valor: 72 },
+  { dia: "Seg", valor: 35 },
+  { dia: "Ter", valor: 25 },
+  { dia: "Qua", valor: 40 },
+  { dia: "Qui", valor: 30 },
+  { dia: "Sex", valor: 70 },
+  { dia: "Sáb", valor: 55 },
+  { dia: "Dom", valor: 25 },
 ];
 
 export const CATEGORIAS_DESPESA = [
-  { nome: "Combustível", valor: 412, cor: "#ffd36a" },
-  { nome: "Manutenção", valor: 238, cor: "#4caf00" },
-  { nome: "Alimentação", valor: 164, cor: "#9196a2" },
-  { nome: "Diária Central", valor: 120, cor: "#5b6b9a" },
+  { nome: "Combustível", valor: 180, cor: "#ffd36a" },
+  { nome: "Manutenção", valor: 90, cor: "#4caf00" },
+  { nome: "Alimentação", valor: 70, cor: "#9196a2" },
+  { nome: "Diária Central", valor: 60, cor: "#5b6b9a" },
 ];
 
 /** Saldo acumulado a cada 3 dias do mês. */
-export const SALDO_MES = [140, 380, 560, 820, 760, 1090, 1380, 1620, 2010, 2540];
+export const SALDO_MES = [40, 110, 160, 240, 220, 330, 420, 510, 640, 780];
 
-export const PERFIS = ["Apps de entrega", "Centrais de motoboy", "Mototáxi", "Pizzarias e restaurantes", "Entregas avulsas"];
+export const PERFIS = ["Apps de entrega", "Centrais de motoboy", "Mototáxi", "Pizzarias e demais estabelecimentos", "Entregas avulsas"];
 
 export const PASSOS = [
   { titulo: "Crie sua conta", texto: "Só nome, e-mail e senha. Grátis e sem cartão de crédito." },
