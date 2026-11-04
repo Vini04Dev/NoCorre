@@ -8,34 +8,36 @@ export const LINKS_NAVEGACAO = [
   { href: "#relatorios", rotulo: "Relatórios" },
   { href: "#cidade", rotulo: "Nossa cidade" },
   { href: "#planos", rotulo: "Planos" },
+  { href: "#codigo", rotulo: "GitHub" },
   { href: "#perguntas", rotulo: "Dúvidas" },
 ];
 
 export const NUMEROS = [
   { ate: 1200, prefixo: "+", sufixo: "", rotulo: "lançamentos no teste piloto" },
-  { ate: 38, prefixo: "", sufixo: " entregadores", rotulo: "rodando em Paraíso" },
+  { ate: 20, prefixo: "", sufixo: " entregadores", rotulo: "usando em Paraíso" },
   { ate: 4.9, prefixo: "", sufixo: "/5", rotulo: "de satisfação", casas: 1 },
 ];
 
+/** Uma semana de entregas, a uns R$ 8 cada (média de R$ 7 a R$ 9 na cidade). */
 export const RECEITA_SEMANA = [
-  { dia: "Seg", valor: 186 },
-  { dia: "Ter", valor: 152 },
-  { dia: "Qua", valor: 204 },
-  { dia: "Qui", valor: 178 },
-  { dia: "Sex", valor: 296 },
-  { dia: "Sáb", valor: 268 },
-  { dia: "Dom", valor: 128 },
+  { dia: "Seg", entregas: 14, valor: 112 },
+  { dia: "Ter", entregas: 11, valor: 88 },
+  { dia: "Qua", entregas: 16, valor: 128 },
+  { dia: "Qui", entregas: 13, valor: 104 },
+  { dia: "Sex", entregas: 24, valor: 196 },
+  { dia: "Sáb", entregas: 22, valor: 180 },
+  { dia: "Dom", entregas: 9, valor: 72 },
 ];
 
 export const CATEGORIAS_DESPESA = [
   { nome: "Combustível", valor: 412, cor: "#ffd36a" },
   { nome: "Manutenção", valor: 238, cor: "#4caf00" },
   { nome: "Alimentação", valor: 164, cor: "#9196a2" },
-  { nome: "Taxa da central", valor: 96, cor: "#5b6b9a" },
+  { nome: "Diária Central", valor: 120, cor: "#5b6b9a" },
 ];
 
 /** Saldo acumulado a cada 3 dias do mês. */
-export const SALDO_MES = [120, 310, 420, 640, 590, 860, 1040, 1180, 1390, 1612];
+export const SALDO_MES = [140, 380, 560, 820, 760, 1090, 1380, 1620, 2010, 2540];
 
 export const PERFIS = ["Apps de entrega", "Centrais de motoboy", "Mototáxi", "Pizzarias e restaurantes", "Entregas avulsas"];
 
@@ -88,6 +90,6 @@ export const PERGUNTAS = [
   },
   {
     pergunta: "Serve para quem faz entrega e mototáxi?",
-    resposta: "Serve. Você escolhe o tipo de cada receita: entrega, corrida, diária ou gorjeta, e de qual cliente veio.",
+    resposta: "Serve. Você escolhe o tipo de cada receita: entrega, corrida ou gorjeta, e de qual cliente veio. A diária da central entra como despesa.",
   },
 ];

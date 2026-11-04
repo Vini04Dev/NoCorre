@@ -13,7 +13,7 @@ const PASSOS = [
   {
     selo: "LANÇAMENTO",
     titulo: "Dois toques por entrega.",
-    texto: "Entrega, corrida, diária ou gorjeta. O total aparece enquanto você digita.",
+    texto: "Entrega, corrida ou gorjeta. O total aparece enquanto você digita.",
     Tela: TelaLancamento,
   },
   {
@@ -64,7 +64,7 @@ export function HistoriaApp() {
                 indice === ativo ? "translate-y-0 opacity-100" : indice < ativo ? "-translate-y-6 opacity-0" : "translate-y-6 opacity-0"
               }`}
             >
-              <Tela />
+              <Tela ativa={indice === ativo} />
             </div>
           ))}
         </MockupCelular>

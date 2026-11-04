@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { suave, trecho, useProgressoRolagem } from "./animacao";
+import { LogoAnimada } from "./LogoAnimada";
 import { MockupCelular, TelaSaldo } from "./MockupCelular";
 
 type Props = { logado: boolean };
@@ -16,10 +17,16 @@ export function Hero({ logado }: Props) {
   const texto = useRef<HTMLDivElement>(null);
   const celular = useRef<HTMLDivElement>(null);
   const [entrou, setEntrou] = useState(false);
+  const [telaAtiva, setTelaAtiva] = useState(false);
 
   useEffect(() => {
     const quadro = requestAnimationFrame(() => setEntrou(true));
-    return () => cancelAnimationFrame(quadro);
+    // Os números do celular só começam a subir quando ele já apareceu.
+    const espera = setTimeout(() => setTelaAtiva(true), 1700);
+    return () => {
+      cancelAnimationFrame(quadro);
+      clearTimeout(espera);
+    };
   }, []);
 
   useProgressoRolagem(secao, (p) => {
@@ -32,7 +39,8 @@ export function Hero({ logado }: Props) {
   });
 
   const entrada = (atraso: number) => ({
-    style: { transitionDelay: `${atraso}ms` },
+    // As entradas esperam a logo se montar.
+    style: { transitionDelay: `${atraso + 900}ms` },
     className: `transition-[opacity,transform] duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
       entrou ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
     }`,
@@ -40,12 +48,13 @@ export function Hero({ logado }: Props) {
 
   return (
     <section ref={secao} className="relative h-[180vh]">
-      <div className="sticky top-0 flex h-dvh flex-col items-center overflow-hidden pt-28 sm:pt-32">
+      <div className="sticky top-0 flex h-dvh flex-col items-center overflow-hidden pt-20 sm:pt-24">
         <div
           aria-hidden
           className="pointer-events-none absolute top-[35%] left-1/2 size-[700px] -translate-x-1/2 rounded-full bg-dourado/20 blur-[140px]"
         />
         <div ref={texto} className="relative z-10 flex flex-col items-center gap-5 px-5 text-center">
+          <LogoAnimada montada={entrou} />
           <span {...entrada(0)}>
             <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-cinza-claro">
               De entregador para entregador<span className="hidden sm:inline"> · São Sebastião do Paraíso</span>
@@ -75,7 +84,7 @@ export function Hero({ logado }: Props) {
         <div ref={celular} className="relative mt-10 origin-top will-change-transform" style={{ transform: "translateY(38%) scale(0.9)" }}>
           <div {...entrada(500)}>
             <MockupCelular>
-              <TelaSaldo />
+              <TelaSaldo ativa={telaAtiva} />
             </MockupCelular>
           </div>
         </div>

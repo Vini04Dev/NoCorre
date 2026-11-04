@@ -1,12 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Contador } from "./Contador";
-import { DEPOIMENTOS, LINKS_NAVEGACAO, NUMEROS, PASSOS, PERFIS, PERGUNTAS, PLANO_GRATIS, PLANO_PRO } from "./dados";
+import { DEPOIMENTOS, LINKS_NAVEGACAO, NUMEROS, PERFIS, PERGUNTAS, PLANO_GRATIS, PLANO_PRO } from "./dados";
 import { Frase } from "./Frase";
 import { Graficos } from "./Graficos";
 import { Hero } from "./Hero";
 import { HistoriaApp } from "./HistoriaApp";
 import { MapaCidade } from "./MapaCidade";
+import { Passos } from "./Passos";
 import { Revelar } from "./Revelar";
 
 const CONTEUDO = "mx-auto w-full max-w-6xl px-5 sm:px-8";
@@ -108,17 +109,7 @@ function ComoFunciona() {
     <section className="py-28 sm:py-36">
       <div className={`${CONTEUDO} flex flex-col gap-14`}>
         <Titulo selo="COMEÇAR É RÁPIDO" titulo="Três passos. Menos de um minuto." />
-        <ol className="grid gap-5 md:grid-cols-3">
-          {PASSOS.map(({ titulo, texto }, indice) => (
-            <Revelar key={titulo} atraso={indice * 150}>
-              <li className="flex h-full flex-col gap-4 rounded-[28px] border border-white/8 bg-white/[0.04] p-7">
-                <span className="text-5xl font-black text-dourado-claro/90">{indice + 1}</span>
-                <h3 className="text-xl font-bold text-white">{titulo}</h3>
-                <p className="text-sm text-cinza-claro">{texto}</p>
-              </li>
-            </Revelar>
-          ))}
-        </ol>
+        <Passos />
       </div>
     </section>
   );
@@ -237,7 +228,7 @@ function ChamadaFinal({ logado }: { logado: boolean }) {
             aria-hidden
             className="pointer-events-none absolute -bottom-40 left-1/2 size-[520px] -translate-x-1/2 rounded-full bg-dourado/30 blur-[120px]"
           />
-          <h2 className="relative max-w-3xl text-4xl font-black tracking-tight text-white sm:text-6xl">Bora pro corre organizado?</h2>
+          <h2 className="relative max-w-3xl text-4xl font-black tracking-tight text-white sm:text-6xl">Bora pro corre</h2>
           <p className="relative max-w-xl text-lg text-cinza-claro">
             {logado ? "Sua conta já está aberta neste aparelho." : "Crie sua conta grátis ou entre para continuar de onde parou."}
           </p>
@@ -263,12 +254,68 @@ function ChamadaFinal({ logado }: { logado: boolean }) {
   );
 }
 
+const REPOSITORIO = "https://github.com/Vini04Dev/NoCorre";
+const EMAIL = "vini0102033@gmail.com";
+
+function CodigoAberto() {
+  return (
+    <section id="codigo" className="scroll-mt-14 py-28 sm:py-36">
+      <Revelar className={`${CONTEUDO} flex flex-col items-center gap-6 text-center`}>
+        <span className="text-xs font-semibold tracking-[0.2em] text-dourado-claro">CÓDIGO ABERTO</span>
+        <h2 className="max-w-3xl text-4xl font-black tracking-tight text-white sm:text-6xl">Open source, à vista de todo mundo.</h2>
+        <p className="max-w-2xl text-lg text-cinza-claro">
+          O código do No Corre! é aberto e está no GitHub. Qualquer pessoa pode ver como o app é feito.
+        </p>
+        <a href={REPOSITORIO} target="_blank" rel="noreferrer" className={BOTAO_SECUNDARIO}>
+          Ver no GitHub ↗
+        </a>
+      </Revelar>
+    </section>
+  );
+}
+
 function Rodape() {
   return (
     <footer className="border-t border-white/8">
-      <div className={`${CONTEUDO} flex flex-col items-center gap-4 py-10 text-sm text-cinza sm:flex-row sm:justify-between`}>
-        <Marca />
-        <p>© {new Date().getFullYear()} No Corre! · Feito em São Sebastião do Paraíso, MG.</p>
+      <div className={`${CONTEUDO} grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1.2fr]`}>
+        <div className="flex flex-col gap-3">
+          <Marca />
+          <p className="max-w-xs text-sm text-cinza">
+            Controle de entregas e receita para motoboys e entregadores. Nascido em São Sebastião do Paraíso, MG.
+          </p>
+        </div>
+        <nav aria-label="Produto" className="flex flex-col gap-3 text-sm">
+          <span className="font-semibold text-white">Produto</span>
+          {LINKS_NAVEGACAO.map(({ href, rotulo }) => (
+            <a key={href} href={href} className="text-cinza transition hover:text-white">
+              {rotulo}
+            </a>
+          ))}
+        </nav>
+        <nav aria-label="Acesso" className="flex flex-col gap-3 text-sm">
+          <span className="font-semibold text-white">Acesso</span>
+          <Link href="/entrar" className="text-cinza transition hover:text-white">
+            Entrar
+          </Link>
+          <Link href="/cadastrar" className="text-cinza transition hover:text-white">
+            Criar conta
+          </Link>
+          <a href={REPOSITORIO} target="_blank" rel="noreferrer" className="text-cinza transition hover:text-white">
+            GitHub
+          </a>
+        </nav>
+        <div className="flex flex-col gap-3 text-sm">
+          <span className="font-semibold text-white">Contato</span>
+          <a href={`mailto:${EMAIL}`} className="break-all text-cinza transition hover:text-white">
+            {EMAIL}
+          </a>
+          <span className="text-cinza">São Sebastião do Paraíso, MG</span>
+        </div>
+      </div>
+      <div className="border-t border-white/8">
+        <p className={`${CONTEUDO} py-6 text-center text-xs text-cinza sm:text-left`}>
+          © {new Date().getFullYear()} No Corre!. Todos os direitos reservados.
+        </p>
       </div>
     </footer>
   );
@@ -284,7 +331,7 @@ export function TelaApresentacao({ logado }: { logado: boolean }) {
         <Hero logado={logado} />
         <Numeros />
         <Frase
-          texto="Cada entrega, cada corrida, cada real que entra e sai. Tudo no seu bolso, do jeito que o corre pede."
+          texto="Cada entrega, cada corrida, cada real que entra e sai. Tudo no seu bolso, do jeito que o corre flui."
           destaque={["entrega,", "corrida,", "real"]}
         />
         <section id="historia" className="scroll-mt-14 pb-20">
@@ -306,6 +353,7 @@ export function TelaApresentacao({ logado }: { logado: boolean }) {
         <ComoFunciona />
         <Depoimentos />
         <Planos />
+        <CodigoAberto />
         <Perguntas />
         <ChamadaFinal logado={logado} />
       </main>

@@ -28,18 +28,24 @@ function Barras() {
   const [ref, visivel] = useVisivel<HTMLDivElement>();
   const maior = Math.max(...RECEITA_SEMANA.map((dia) => dia.valor));
   const total = RECEITA_SEMANA.reduce((soma, dia) => soma + dia.valor, 0);
+  const entregas = RECEITA_SEMANA.reduce((soma, dia) => soma + dia.entregas, 0);
 
   return (
     <Cartao className="lg:col-span-2">
-      <Rotulo titulo="Receita da semana" valor={<Contador ate={total} prefixo="R$ " />} />
+      <div className="flex items-end justify-between gap-4">
+        <Rotulo titulo="Receita da semana" valor={<Contador ate={total} prefixo="R$ " />} />
+        <span className="pb-1 text-sm text-cinza">
+          <Contador ate={entregas} /> entregas · ~R$ 8 cada
+        </span>
+      </div>
       <div ref={ref} className="flex h-56 items-end gap-2 sm:gap-4" role="img" aria-label="Receita por dia da semana">
-        {RECEITA_SEMANA.map(({ dia, valor }, indice) => (
+        {RECEITA_SEMANA.map(({ dia, valor, entregas: doDia }, indice) => (
           <div key={dia} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
             <span
               style={{ transitionDelay: `${indice * 90 + 500}ms` }}
               className={`text-[11px] font-semibold text-cinza-claro ${TRANSICAO} ${visivel ? "opacity-100" : "opacity-0"}`}
             >
-              {valor}
+              R$ {valor}
             </span>
             <div
               style={{ height: visivel ? `${(valor / maior) * 100}%` : "0%", transitionDelay: `${indice * 90}ms` }}
@@ -49,7 +55,10 @@ function Barras() {
                   : "bg-white/20"
               } ${TRANSICAO}`}
             />
-            <span className="text-xs text-cinza">{dia}</span>
+            <span className="flex flex-col items-center text-xs text-cinza">
+              {dia}
+              <span className="text-[10px] text-cinza-escuro">{doDia} ent.</span>
+            </span>
           </div>
         ))}
       </div>
@@ -173,7 +182,7 @@ function Destaque() {
         <Contador ate={92} sufixo="%" />
       </span>
       <span className="text-sm text-cinza-claro">
-        <Contador ate={138} /> de 150 entregas. Faltam 12 em 4 dias.
+        <Contador ate={412} /> de 450 entregas. Faltam 38 em 4 dias.
       </span>
     </Cartao>
   );
@@ -190,7 +199,7 @@ export function Graficos() {
       <Cartao className="justify-center gap-3">
         <span className="text-sm text-cinza">Avisos do app</span>
         <p className="text-lg leading-snug font-semibold text-white">
-          Sexta é o seu melhor dia. <span className="text-cinza">Você fatura 31% mais que a média.</span>
+          Sexta é o seu melhor dia. <span className="text-cinza">Você fatura 56% mais que a média.</span>
         </p>
         <p className="text-lg leading-snug font-semibold text-white">
           Combustível subiu. <span className="text-cinza">R$ 64 a mais que a semana passada.</span>

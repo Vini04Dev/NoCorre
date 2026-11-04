@@ -64,7 +64,7 @@ export function PainelLancamento({ aoFechar }: { aoFechar: () => void }) {
           icone="/icones/seta-receita.svg"
           fundo="bg-positivo/12"
           titulo="Receita"
-          descricao="Entrega, corrida, diária, gorjeta"
+          descricao="Entrega, corrida, gorjeta"
         />
       </button>
       <Link href="/novo/despesa" onClick={aoFechar} className={CLASSE_OPCAO}>
