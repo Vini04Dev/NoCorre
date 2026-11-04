@@ -44,11 +44,11 @@ export async function atualizarSessao(request: NextRequest) {
   const logado = Boolean(data?.claims);
   const caminho = request.nextUrl.pathname;
 
-  // Visitante em "/" vê a landing page no mesmo endereço; logado, "/" continua sendo a Home.
+  // Visitante em "/" vai para a landing; logado, "/" é a Home. Redirecionamento (e não
+  // rewrite): com o mesmo endereço servindo duas páginas, o cache de rotas do Next se
+  // confundia e a navegação para Entrar/Cadastrar ficava carregando.
   if (!logado && caminho === "/") {
-    const reescrita = NextResponse.rewrite(new URL("/apresentacao", request.url), { request });
-    resposta.cookies.getAll().forEach((cookie) => reescrita.cookies.set(cookie));
-    return reescrita;
+    return redirecionar(request, resposta, "/apresentacao");
   }
   if (!logado && !ehRotaPublica(caminho)) {
     return redirecionar(request, resposta, "/entrar");

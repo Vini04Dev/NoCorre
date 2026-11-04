@@ -4,53 +4,40 @@
  */
 
 export const LINKS_NAVEGACAO = [
-  { href: "#recursos", rotulo: "Recursos" },
-  { href: "#como-funciona", rotulo: "Como funciona" },
-  { href: "#depoimentos", rotulo: "Depoimentos" },
+  { href: "#historia", rotulo: "Como funciona" },
+  { href: "#relatorios", rotulo: "Relatórios" },
+  { href: "#cidade", rotulo: "Nossa cidade" },
   { href: "#planos", rotulo: "Planos" },
   { href: "#perguntas", rotulo: "Dúvidas" },
 ];
 
 export const NUMEROS = [
-  { valor: "+1.200", rotulo: "entregadores usando" },
-  { valor: "R$ 2,4 mi", rotulo: "em receitas registradas" },
-  { valor: "4,9/5", rotulo: "de satisfação" },
+  { ate: 1200, prefixo: "+", sufixo: "", rotulo: "lançamentos no teste piloto" },
+  { ate: 38, prefixo: "", sufixo: " entregadores", rotulo: "rodando em Paraíso" },
+  { ate: 4.9, prefixo: "", sufixo: "/5", rotulo: "de satisfação", casas: 1 },
 ];
+
+export const RECEITA_SEMANA = [
+  { dia: "Seg", valor: 186 },
+  { dia: "Ter", valor: 152 },
+  { dia: "Qua", valor: 204 },
+  { dia: "Qui", valor: 178 },
+  { dia: "Sex", valor: 296 },
+  { dia: "Sáb", valor: 268 },
+  { dia: "Dom", valor: 128 },
+];
+
+export const CATEGORIAS_DESPESA = [
+  { nome: "Combustível", valor: 412, cor: "#ffd36a" },
+  { nome: "Manutenção", valor: 238, cor: "#4caf00" },
+  { nome: "Alimentação", valor: 164, cor: "#9196a2" },
+  { nome: "Taxa da central", valor: 96, cor: "#5b6b9a" },
+];
+
+/** Saldo acumulado a cada 3 dias do mês. */
+export const SALDO_MES = [120, 310, 420, 640, 590, 860, 1040, 1180, 1390, 1612];
 
 export const PERFIS = ["Apps de entrega", "Centrais de motoboy", "Mototáxi", "Pizzarias e restaurantes", "Entregas avulsas"];
-
-export const RECURSOS = [
-  {
-    icone: "/icones/carteira.svg",
-    titulo: "Saldo na palma da mão",
-    texto: "Veja quanto entrou, o que ainda falta receber e quanto saiu no dia, na semana ou no mês.",
-  },
-  {
-    icone: "/icones/receita.svg",
-    titulo: "Lançamento em segundos",
-    texto: "Entrega, corrida, diária ou gorjeta: dois toques e o total aparece enquanto você digita.",
-  },
-  {
-    icone: "/icones/metas.svg",
-    titulo: "Metas com progresso",
-    texto: "Defina quanto quer faturar ou quantas entregas quer fazer e acompanhe o círculo encher.",
-  },
-  {
-    icone: "/icones/despesa.svg",
-    titulo: "Contas do mês sob controle",
-    texto: "Cadastre o financiamento, a água e a luz. Cada pagamento abate da conta certa.",
-  },
-  {
-    icone: "/icones/relatorios.svg",
-    titulo: "Relatórios que ensinam",
-    texto: "Descubra o dia que mais rende, onde mais trabalha e para onde vai o seu dinheiro.",
-  },
-  {
-    icone: "/icones/cadastro.svg",
-    titulo: "Clientes organizados",
-    texto: "Apps, centrais, estabelecimentos ou pessoas: cada receita sabe de onde veio.",
-  },
-];
 
 export const PASSOS = [
   { titulo: "Crie sua conta", texto: "Só nome, e-mail e senha. Grátis e sem cartão de crédito." },
