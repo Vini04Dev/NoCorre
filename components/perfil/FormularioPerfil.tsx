@@ -9,7 +9,7 @@ import { CampoTexto } from "@/components/ui/CampoTexto";
 import { SeletorChips } from "@/components/ui/SeletorChips";
 import { SeletorFoto } from "@/components/ui/SeletorFoto";
 import { useSalvarPerfil, type Perfil } from "@/hooks/usePerfil";
-import { formatarPlaca, formatarTelefone } from "@/lib/formatar";
+import { formatarTelefone } from "@/lib/formatar";
 
 /** Os mesmos valores do check da coluna tipo_sanguineo. */
 const TIPOS_SANGUINEOS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map((valor) => ({
@@ -17,9 +17,7 @@ const TIPOS_SANGUINEOS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map(
   rotulo: valor,
 }));
 
-const ANO_MINIMO = 1950;
-
-/** Dados pessoais e do veículo. E-mail e senha ficam em "Senha e segurança". */
+/** Dados pessoais. Veículo fica em "Meu veículo"; e-mail e senha, em "Senha e segurança". */
 export function FormularioPerfil({ perfil }: { perfil: Perfil }) {
   const router = useRouter();
   const salvar = useSalvarPerfil();
@@ -27,20 +25,13 @@ export function FormularioPerfil({ perfil }: { perfil: Perfil }) {
   const [nome, setNome] = useState(perfil.nome);
   const [telefone, setTelefone] = useState(perfil.telefone ?? "");
   const [tipoSanguineo, setTipoSanguineo] = useState<string | null>(perfil.tipo_sanguineo);
-  const [veiculo, setVeiculo] = useState(perfil.veiculo ?? "");
-  const [ano, setAno] = useState(perfil.ano_veiculo ? String(perfil.ano_veiculo) : "");
-  const [placa, setPlaca] = useState(perfil.placa ?? "");
   const [novaFoto, setNovaFoto] = useState<File | null>();
-  const [erros, setErros] = useState<{ nome?: string; ano?: string }>({});
+  const [erros, setErros] = useState<{ nome?: string }>({});
 
   function enviar(evento: React.FormEvent) {
     evento.preventDefault();
-    const anoNumero = ano ? Number(ano) : null;
     const novosErros: typeof erros = {};
     if (!nome.trim()) novosErros.nome = "Informe seu nome.";
-    if (anoNumero !== null && (anoNumero < ANO_MINIMO || anoNumero > new Date().getFullYear() + 1)) {
-      novosErros.ano = "Ano inválido.";
-    }
     setErros(novosErros);
     if (Object.keys(novosErros).length > 0) return;
 
@@ -51,9 +42,6 @@ export function FormularioPerfil({ perfil }: { perfil: Perfil }) {
           nome: nome.trim(),
           telefone: telefone.trim() || null,
           tipo_sanguineo: tipoSanguineo,
-          veiculo: veiculo.trim() || null,
-          ano_veiculo: anoNumero,
-          placa: placa || null,
         },
         fotoAtual: perfil.foto,
         novaFoto,
@@ -101,37 +89,6 @@ export function FormularioPerfil({ perfil }: { perfil: Perfil }) {
           aoMudar={setTipoSanguineo}
           desmarcavel
         />
-
-        <h2 id="veiculo" className="mt-2 text-[11px] font-semibold tracking-[0.66px] text-cinza">
-          MEU VEÍCULO
-        </h2>
-        <CampoTexto
-          rotulo="Modelo"
-          opcional
-          value={veiculo}
-          onChange={(e) => setVeiculo(e.target.value)}
-          maxLength={60}
-          placeholder="Ex.: Honda CG 160"
-        />
-        <div className="grid grid-cols-2 gap-2.5">
-          <CampoTexto
-            rotulo="Ano"
-            opcional
-            inputMode="numeric"
-            value={ano}
-            onChange={(e) => setAno(e.target.value.replace(/\D/g, "").slice(0, 4))}
-            placeholder="2022"
-            erro={erros.ano}
-          />
-          <CampoTexto
-            rotulo="Placa"
-            opcional
-            value={placa}
-            onChange={(e) => setPlaca(formatarPlaca(e.target.value))}
-            autoCapitalize="characters"
-            placeholder="ABC-1D23"
-          />
-        </div>
       </div>
 
       <div className="sticky bottom-0 mt-auto bg-fundo px-5 pt-2.5 pb-[calc(env(safe-area-inset-bottom)+26px)]">
