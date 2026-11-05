@@ -60,6 +60,7 @@ ficam em `auth.users`).
 | `ano_veiculo`    | `smallint`    | opcional, `check` entre 1950 e 2100                 |
 | `placa`          | `varchar(10)` | opcional                                            |
 | `foto`           | `text`        | opcional, caminho no bucket `fotos-perfil`          |
+| `admin`          | `boolean`     | not null, default `false`; não editável pelo app    |
 | `created_at`     | `timestamptz` | default `now()`                                     |
 
 Criada automaticamente pelo trigger `ao_criar_usuario` quando alguém se
@@ -213,6 +214,28 @@ encerram quando batem o alvo ou quando o período termina; limite de despesa só
 no fim do período; conta a pagar quando é quitada (enquanto não for, continua
 ativa, e passa a "em atraso" depois do fim do período).
 
+## Administração
+
+`perfis.admin = true` libera o painel `/admin` do app. A coluna só é ligada
+direto no banco, pelo dono do projeto:
+
+```sql
+update public.perfis set admin = true
+where id = (select id from auth.users where email = 'email-da-conta');
+```
+
+As métricas vêm da função `public.metricas_admin()` (security definer,
+`search_path` vazio, execução só para `authenticated`). Ela recusa quem não
+tem `admin = true` e devolve um `jsonb` só com contagens e datas: usuários
+(total, confirmados, novos e que acessaram em 7 e 30 dias), quantos lançaram
+na semana, total de registros por tabela, cadastros e lançamentos por dia nos
+últimos 30 dias, tamanho do banco e das fotos, e nome e datas dos últimos 10
+cadastros. Nenhum valor em dinheiro nem lançamento de outra pessoa sai dela,
+e o app não precisa da Secret key.
+
+Número de requisições à API não está no banco (só na Management API do
+Supabase, que exige token de acesso à conta) e por isso ficou de fora.
+
 ## Segurança (RLS)
 
 Todas as tabelas têm RLS ligada e quatro políticas (select, insert, update,
@@ -224,7 +247,10 @@ with check ((select auth.uid()) = usuario_id)
 ```
 
 Em `perfis` a comparação é com `id`, e não há política de insert nem de
-delete: a linha é criada pelo trigger e removida junto com o usuário.
+delete: a linha é criada pelo trigger e removida junto com o usuário. O
+`update` vale só para as colunas que o app edita (`nome`, `telefone`,
+`tipo_sanguineo`, `veiculo`, `ano_veiculo`, `placa`, `foto`), por
+permissão de coluna: assim ninguém liga o próprio `admin`.
 
 O `(select auth.uid())` entre parênteses é recomendação do Supabase: o Postgres
 calcula o valor uma vez por consulta, e não uma vez por linha.

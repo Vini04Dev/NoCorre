@@ -206,6 +206,7 @@ export type Database = {
       }
       perfis: {
         Row: {
+          admin: boolean
           ano_veiculo: number | null
           created_at: string
           foto: string | null
@@ -217,6 +218,7 @@ export type Database = {
           veiculo: string | null
         }
         Insert: {
+          admin?: boolean
           ano_veiculo?: number | null
           created_at?: string
           foto?: string | null
@@ -228,6 +230,7 @@ export type Database = {
           veiculo?: string | null
         }
         Update: {
+          admin?: boolean
           ano_veiculo?: number | null
           created_at?: string
           foto?: string | null
@@ -303,6 +306,7 @@ export type Database = {
     }
     Functions: {
       excluir_minha_conta: { Args: never; Returns: undefined }
+      metricas_admin: { Args: never; Returns: Json }
     }
     Enums: {
       cor_evento: "amarelo" | "verde" | "vermelho" | "azul" | "roxo" | "cinza"

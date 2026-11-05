@@ -102,8 +102,9 @@ export function TelaPerfil() {
   const veiculo = [perfil.veiculo, perfil.ano_veiculo].filter(Boolean).join(" · ");
 
   return (
-    <main className="flex flex-col gap-4 px-[17px] pt-[calc(env(safe-area-inset-top)+12px)] pb-4">
-      <h1 className="text-[22px] font-extrabold">Perfil</h1>
+    <main className="flex flex-col gap-4 px-[17px] pt-[calc(env(safe-area-inset-top)+12px)] pb-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8 lg:px-0 lg:pt-2">
+      <h1 className="text-[22px] font-extrabold lg:col-span-2 lg:text-3xl">Perfil</h1>
+      <div className="flex flex-col gap-4">
 
       <section className="flex flex-col gap-2.5 rounded-[14px] bg-marinho px-[18px] py-3.5 text-white">
         <div className="flex items-center gap-3.5">
@@ -150,6 +151,8 @@ export function TelaPerfil() {
         <MetasEmAndamento />
       </Secao>
 
+      </div>
+      <div className="flex flex-col gap-4">
       <Secao titulo="MEU VEÍCULO">
         <Link
           href="/perfil/veiculo"
@@ -175,6 +178,7 @@ export function TelaPerfil() {
           <ItemConfiguracao href="/perfil/editar" icone="/icones/perfil-dados.svg" rotulo="Dados pessoais" />
           <ItemConfiguracao href="/perfil/sobre" icone="/icones/perfil-sobre.svg" rotulo="Sobre o No Corre!" />
           <ItemConfiguracao href="/perfil/seguranca" icone="/icones/perfil-seguranca.svg" rotulo="Senha e segurança" />
+          {perfil.admin && <ItemConfiguracao href="/admin" icone="/icones/relatorios.svg" rotulo="Painel do sistema" />}
           <li>
             <form action={sair} onSubmit={limparEstadoDasTelas}>
               <button type="submit" className={CLASSE_ITEM}>
@@ -187,6 +191,7 @@ export function TelaPerfil() {
           </li>
         </ul>
       </Secao>
+      </div>
     </main>
   );
 }

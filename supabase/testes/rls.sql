@@ -148,6 +148,29 @@ begin
   if not ok then raise exception 'FALHA 10: anon leu clientes'; end if;
   log := log || '10 anon sem acesso; ';
 
+  -- módulo admin: ninguém se promove pelo app e só ADM lê as métricas
+  reset role;
+  perform set_config('request.jwt.claims', json_build_object('sub', ana, 'role', 'authenticated')::text, true);
+  set local role authenticated;
+  ok := false;
+  begin
+    update public.perfis set admin = true where id = ana;
+  exception when insufficient_privilege then ok := true;
+  end;
+  if not ok then raise exception 'FALHA 13a: usuária se promoveu a admin'; end if;
+  update public.perfis set telefone = '35999990000' where id = ana;
+  ok := false;
+  begin
+    perform public.metricas_admin();
+  exception when insufficient_privilege then ok := true;
+  end;
+  if not ok then raise exception 'FALHA 13b: métricas sem ser admin'; end if;
+  reset role;
+  update public.perfis set admin = true where id = ana;
+  set local role authenticated;
+  if (public.metricas_admin() -> 'usuarios' ->> 'total')::int < 2 then raise exception 'FALHA 13c'; end if;
+  log := log || '13 admin ok; ';
+
   -- exclusão da conta apaga tudo em cascata
   reset role;
   delete from auth.users where id = ana;
