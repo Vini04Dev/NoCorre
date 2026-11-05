@@ -19,7 +19,7 @@ export function TelaCategorias() {
   const [painel, setPainel] = useState<Painel>(null);
 
   return (
-    <main className="flex flex-col gap-3 px-5 pt-[calc(env(safe-area-inset-top)+12px)]">
+    <main className="flex flex-col gap-3 px-5 pt-[calc(env(safe-area-inset-top)+12px)] lg:max-w-3xl lg:px-0 lg:pt-2">
       <TopoCadastro abaAtiva="/cadastro/categorias" novo={{ aoClicar: () => setPainel("nova") }} />
       {isError && <p className="text-center text-[13px] text-negativo">{error.message}</p>}
 

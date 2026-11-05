@@ -148,6 +148,22 @@ begin
   if not ok then raise exception 'FALHA 10: anon leu clientes'; end if;
   log := log || '10 anon sem acesso; ';
 
+  -- módulo admin: métricas só para o service_role, nunca para usuário logado
+  reset role;
+  perform set_config('request.jwt.claims', json_build_object('sub', ana, 'role', 'authenticated')::text, true);
+  set local role authenticated;
+  ok := false;
+  begin
+    perform public.metricas_admin();
+  exception when insufficient_privilege then ok := true;
+  end;
+  if not ok then raise exception 'FALHA 15a: usuário logado leu as métricas'; end if;
+  reset role;
+  set local role service_role;
+  if (public.metricas_admin() -> 'usuarios' ->> 'total')::int < 2 then raise exception 'FALHA 15b'; end if;
+  reset role;
+  log := log || '15 metricas_admin restrita ok; ';
+
   -- exclusão da conta apaga tudo em cascata
   reset role;
   delete from auth.users where id = ana;

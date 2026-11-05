@@ -213,6 +213,29 @@ encerram quando batem o alvo ou quando o período termina; limite de despesa só
 no fim do período; conta a pagar quando é quitada (enquanto não for, continua
 ativa, e passa a "em atraso" depois do fim do período).
 
+## Administração
+
+O painel `/admin` do app abre só para o e-mail definido em `ADMIN_EMAIL`,
+variável do servidor (em `.env.local` e na Vercel, nunca no Git). Trocar o
+ADM é só mudar a variável; o banco não guarda quem é ADM. Aceita mais de um
+e-mail, separado por vírgula.
+
+As métricas vêm da função `public.metricas_admin()` (security definer,
+`search_path` vazio). Como o banco não sabe quem é ADM, a execução é
+liberada **só para o `service_role`**: nenhum usuário logado consegue
+chamá-la pela API. O app chama com a Secret key (`SUPABASE_SECRET_KEY`), que
+fica apenas no servidor (`lib/supabase/admin.ts`, protegido por
+`import "server-only"`), depois de conferir o e-mail da sessão.
+
+Ela devolve um `jsonb` só com contagens e datas: usuários (total,
+confirmados, novos e que acessaram em 7 e 30 dias), quantos lançaram na
+semana, total de registros por tabela, cadastros e lançamentos por dia nos
+últimos 30 dias, tamanho do banco e das fotos, e nome e datas dos últimos 10
+cadastros. Nenhum valor em dinheiro nem lançamento de outra pessoa sai dela.
+
+Número de requisições à API não está no banco (só na Management API do
+Supabase, que exige token de acesso à conta) e por isso ficou de fora.
+
 ## Segurança (RLS)
 
 Todas as tabelas têm RLS ligada e quatro políticas (select, insert, update,
