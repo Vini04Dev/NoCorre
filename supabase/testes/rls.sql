@@ -157,12 +157,12 @@ begin
     perform public.metricas_admin();
   exception when insufficient_privilege then ok := true;
   end;
-  if not ok then raise exception 'FALHA 13a: usuário logado leu as métricas'; end if;
+  if not ok then raise exception 'FALHA 15a: usuário logado leu as métricas'; end if;
   reset role;
   set local role service_role;
-  if (public.metricas_admin() -> 'usuarios' ->> 'total')::int < 2 then raise exception 'FALHA 13b'; end if;
+  if (public.metricas_admin() -> 'usuarios' ->> 'total')::int < 2 then raise exception 'FALHA 15b'; end if;
   reset role;
-  log := log || '13 metricas_admin restrita ok; ';
+  log := log || '15 metricas_admin restrita ok; ';
 
   -- exclusão da conta apaga tudo em cascata
   reset role;
