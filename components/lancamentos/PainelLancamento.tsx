@@ -64,7 +64,7 @@ export function PainelLancamento({ aoFechar }: { aoFechar: () => void }) {
           icone="/icones/seta-receita.svg"
           fundo="bg-positivo/12"
           titulo="Receita"
-          descricao="Entrega, corrida, diária, gorjeta"
+          descricao="Entrega, corrida, gorjeta"
         />
       </button>
       <Link href="/novo/despesa" onClick={aoFechar} className={CLASSE_OPCAO}>
@@ -72,7 +72,7 @@ export function PainelLancamento({ aoFechar }: { aoFechar: () => void }) {
           icone="/icones/seta-despesa.svg"
           fundo="bg-negativo/12"
           titulo="Despesa"
-          descricao="Combustível, peças, alimentação, taxa da central"
+          descricao="Combustível, peças, alimentação, diária da central"
         />
       </Link>
       <p className="text-center text-[11px] text-cinza-escuro">

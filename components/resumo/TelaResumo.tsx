@@ -6,6 +6,7 @@ import { CartaoSaldo } from "./CartaoSaldo";
 import { ListaMovimentacoes } from "./ListaMovimentacoes";
 import { PainelFiltros } from "./PainelFiltros";
 import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
+import { useEstadoDaTela } from "@/hooks/useEstadoDaTela";
 import { useMovimentacoes, usePendentes } from "@/hooks/useMovimentacoes";
 import {
   FILTROS_VAZIOS,
@@ -27,11 +28,15 @@ const RAPIDOS: { valor: FiltroRapido; rotulo: string }[] = [
 
 /** Extrato: saldo do período, filtros rápidos, painel de filtros e lista de movimentações. */
 export function TelaResumo({ dia }: { dia?: string }) {
-  const [periodo, setPeriodo] = useState<FiltroPeriodo>(
-    dia ? { tipo: "personalizado", de: dia, ate: dia } : { tipo: "semana" },
+  // Vindo do calendário da Home (?dia=), vale o dia clicado e o período salvo fica intacto.
+  const [periodoSalvo, setPeriodoSalvo] = useEstadoDaTela<FiltroPeriodo>("resumo:periodo", { tipo: "semana" });
+  const [periodoDoDia, setPeriodoDoDia] = useState<FiltroPeriodo | null>(
+    dia ? { tipo: "personalizado", de: dia, ate: dia } : null,
   );
-  const [rapido, setRapido] = useState<FiltroRapido>("todos");
-  const [filtros, setFiltros] = useState<Filtros>(FILTROS_VAZIOS);
+  const periodo = periodoDoDia ?? periodoSalvo;
+  const setPeriodo = dia ? setPeriodoDoDia : setPeriodoSalvo;
+  const [rapido, setRapido] = useEstadoDaTela<FiltroRapido>("resumo:rapido", "todos");
+  const [filtros, setFiltros] = useEstadoDaTela<Filtros>("resumo:filtros", FILTROS_VAZIOS);
   const [painelAberto, setPainelAberto] = useState(false);
 
   const movimentacoes = useMovimentacoes(periodo);
@@ -52,9 +57,10 @@ export function TelaResumo({ dia }: { dia?: string }) {
   const filtrosAtivos = quantidadeFiltrosAtivos(filtros);
 
   return (
-    <main className="flex flex-col gap-3.5 px-[17px] pt-[calc(env(safe-area-inset-top)+12px)]">
+    <main className="flex flex-col gap-3.5 px-[17px] pt-[calc(env(safe-area-inset-top)+12px)] lg:grid lg:grid-cols-[380px_minmax(0,1fr)] lg:items-start lg:gap-8 lg:px-0 lg:pt-2">
+      <div className="flex flex-col gap-3.5 lg:sticky lg:top-6">
       <header className="flex items-center justify-between">
-        <h1 className="text-[22px] font-extrabold">Resumo</h1>
+        <h1 className="text-[22px] font-extrabold lg:text-3xl">Resumo</h1>
         <button
           type="button"
           onClick={() => setPainelAberto(true)}
@@ -73,7 +79,7 @@ export function TelaResumo({ dia }: { dia?: string }) {
       <SeletorPeriodoAmplo valor={periodo} aoMudar={setPeriodo} />
       <CartaoSaldo nomePeriodo={nomeDoPeriodo(periodo)} totais={totais} />
 
-      <div role="radiogroup" aria-label="Mostrar" className="-mx-[17px] flex gap-2 overflow-x-auto px-[17px]">
+      <div role="radiogroup" aria-label="Mostrar" className="-mx-[17px] flex gap-2 overflow-x-auto px-[17px] lg:mx-0 lg:flex-wrap lg:px-0">
         {RAPIDOS.map(({ valor, rotulo }) => {
           const ativo = valor === rapido;
           return (
@@ -93,6 +99,9 @@ export function TelaResumo({ dia }: { dia?: string }) {
         })}
       </div>
 
+      </div>
+
+      <div className="flex flex-col gap-3.5 lg:pt-1">
       <div className="flex items-center justify-between text-[11px] font-semibold tracking-[0.66px]">
         <h2 className="text-cinza">{rapido === "pendentes" ? "A RECEBER" : "MOVIMENTAÇÕES"}</h2>
         {rapido === "pendentes" && pendentes.data && (
@@ -113,6 +122,7 @@ export function TelaResumo({ dia }: { dia?: string }) {
         </p>
       )}
       {lista.length > 0 && <ListaMovimentacoes movimentacoes={lista} />}
+      </div>
 
       {painelAberto && (
         <PainelFiltros filtros={filtros} aoAplicar={setFiltros} aoFechar={() => setPainelAberto(false)} />

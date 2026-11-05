@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { cadastrar, entrar, type EstadoAcesso } from "@/app/(auth)/acoes";
 import { Botao } from "@/components/ui/Botao";
+import { useLimparDadosLocais } from "@/hooks/useLimparDadosLocais";
 import { AguardandoConfirmacao } from "./AguardandoConfirmacao";
 import { CampoAcesso } from "./CampoAcesso";
 
@@ -18,9 +19,11 @@ export function FormularioAcesso({ modo, erroInicial }: Props) {
   const cadastro = modo === "cadastrar";
   // A senha fica só na memória desta aba, para entrar sozinho assim que o email for confirmado.
   const [senha, setSenha] = useState("");
+  const limparDadosLocais = useLimparDadosLocais();
   const [estado, acao, enviando] = useActionState<EstadoAcesso, FormData>(
     (anterior, dados) => {
       setSenha(String(dados.get("senha") ?? ""));
+      limparDadosLocais();
       return (cadastro ? cadastrar : entrar)(anterior, dados);
     },
     { erro: erroInicial },

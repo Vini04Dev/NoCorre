@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
 import { Calendario } from "./Calendario";
 import { LinhaValor } from "@/components/ui/LinhaValor";
 import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
+import { useEstadoDaTela } from "@/hooks/useEstadoDaTela";
 import { useMovimentacoes } from "@/hooks/useMovimentacoes";
 import { formatarMoeda } from "@/lib/formatar";
 import { intervaloDoPeriodo, type FiltroPeriodo } from "@/lib/periodo";
@@ -17,8 +17,8 @@ type Visao = "lista" | "calendario";
  * troca as linhas de totais pelo calendário com receita e despesa de cada dia.
  */
 export function ResumoPeriodo() {
-  const [periodo, setPeriodo] = useState<FiltroPeriodo>({ tipo: "semana" });
-  const [visao, setVisao] = useState<Visao>("lista");
+  const [periodo, setPeriodo] = useEstadoDaTela<FiltroPeriodo>("home:periodo", { tipo: "semana" });
+  const [visao, setVisao] = useEstadoDaTela<Visao>("home:visao", "lista");
   const { data, isError } = useMovimentacoes(periodo);
   const totais = calcularTotais(data?.receitas ?? [], data?.despesas ?? []);
   // Enquanto carrega, mostra "–" em vez de um R$ 0,00 que pareceria verdadeiro.

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { sair } from "@/app/(auth)/acoes";
 import { useClientes } from "@/hooks/useClientes";
+import { limparEstadoDasTelas } from "@/hooks/useEstadoDaTela";
 import { CirculoProgresso } from "@/components/metas/CirculoProgresso";
 import { Secao } from "@/components/ui/Secao";
 import { useMetas } from "@/hooks/useMetas";
@@ -77,7 +78,8 @@ function MetasEmAndamento() {
   );
 }
 
-export function TelaPerfil() {
+/** `admin` vem do servidor (ADMIN_EMAIL) e só mostra o atalho para o painel do sistema. */
+export function TelaPerfil({ admin = false }: { admin?: boolean }) {
   const { data: perfil, isPending, isError, error } = usePerfil();
   const { data: estatisticas } = useEstatisticasPerfil();
   const { data: clientes } = useClientes();
@@ -101,8 +103,9 @@ export function TelaPerfil() {
   const veiculo = [perfil.veiculo, perfil.ano_veiculo].filter(Boolean).join(" · ");
 
   return (
-    <main className="flex flex-col gap-4 px-[17px] pt-[calc(env(safe-area-inset-top)+12px)] pb-4">
-      <h1 className="text-[22px] font-extrabold">Perfil</h1>
+    <main className="flex flex-col gap-4 px-[17px] pt-[calc(env(safe-area-inset-top)+12px)] pb-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8 lg:px-0 lg:pt-2">
+      <h1 className="text-[22px] font-extrabold lg:col-span-2 lg:text-3xl">Perfil</h1>
+      <div className="flex flex-col gap-4">
 
       <section className="flex flex-col gap-2.5 rounded-[14px] bg-marinho px-[18px] py-3.5 text-white">
         <div className="flex items-center gap-3.5">
@@ -149,9 +152,11 @@ export function TelaPerfil() {
         <MetasEmAndamento />
       </Secao>
 
+      </div>
+      <div className="flex flex-col gap-4">
       <Secao titulo="MEU VEÍCULO">
         <Link
-          href="/perfil/editar#veiculo"
+          href="/perfil/veiculo"
           className="flex items-center gap-3 rounded-[12px] border border-cinza-claro bg-white px-3.5 py-2"
         >
           <span className="grid size-10 shrink-0 place-items-center rounded-full bg-dourado-claro">
@@ -174,8 +179,9 @@ export function TelaPerfil() {
           <ItemConfiguracao href="/perfil/editar" icone="/icones/perfil-dados.svg" rotulo="Dados pessoais" />
           <ItemConfiguracao href="/perfil/sobre" icone="/icones/perfil-sobre.svg" rotulo="Sobre o No Corre!" />
           <ItemConfiguracao href="/perfil/seguranca" icone="/icones/perfil-seguranca.svg" rotulo="Senha e segurança" />
+          {admin && <ItemConfiguracao href="/admin" icone="/icones/relatorios.svg" rotulo="Painel do sistema" />}
           <li>
-            <form action={sair}>
+            <form action={sair} onSubmit={limparEstadoDasTelas}>
               <button type="submit" className={CLASSE_ITEM}>
                 <span className={`${CLASSE_ICONE} bg-cinza-claro`}>
                   <Image src="/icones/perfil-sair.svg" alt="" width={16} height={16} />
@@ -186,6 +192,7 @@ export function TelaPerfil() {
           </li>
         </ul>
       </Secao>
+      </div>
     </main>
   );
 }

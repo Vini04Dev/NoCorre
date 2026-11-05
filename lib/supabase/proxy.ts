@@ -44,7 +44,13 @@ export async function atualizarSessao(request: NextRequest) {
   const logado = Boolean(data?.claims);
   const caminho = request.nextUrl.pathname;
 
-  if (!logado && !ehRotaPublica(caminho)) {
+  // A landing morava em /apresentacao; agora é "/" (app/(app)/page.tsx escolhe entre
+  // landing e Home). Links antigos continuam funcionando.
+  if (caminho === "/apresentacao") {
+    return redirecionar(request, resposta, "/");
+  }
+  // "/" é aberta para visitantes: mostra a landing.
+  if (!logado && caminho !== "/" && !ehRotaPublica(caminho)) {
     return redirecionar(request, resposta, "/entrar");
   }
   if (logado && (caminho === "/entrar" || caminho === "/cadastrar")) {

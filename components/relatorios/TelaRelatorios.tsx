@@ -10,6 +10,7 @@ import { Botao } from "@/components/ui/Botao";
 import { PainelInferior } from "@/components/ui/PainelInferior";
 import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
 import { useClientes } from "@/hooks/useClientes";
+import { useEstadoDaTela } from "@/hooks/useEstadoDaTela";
 import { usePendentes, useRelatorio } from "@/hooks/useMovimentacoes";
 import type { FiltroPeriodo } from "@/lib/periodo";
 import { gerarAvisos, porCategoria, rankingClientes, receitaPorDia } from "@/lib/relatorio";
@@ -19,8 +20,8 @@ import { gerarAvisos, porCategoria, rankingClientes, receitaPorDia } from "@/lib
  * despesas por categoria, onde mais trabalho e avisos. Filtros por período e cliente.
  */
 export function TelaRelatorios() {
-  const [periodo, setPeriodo] = useState<FiltroPeriodo>({ tipo: "semana" });
-  const [clienteId, setClienteId] = useState("");
+  const [periodo, setPeriodo] = useEstadoDaTela<FiltroPeriodo>("relatorios:periodo", { tipo: "semana" });
+  const [clienteId, setClienteId] = useEstadoDaTela("relatorios:cliente", "");
   const [painelAberto, setPainelAberto] = useState(false);
   const { data: clientes } = useClientes();
   const relatorio = useRelatorio(periodo);
@@ -41,9 +42,9 @@ export function TelaRelatorios() {
     : [];
 
   return (
-    <main className="flex flex-col gap-[18px] px-[17px] pt-[calc(env(safe-area-inset-top)+12px)] pb-4">
+    <main className="flex flex-col gap-[18px] px-[17px] pt-[calc(env(safe-area-inset-top)+12px)] pb-4 lg:px-0 lg:pt-2">
       <header className="flex items-center justify-between">
-        <h1 className="text-[22px] font-extrabold">Relatórios</h1>
+        <h1 className="text-[22px] font-extrabold lg:text-3xl">Relatórios</h1>
         <button
           type="button"
           onClick={() => setPainelAberto(true)}
@@ -55,7 +56,9 @@ export function TelaRelatorios() {
         </button>
       </header>
 
-      <SeletorPeriodoAmplo valor={periodo} aoMudar={setPeriodo} />
+      <div className="lg:max-w-sm">
+        <SeletorPeriodoAmplo valor={periodo} aoMudar={setPeriodo} />
+      </div>
 
       {nomeCliente && (
         <p className="-mt-2 flex items-center justify-between rounded-[10px] bg-dourado-claro/40 px-3 py-2 text-xs">
@@ -75,6 +78,7 @@ export function TelaRelatorios() {
         <>
           <GraficoBarras barras={receitaPorDia(receitas, dados.inicio, dados.fim)} />
 
+          <div className="flex flex-col gap-[18px] lg:grid lg:grid-cols-2 lg:items-start lg:gap-8">
           <section className="flex flex-col gap-2.5">
             <div className="flex items-center justify-between text-[11px] font-semibold">
               <h2 className="tracking-[0.66px] text-cinza">POR CATEGORIA</h2>
@@ -100,6 +104,7 @@ export function TelaRelatorios() {
 
           <RankingClientes total={ranking.total} posicoes={ranking.posicoes} />
           <ListaAvisos avisos={avisos} />
+          </div>
         </>
       )}
 
