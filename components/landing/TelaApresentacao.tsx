@@ -356,7 +356,7 @@ export function TelaApresentacao({ logado }: { logado: boolean }) {
       <FundoAnimado />
       <BarraSuperior logado={logado} />
       <main>
-        <Hero logado={logado} />
+        <Hero />
         <Numeros />
         <Frase
           texto="Cada entrega, cada corrida, cada real que entra e sai. Tudo no seu bolso, do jeito que o corre flui."

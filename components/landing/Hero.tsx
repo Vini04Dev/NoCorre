@@ -1,21 +1,27 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { trecho } from "./animacao";
 import { MockupCelular, TelaEntrar } from "./MockupCelular";
 
-type Props = { logado: boolean };
-
 /** Quanto o celular desce a cada pixel rolado: perto de 1, ele quase fica parado na tela. */
 const AFUNDA = 0.8;
 
+/** Folga entre o pé do celular e a borda da tela quando ele está inteiro à vista. */
+const FOLGA = 16;
+
 /**
- * Abertura. Título e celular entram ao carregar e o celular faz o login sozinho.
- * Ao rolar, o celular desce junto e some atrás da linha que fecha a seção; o
- * login recomeça se a pessoa volta ao topo.
+ * Abertura, sem botões: a pessoa rola para conhecer o app. Título e celular
+ * entram ao carregar e o celular faz o login sozinho. Ao rolar, o celular desce
+ * junto e some atrás da linha que fecha a seção; o login recomeça se a pessoa
+ * volta ao topo.
+ *
+ * No celular o texto empurra o aparelho para baixo e ele começa cortado. Por isso
+ * ele primeiro sobe com a página até aparecer inteiro e só então começa a afundar.
+ * O espaço extra embaixo (pb-[45svh]) dá uma boa faixa de rolagem com o celular
+ * inteiro na tela antes de a linha da seção alcançá-lo.
  */
-export function Hero({ logado }: Props) {
+export function Hero() {
   const secao = useRef<HTMLElement>(null);
   const texto = useRef<HTMLDivElement>(null);
   const celular = useRef<HTMLDivElement>(null);
@@ -29,6 +35,7 @@ export function Hero({ logado }: Props) {
 
   useEffect(() => {
     let quadro = 0;
+    let deslocamento = 0;
     function medir() {
       quadro = 0;
       const caixa = secao.current?.getBoundingClientRect();
@@ -38,12 +45,17 @@ export function Hero({ logado }: Props) {
         texto.current.style.opacity = String(1 - trecho(rolado, 60, 480));
         texto.current.style.transform = `translateY(${rolado * 0.3}px)`;
       }
-      celular.current.style.transform = `translateY(${rolado * AFUNDA}px)`;
-      // Toca enquanto mais da metade do celular está à vista (na tela estreita ele
-      // nunca cabe inteiro junto com o texto).
+      // Onde o pé do celular estaria sem rolagem e sem o deslocamento aplicado.
+      const antes = celular.current.getBoundingClientRect();
+      const peEmRepouso = antes.bottom + rolado - deslocamento;
+      // Rolagem necessária para ele caber inteiro (zero no computador, onde já cabe).
+      const ateCaber = Math.max(peEmRepouso - (window.innerHeight - FOLGA), 0);
+      deslocamento = Math.max(rolado - ateCaber, 0) * AFUNDA;
+      celular.current.style.transform = `translateY(${deslocamento}px)`;
+      // Toca com o celular (quase) inteiro à vista, para o login não passar pela metade.
       const tela = celular.current.getBoundingClientRect();
       const aVista = Math.min(tela.bottom, caixa.bottom, window.innerHeight) - Math.max(tela.top, 0);
-      setTelaAtiva(aVista > tela.height * 0.55);
+      setTelaAtiva(aVista > tela.height * 0.9);
     }
     function agendar() {
       if (!quadro) quadro = requestAnimationFrame(medir);
@@ -69,7 +81,7 @@ export function Hero({ logado }: Props) {
 
   return (
     <section ref={secao} className="relative overflow-hidden border-b border-white/10">
-      <div className="mx-auto grid min-h-dvh w-full max-w-6xl items-center gap-12 px-5 pt-28 pb-16 sm:px-8 lg:grid-cols-[1.15fr_1fr] lg:pt-20 lg:pb-0">
+      <div className="mx-auto grid min-h-dvh w-full max-w-6xl items-center gap-12 px-5 pt-28 pb-[45svh] sm:px-8 lg:grid-cols-[1.15fr_1fr] lg:pt-20 lg:pb-0">
         <div
           ref={texto}
           className="relative z-10 flex flex-col items-center gap-5 text-center will-change-transform lg:items-start lg:text-left"
@@ -88,20 +100,6 @@ export function Hero({ logado }: Props) {
           <p {...entrada(240, "max-w-xl text-base text-cinza-claro sm:text-xl")}>
             Entregas, corridas, despesas e metas num app feito para quem vive em cima da moto.
           </p>
-          <div {...entrada(360, "flex flex-col gap-3 sm:flex-row")}>
-            <Link
-              href={logado ? "/" : "/cadastrar"}
-              className="rounded-lg bg-dourado-claro px-6 py-3 text-sm font-bold text-marinho transition hover:bg-[#ffdd85]"
-            >
-              {logado ? "Abrir o app" : "Começar grátis"}
-            </Link>
-            <a
-              href="#historia"
-              className="rounded-lg px-6 py-3 text-sm font-semibold text-white underline-offset-4 transition hover:underline"
-            >
-              Ver como funciona ›
-            </a>
-          </div>
         </div>
         <div ref={celular} className="relative will-change-transform">
           <div {...entrada(500)}>
