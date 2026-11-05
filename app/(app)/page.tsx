@@ -1,12 +1,41 @@
+import type { Metadata } from "next";
 import { AvisoPrimeiroUso } from "@/components/home/AvisoPrimeiroUso";
 import { CabecalhoHome } from "@/components/home/CabecalhoHome";
 import { CartaoModulo } from "@/components/home/CartaoModulo";
 import { ResumoPeriodo } from "@/components/home/ResumoPeriodo";
+import { classeFontesLanding } from "@/components/landing/fontes";
+import { TelaApresentacao } from "@/components/landing/TelaApresentacao";
 import { Secao } from "@/components/ui/Secao";
 import { ehAdmin } from "@/lib/admin-servidor";
+import { estaLogado } from "@/lib/sessao";
 import { criarClienteServidor } from "@/lib/supabase/servidor";
 
-export default async function Home() {
+const METADADOS_LANDING: Metadata = {
+  title: "No Corre! | Controle financeiro para entregadores",
+  description: "Entregas, corridas, despesas e metas num app feito para entregadores de São Sebastião do Paraíso.",
+};
+
+export async function generateMetadata(): Promise<Metadata> {
+  return (await estaLogado()) ? {} : METADADOS_LANDING;
+}
+
+/**
+ * "/" serve duas telas: a landing para visitantes e a Home para quem está logado.
+ * A escolha é feita aqui no servidor, e não com rewrite no proxy: com rewrite o
+ * cache de rotas do Next se confundia e Entrar/Cadastrar ficavam carregando.
+ */
+export default async function Pagina() {
+  if (!(await estaLogado())) {
+    return (
+      <div className={classeFontesLanding}>
+        <TelaApresentacao logado={false} />
+      </div>
+    );
+  }
+  return <Home />;
+}
+
+async function Home() {
   // A RLS de perfis só devolve a linha do próprio usuário, então não precisa de filtro.
   const supabase = await criarClienteServidor();
   const { data: perfil } = await supabase.from("perfis").select("nome").maybeSingle();
