@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { sair } from "@/app/(auth)/acoes";
 import { useClientes } from "@/hooks/useClientes";
+import { limparEstadoDasTelas } from "@/hooks/useEstadoDaTela";
 import { CirculoProgresso } from "@/components/metas/CirculoProgresso";
 import { Secao } from "@/components/ui/Secao";
 import { useMetas } from "@/hooks/useMetas";
@@ -175,7 +176,7 @@ export function TelaPerfil() {
           <ItemConfiguracao href="/perfil/sobre" icone="/icones/perfil-sobre.svg" rotulo="Sobre o No Corre!" />
           <ItemConfiguracao href="/perfil/seguranca" icone="/icones/perfil-seguranca.svg" rotulo="Senha e segurança" />
           <li>
-            <form action={sair}>
+            <form action={sair} onSubmit={limparEstadoDasTelas}>
               <button type="submit" className={CLASSE_ITEM}>
                 <span className={`${CLASSE_ICONE} bg-cinza-claro`}>
                   <Image src="/icones/perfil-sair.svg" alt="" width={16} height={16} />
