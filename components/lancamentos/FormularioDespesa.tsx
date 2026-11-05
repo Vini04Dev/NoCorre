@@ -8,7 +8,8 @@ import { CamposValor, validarValores, valoresIniciais, type Valores } from "./Ca
 import { AvisoErro } from "@/components/ui/AvisoErro";
 import { Botao } from "@/components/ui/Botao";
 import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
-import { CampoTexto } from "@/components/ui/CampoTexto";
+import { CampoSugestoes } from "@/components/ui/CampoSugestoes";
+import { useDescricoesDespesa } from "@/hooks/useDescricoesDespesa";
 import { useSalvarDespesa } from "@/hooks/useLancamentos";
 import { useContasEmAberto } from "@/hooks/useMetas";
 import type { Despesa } from "@/hooks/useMovimentacoes";
@@ -30,6 +31,7 @@ export function FormularioDespesa({ despesa, contaInicial }: Props) {
   const router = useRouter();
   const salvar = useSalvarDespesa();
   const { data: contas } = useContasEmAberto();
+  const { data: descricoesUsadas } = useDescricoesDespesa();
   const destino = despesa ? `/resumo/despesa/${despesa.id}` : contaInicial ? `/metas/${contaInicial}` : "/";
 
   const [descricao, setDescricao] = useState(despesa?.observacao ?? "");
@@ -78,11 +80,12 @@ export function FormularioDespesa({ despesa, contaInicial }: Props) {
         />
         <AvisoErro mensagem={salvar.error?.message} />
         <CampoConta valor={contaId} aoMudar={setContaId} despesa={despesa} erro={erros.conta} />
-        <CampoTexto
+        <CampoSugestoes
           rotulo="Descrição"
           opcional
-          value={descricao}
-          onChange={(evento) => setDescricao(evento.target.value)}
+          valor={descricao}
+          aoMudar={setDescricao}
+          opcoes={descricoesUsadas ?? []}
           placeholder={conta ? conta.nome : "Ex.: Gasolina"}
         />
         {!conta && <CampoCategoria tipo="despesa" valor={categoria} aoMudar={setCategoria} erro={erros.categoria} />}
