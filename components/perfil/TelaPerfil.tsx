@@ -152,7 +152,7 @@ export function TelaPerfil() {
 
       <Secao titulo="MEU VEÍCULO">
         <Link
-          href="/perfil/editar#veiculo"
+          href="/perfil/veiculo"
           className="flex items-center gap-3 rounded-[12px] border border-cinza-claro bg-white px-3.5 py-2"
         >
           <span className="grid size-10 shrink-0 place-items-center rounded-full bg-dourado-claro">
