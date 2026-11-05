@@ -26,7 +26,7 @@ export function TelaMetas() {
   if (aba === "encerradas") lista.reverse();
 
   return (
-    <main className="flex flex-col gap-3.5 px-[17px] pt-[calc(env(safe-area-inset-top)+12px)] pb-4">
+    <main className="flex flex-col gap-3.5 px-[17px] pt-[calc(env(safe-area-inset-top)+12px)] pb-4 lg:px-0 lg:pt-2">
       <CabecalhoTela
         titulo="Metas"
         voltarPara="/"
@@ -42,7 +42,7 @@ export function TelaMetas() {
         }
       />
 
-      <div role="tablist" className="flex rounded-[10px] bg-cinza-fundo p-1">
+      <div role="tablist" className="flex rounded-[10px] bg-cinza-fundo p-1 lg:max-w-sm">
         {ABAS.map(({ valor, rotulo }) => (
           <button
             key={valor}
@@ -77,7 +77,7 @@ export function TelaMetas() {
         </div>
       )}
 
-      <ul className="flex flex-col gap-3">
+      <ul className="flex flex-col gap-3 lg:grid lg:grid-cols-2 lg:gap-4 xl:grid-cols-3">
         {lista.map((meta) => (
           <li key={meta.id}>
             <CartaoMeta meta={meta} />

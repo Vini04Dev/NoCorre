@@ -52,7 +52,7 @@ export function BarraNavegacao() {
   return (
     <nav
       aria-label="Navegação principal"
-      className="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-[430px] border-t border-black/8 bg-white pb-[env(safe-area-inset-bottom)] shadow-navegacao"
+      className="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-[430px] border-t lg:hidden border-black/8 bg-white pb-[env(safe-area-inset-bottom)] shadow-navegacao"
     >
       <div className="grid h-14 grid-cols-5">
         {itensEsquerda.map((item) => (

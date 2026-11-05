@@ -8,7 +8,7 @@ const ABAS = [
 /** Alternância entre Entrar e Cadastrar no topo do painel. */
 export function AbasAcesso({ ativa }: { ativa: "/entrar" | "/cadastrar" }) {
   return (
-    <nav className="grid grid-cols-2 rounded-[10px] bg-white/90">
+    <nav className="grid grid-cols-2 rounded-[10px] bg-white/90 lg:ring-1 lg:ring-black/8">
       {ABAS.map(({ href, rotulo }) => {
         const atual = href === ativa;
         return (

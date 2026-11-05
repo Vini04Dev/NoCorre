@@ -14,7 +14,7 @@ export default async function Home() {
   return (
     <>
       <CabecalhoHome nome={primeiroNome} />
-      <main className="flex flex-col gap-7 px-[17px] pt-6">
+      <main className="flex flex-col gap-7 px-[17px] pt-6 lg:grid lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:items-start lg:gap-8 lg:px-0 lg:pt-8">
         <Secao titulo="MEU SALDO">
           <ResumoPeriodo />
         </Secao>
