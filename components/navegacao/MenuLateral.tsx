@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { PainelLancamento } from "@/components/lancamentos/PainelLancamento";
-import { usePerfil } from "@/hooks/usePerfil";
 
 type Item = { href: string; rotulo: string; icone: string; iconeAtivo?: string };
 
@@ -61,11 +60,11 @@ function Grupo({ titulo, itens, pathname }: { titulo?: string; itens: Item[]; pa
 /**
  * Navegação do computador: menu fixo à esquerda no lugar da barra inferior do
  * celular. O botão (+) vira "Novo lançamento" e abre o mesmo painel.
+ * `admin` vem do layout (servidor), que confere ADMIN_EMAIL.
  */
-export function MenuLateral() {
+export function MenuLateral({ admin = false }: { admin?: boolean }) {
   const pathname = usePathname();
   const [painelAberto, setPainelAberto] = useState(false);
-  const { data: perfil } = usePerfil();
 
   return (
     <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 flex-col border-r border-black/8 bg-white px-4 py-6 lg:flex">
@@ -94,7 +93,7 @@ export function MenuLateral() {
       <nav aria-label="Navegação principal" className="mt-5 flex flex-1 flex-col overflow-y-auto">
         <Grupo itens={PRINCIPAIS} pathname={pathname} />
         <Grupo titulo="MÓDULOS" itens={MODULOS} pathname={pathname} />
-        {perfil?.admin && (
+        {admin && (
           <Grupo
             titulo="ADMINISTRAÇÃO"
             itens={[{ href: "/admin", rotulo: "Painel do sistema", icone: "/icones/relatorios.svg" }]}

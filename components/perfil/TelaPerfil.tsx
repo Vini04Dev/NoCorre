@@ -78,7 +78,8 @@ function MetasEmAndamento() {
   );
 }
 
-export function TelaPerfil() {
+/** `admin` vem do servidor (ADMIN_EMAIL) e só mostra o atalho para o painel do sistema. */
+export function TelaPerfil({ admin = false }: { admin?: boolean }) {
   const { data: perfil, isPending, isError, error } = usePerfil();
   const { data: estatisticas } = useEstatisticasPerfil();
   const { data: clientes } = useClientes();
@@ -178,7 +179,7 @@ export function TelaPerfil() {
           <ItemConfiguracao href="/perfil/editar" icone="/icones/perfil-dados.svg" rotulo="Dados pessoais" />
           <ItemConfiguracao href="/perfil/sobre" icone="/icones/perfil-sobre.svg" rotulo="Sobre o No Corre!" />
           <ItemConfiguracao href="/perfil/seguranca" icone="/icones/perfil-seguranca.svg" rotulo="Senha e segurança" />
-          {perfil.admin && <ItemConfiguracao href="/admin" icone="/icones/relatorios.svg" rotulo="Painel do sistema" />}
+          {admin && <ItemConfiguracao href="/admin" icone="/icones/relatorios.svg" rotulo="Painel do sistema" />}
           <li>
             <form action={sair} onSubmit={limparEstadoDasTelas}>
               <button type="submit" className={CLASSE_ITEM}>

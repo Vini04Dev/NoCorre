@@ -1,22 +1,11 @@
--- Módulo de administração: marca de ADM no perfil e métricas gerais do sistema.
+-- Módulo de administração: métricas gerais do sistema.
+--
+-- Quem é ADM não fica no banco: o app compara o e-mail da sessão com a variável
+-- ADMIN_EMAIL do servidor (fora do Git), então trocar o ADM é só mudar a
+-- variável. Por isso a função não pode ser chamada por usuários comuns: só o
+-- papel service_role (Secret key, usada apenas no servidor do app) executa.
 
--- 1. Quem é ADM. Só se liga direto no banco (SQL Editor ou CLI), nunca pelo app.
-alter table public.perfis
-  add column admin boolean not null default false;
-
-comment on column public.perfis.admin is 'Libera o painel de administração. Não é editável pelo app.';
-
--- 2. Até aqui o usuário podia dar update em qualquer coluna da própria linha.
---    Com a coluna admin, isso deixaria qualquer pessoa se promover. A permissão
---    de update passa a valer só para as colunas que o app edita.
-revoke update on public.perfis from authenticated;
-grant update (nome, telefone, tipo_sanguineo, veiculo, ano_veiculo, placa, foto)
-  on public.perfis to authenticated;
-
--- 3. Métricas do sistema.
---    Roda como dona (security definer) para contar linhas de todos, mas só
---    responde a quem tem admin = true. Devolve apenas contagens e datas: nenhum
---    valor em dinheiro e nenhum lançamento de ninguém.
+-- Devolve só contagens e datas: nenhum valor em dinheiro e nenhum lançamento de ninguém.
 create function public.metricas_admin()
 returns jsonb
 language plpgsql
@@ -29,10 +18,6 @@ declare
   hoje date := (now() at time zone fuso)::date;
   resultado jsonb;
 begin
-  if not coalesce((select p.admin from public.perfis p where p.id = auth.uid()), false) then
-    raise exception 'Acesso restrito à administração' using errcode = '42501';
-  end if;
-
   select jsonb_build_object(
     'gerado_em', now(),
     'usuarios', (
@@ -102,5 +87,6 @@ begin
 end;
 $$;
 
-revoke all on function public.metricas_admin() from public, anon;
-grant execute on function public.metricas_admin() to authenticated;
+-- Funções novas nascem executáveis por todos; aqui só o service_role chama.
+revoke all on function public.metricas_admin() from public, anon, authenticated;
+grant execute on function public.metricas_admin() to service_role;
