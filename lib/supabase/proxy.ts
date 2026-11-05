@@ -4,7 +4,7 @@ import type { Database } from "@/types/database";
 import { supabaseChave, supabaseUrl } from "./config";
 
 /** Telas que qualquer pessoa pode abrir sem estar logada. */
-const ROTAS_PUBLICAS = ["/entrar", "/cadastrar", "/esqueci-senha", "/auth"];
+const ROTAS_PUBLICAS = ["/entrar", "/cadastrar", "/esqueci-senha", "/auth", "/apresentacao"];
 
 function ehRotaPublica(caminho: string) {
   return ROTAS_PUBLICAS.some((rota) => caminho === rota || caminho.startsWith(`${rota}/`));
@@ -44,6 +44,12 @@ export async function atualizarSessao(request: NextRequest) {
   const logado = Boolean(data?.claims);
   const caminho = request.nextUrl.pathname;
 
+  // Visitante em "/" vai para a landing; logado, "/" é a Home. Redirecionamento (e não
+  // rewrite): com o mesmo endereço servindo duas páginas, o cache de rotas do Next se
+  // confundia e a navegação para Entrar/Cadastrar ficava carregando.
+  if (!logado && caminho === "/") {
+    return redirecionar(request, resposta, "/apresentacao");
+  }
   if (!logado && !ehRotaPublica(caminho)) {
     return redirecionar(request, resposta, "/entrar");
   }

@@ -99,7 +99,7 @@ quando a primeira pasta do caminho é o `auth.uid()` de quem pede. Limite de
 
 ### receitas
 
-Entregas, corridas, diárias, gorjetas: tudo o que entra de dinheiro.
+Entregas, corridas, gorjetas: tudo o que entra de dinheiro.
 
 | Coluna             | Tipo               | Regras                                              |
 |--------------------|--------------------|-----------------------------------------------------|
@@ -107,7 +107,7 @@ Entregas, corridas, diárias, gorjetas: tudo o que entra de dinheiro.
 | `usuario_id`       | `uuid`             | FK `auth.users`                                     |
 | `cliente_id`       | `uuid`             | not null                                            |
 | `data_hora`        | `timestamptz`      | not null, default `now()`                           |
-| `tipo`             | `varchar(50)`      | not null (Entrega, Corrida, Diária, ou personalizada) |
+| `tipo`             | `varchar(50)`      | not null (Entrega, Corrida, Gorjeta, ou personalizada) |
 | `quantidade`       | `integer`          | not null, default 1, `> 0`                          |
 | `valor_unitario`   | `numeric(10,2)`    | not null, `>= 0`                                    |
 | `valor_total`      | `numeric(12,2)`    | **generated**: `quantidade * valor_unitario`        |
@@ -126,7 +126,7 @@ Entregas, corridas, diárias, gorjetas: tudo o que entra de dinheiro.
 | `id`             | `uuid`          | PK                                              |
 | `usuario_id`     | `uuid`          | FK `auth.users`                                 |
 | `data_hora`      | `timestamptz`   | not null, default `now()`                       |
-| `tipo`           | `varchar(50)`   | not null (Combustível, Alimentação, ou personalizada) |
+| `tipo`           | `varchar(50)`   | not null (Combustível, Alimentação, Diária da central, ou personalizada) |
 | `quantidade`     | `integer`       | not null, default 1, `> 0`                      |
 | `valor_unitario` | `numeric(10,2)` | not null, `>= 0`                                |
 | `valor_total`    | `numeric(12,2)` | **generated**: `quantidade * valor_unitario`    |
@@ -251,8 +251,8 @@ Toda mudança no banco é uma migration nova. Migration já aplicada não é edi
 
 ## Decisões
 
-- **`receitas` no lugar de `entregas`.** O app registra entregas, corridas,
-  diárias e gorjetas, e a interface usa sempre "Receita". O nome da tabela
+- **`receitas` no lugar de `entregas`.** O app registra entregas, corridas
+  e gorjetas, e a interface usa sempre "Receita". O nome da tabela
   acompanha a interface.
 - **`uuid` em vez de `int`.** Ids sequenciais revelam quantos registros existem
   e são fáceis de adivinhar. `uuid` é o padrão do Supabase e casa com o id do
