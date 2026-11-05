@@ -2,7 +2,6 @@
 
 import { useVisivel } from "./animacao";
 import { Contador } from "./Contador";
-import { Notificacoes } from "./Notificacoes";
 import { CATEGORIAS_DESPESA, ENTREGAS_SEMANA, RECEITA_TOTAL_SEMANA, SALDO_MES } from "./dados";
 
 const TRANSICAO = "transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none";
@@ -193,7 +192,6 @@ export function Graficos() {
       <Destaque />
       <Rosca />
       <Linha className="lg:col-span-2" />
-      <Notificacoes />
     </div>
   );
 }

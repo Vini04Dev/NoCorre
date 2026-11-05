@@ -40,12 +40,3 @@ body {
   background: var(--color-fundo);
   color: var(--color-marinho);
 }
-
-/* Landing: campainha balança depois de "estourar" (components/landing/Notificacoes.tsx). */
-@keyframes balanco {
-  0%, 100% { transform: rotate(0deg); }
-  20% { transform: rotate(18deg); }
-  40% { transform: rotate(-14deg); }
-  60% { transform: rotate(9deg); }
-  80% { transform: rotate(-5deg); }
-}
