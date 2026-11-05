@@ -10,6 +10,7 @@ import { Botao } from "@/components/ui/Botao";
 import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
 import { CampoSugestoes } from "@/components/ui/CampoSugestoes";
 import { useDescricoesDespesa } from "@/hooks/useDescricoesDespesa";
+import { normalizar } from "@/lib/sugestoes";
 import { useSalvarDespesa } from "@/hooks/useLancamentos";
 import { useContasEmAberto } from "@/hooks/useMetas";
 import type { Despesa } from "@/hooks/useMovimentacoes";
@@ -31,7 +32,7 @@ export function FormularioDespesa({ despesa, contaInicial }: Props) {
   const router = useRouter();
   const salvar = useSalvarDespesa();
   const { data: contas } = useContasEmAberto();
-  const { data: descricoesUsadas } = useDescricoesDespesa();
+  const { data: usadas } = useDescricoesDespesa();
   const destino = despesa ? `/resumo/despesa/${despesa.id}` : contaInicial ? `/metas/${contaInicial}` : "/";
 
   const [descricao, setDescricao] = useState(despesa?.observacao ?? "");
@@ -85,7 +86,12 @@ export function FormularioDespesa({ despesa, contaInicial }: Props) {
           opcional
           valor={descricao}
           aoMudar={setDescricao}
-          opcoes={descricoesUsadas ?? []}
+          opcoes={usadas?.descricoes ?? []}
+          // Escolher uma descrição já usada marca a mesma categoria da última vez.
+          aoEscolher={(texto) => {
+            const usada = usadas?.categorias.get(normalizar(texto));
+            if (usada) setCategoria(usada);
+          }}
           placeholder={conta ? conta.nome : "Ex.: Gasolina"}
         />
         {!conta && <CampoCategoria tipo="despesa" valor={categoria} aoMudar={setCategoria} erro={erros.categoria} />}

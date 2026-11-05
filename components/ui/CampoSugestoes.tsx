@@ -10,6 +10,8 @@ type Props = {
   aoMudar: (valor: string) => void;
   /** Textos que a pessoa já usou antes, dos mais usados para os menos. */
   opcoes: string[];
+  /** Chamado quando a pessoa escolhe uma sugestão (além de aoMudar). */
+  aoEscolher?: (texto: string) => void;
   placeholder?: string;
   maxLength?: number;
 };
@@ -19,7 +21,7 @@ type Props = {
  * As sugestões aparecem logo abaixo enquanto ela digita; tocar numa (ou usar
  * as setas e Enter) preenche o campo. Segue o padrão "combobox" de acessibilidade.
  */
-export function CampoSugestoes({ rotulo, opcional, valor, aoMudar, opcoes, placeholder, maxLength }: Props) {
+export function CampoSugestoes({ rotulo, opcional, valor, aoMudar, opcoes, aoEscolher, placeholder, maxLength }: Props) {
   const id = useId();
   const idLista = `${id}-sugestoes`;
   const [aberto, setAberto] = useState(false);
@@ -29,6 +31,7 @@ export function CampoSugestoes({ rotulo, opcional, valor, aoMudar, opcoes, place
 
   function escolher(texto: string) {
     aoMudar(texto);
+    aoEscolher?.(texto);
     setAberto(false);
     setDestaque(-1);
   }

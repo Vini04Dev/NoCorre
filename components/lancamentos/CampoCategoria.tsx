@@ -23,7 +23,8 @@ export function CampoCategoria({ tipo, valor, aoMudar, erro }: Props) {
     ...(categorias ?? []).filter((categoria) => categoria.tipo === tipo).map((categoria) => categoria.nome),
   ];
   const [digitando, setDigitando] = useState(false);
-  const outraEscolhida = digitando || (valor !== "" && !nomes.includes(valor));
+  // Uma categoria conhecida (escolhida pela sugestão da descrição, por exemplo) sai do modo "Outra".
+  const outraEscolhida = !nomes.includes(valor) && (digitando || valor !== "");
 
   return (
     <div className="flex flex-col gap-2">
