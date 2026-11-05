@@ -25,7 +25,7 @@ export default function LayoutAcesso({ children }: LayoutProps<"/">) {
             className="pointer-events-none absolute -bottom-48 -left-24 hidden size-[520px] rounded-full bg-dourado/20 blur-[120px] lg:block"
           />
           <Link
-            href="/apresentacao"
+            href="/"
             className="relative mb-auto hidden text-sm font-medium text-cinza transition-colors hover:text-white lg:inline-flex"
           >
             ‹ Conhecer o No Corre!

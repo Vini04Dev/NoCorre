@@ -20,7 +20,7 @@ const BOTAO_SECUNDARIO =
 
 function Marca() {
   return (
-    <Link href="/apresentacao" className="flex items-center gap-2.5">
+    <Link href="/" className="flex items-center gap-2.5">
       <span className="size-8 overflow-hidden rounded-[9px] bg-white">
         <Image src="/imagens/logo.png" alt="" width={32} height={32} />
       </span>
