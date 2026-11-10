@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
 import { Secao } from "@/components/ui/Secao";
 import { formatarBytes, type MetricasAdmin } from "@/lib/admin";
+import { BotaoAtualizar } from "./BotaoAtualizar";
 
 // Limites do plano gratuito do Supabase, para mostrar quanto já foi usado.
 const LIMITE_BANCO = 500 * 1024 * 1024;
@@ -32,10 +32,11 @@ function BarrasPorDia({
 }: {
   titulo: string;
   dias: MetricasAdmin["por_dia"];
-  campo: "cadastros" | "lancamentos";
+  campo: "cadastros" | "lancamentos" | "usuarios";
 }) {
-  const maior = Math.max(...dias.map((dia) => dia[campo]), 1);
-  const total = dias.reduce((soma, dia) => soma + dia[campo], 0);
+  const valorDe = (dia: MetricasAdmin["por_dia"][number]) => dia[campo] ?? 0;
+  const maior = Math.max(...dias.map(valorDe), 1);
+  const total = dias.reduce((soma, dia) => soma + valorDe(dia), 0);
   return (
     <figure className={`${CARTAO} flex flex-col gap-3`}>
       <figcaption className="flex items-baseline justify-between">
@@ -44,7 +45,7 @@ function BarrasPorDia({
       </figcaption>
       <div className="flex h-32 items-end gap-[3px] border-b border-cinza-claro">
         {dias.map((dia) => {
-          const valor = dia[campo];
+          const valor = valorDe(dia);
           const rotulo = `${dataCurta.format(new Date(`${dia.dia}T12:00:00`))}: ${numero(valor)}`;
           return (
             <div key={dia.dia} className="group relative flex h-full flex-1 items-end" aria-label={rotulo} role="img">
@@ -64,6 +65,63 @@ function BarrasPorDia({
         <span>hoje</span>
       </div>
     </figure>
+  );
+}
+
+/** Segunda linha de números: retenção, quem nunca lançou, pendências e aparelho. */
+function Saude({ metricas }: { metricas: MetricasAdmin }) {
+  const retencao = metricas.retencao_7d;
+  const uso = metricas.uso;
+  const percentual = retencao && retencao.base ? Math.round((retencao.voltaram / retencao.base) * 100) : null;
+  const itens = [
+    {
+      rotulo: "Voltaram na semana",
+      valor: percentual === null ? "–" : `${percentual}%`,
+      detalhe: retencao ? `${numero(retencao.voltaram)} de ${numero(retencao.base)} com conta há +7 dias` : "",
+    },
+    { rotulo: "Nunca lançaram", valor: numero(metricas.sem_lancamento ?? 0), detalhe: "contas sem receita nem despesa" },
+    { rotulo: "Receitas pendentes", valor: numero(metricas.receitas_pendentes ?? 0), detalhe: "a receber, de todos" },
+    { rotulo: "Metas ativas", valor: numero(metricas.metas_ativas ?? 0), detalhe: "em andamento" },
+    {
+      rotulo: "Aparelho (30 dias)",
+      valor: uso ? `${numero(uso.celular_30d)} · ${numero(uso.computador_30d)}` : "–",
+      detalhe: "celular · computador",
+    },
+  ];
+  return (
+    <dl className="grid grid-cols-2 gap-3 lg:grid-cols-5 lg:gap-4">
+      {itens.map((item) => (
+        <div key={item.rotulo} className={`${CARTAO} flex flex-col-reverse gap-0.5 p-3`}>
+          <dt className="text-[11px] text-cinza-escuro">
+            {item.rotulo}
+            <span className="block text-[10px]">{item.detalhe}</span>
+          </dt>
+          <dd className="text-xl font-extrabold">{item.valor}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+function Ranking({ titulo, itens }: { titulo: string; itens: { nome: string; total: number }[] }) {
+  const maior = Math.max(...itens.map((item) => item.total), 1);
+  return (
+    <Secao titulo={titulo}>
+      <ol className={`${CARTAO} flex flex-col gap-2`}>
+        {itens.length === 0 && <li className="text-xs text-cinza-escuro">Nada lançado ainda.</li>}
+        {itens.map((item) => (
+          <li key={item.nome} className="flex flex-col gap-1 text-xs">
+            <span className="flex justify-between">
+              <span className="font-semibold">{item.nome}</span>
+              <span className="text-cinza-escuro">{numero(item.total)} lançamentos</span>
+            </span>
+            <span className="h-1.5 overflow-hidden rounded-full bg-cinza-fundo">
+              <span className="block h-full rounded-full bg-dourado" style={{ width: `${(item.total / maior) * 100}%` }} />
+            </span>
+          </li>
+        ))}
+      </ol>
+    </Secao>
   );
 }
 
@@ -96,11 +154,7 @@ export function TelaAdmin({ metricas, erro }: { metricas: MetricasAdmin | null; 
         titulo="Painel do sistema"
         voltarPara="/perfil"
         tituloGrande
-        acao={
-          <Link href="/admin" className="rounded-lg border border-cinza-claro bg-white px-3 py-1.5 text-xs font-semibold">
-            Atualizar
-          </Link>
-        }
+        acao={<BotaoAtualizar />}
       />
 
       {(erro || !metricas) && (
@@ -124,18 +178,38 @@ export function TelaAdmin({ metricas, erro }: { metricas: MetricasAdmin | null; 
               valor={metricas.usuarios.novos_7d}
               detalhe={`${numero(metricas.usuarios.novos_30d)} nos últimos 30 dias`}
             />
-            <Indicador
-              rotulo="ENTRARAM NA SEMANA"
-              valor={metricas.usuarios.acessaram_7d}
-              detalhe={`${numero(metricas.usuarios.acessaram_30d)} nos últimos 30 dias`}
-            />
+            {metricas.uso ? (
+              <Indicador
+                rotulo="USARAM HOJE"
+                valor={metricas.uso.ativos_hoje}
+                detalhe={`${numero(metricas.uso.ativos_7d)} na semana · ${numero(metricas.uso.ativos_30d)} no mês`}
+              />
+            ) : (
+              <Indicador
+                rotulo="ENTRARAM NA SEMANA"
+                valor={metricas.usuarios.acessaram_7d}
+                detalhe={`${numero(metricas.usuarios.acessaram_30d)} nos últimos 30 dias`}
+              />
+            )}
             <Indicador rotulo="LANÇARAM NA SEMANA" valor={metricas.lancaram_7d} detalhe="com receita ou despesa nova" />
           </div>
 
-          <div className="grid gap-3 lg:grid-cols-2 lg:gap-4">
+          {metricas.uso && <Saude metricas={metricas} />}
+
+          <div className="grid gap-3 lg:grid-cols-3 lg:gap-4">
             <BarrasPorDia titulo="Cadastros por dia" dias={metricas.por_dia} campo="cadastros" />
             <BarrasPorDia titulo="Lançamentos por dia" dias={metricas.por_dia} campo="lancamentos" />
+            {metricas.por_dia[0]?.usuarios !== undefined && (
+              <BarrasPorDia titulo="Pessoas lançando por dia" dias={metricas.por_dia} campo="usuarios" />
+            )}
           </div>
+
+          {metricas.categorias_receita && metricas.categorias_despesa && (
+            <div className="grid gap-3 lg:grid-cols-2 lg:gap-4">
+              <Ranking titulo="CATEGORIAS DE RECEITA MAIS USADAS" itens={metricas.categorias_receita} />
+              <Ranking titulo="CATEGORIAS DE DESPESA MAIS USADAS" itens={metricas.categorias_despesa} />
+            </div>
+          )}
 
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:items-start lg:gap-4">
             <div className="flex flex-col gap-5">
@@ -159,6 +233,16 @@ export function TelaAdmin({ metricas, erro }: { metricas: MetricasAdmin | null; 
                     limite={LIMITE_STORAGE}
                     detalhe={`${numero(metricas.armazenamento.fotos.arquivos)} arquivos de clientes e perfis`}
                   />
+                  {metricas.tabelas && (
+                    <ul className="flex flex-col gap-1 border-t border-cinza-claro pt-3 text-xs">
+                      {metricas.tabelas.map((tabela) => (
+                        <li key={tabela.nome} className="flex justify-between">
+                          <span className="text-cinza-escuro">{tabela.nome}</span>
+                          <span className="font-semibold">{formatarBytes(tabela.bytes)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               </Secao>
             </div>
