@@ -1,22 +1,30 @@
 import type { Metadata } from "next";
+import { cookies, headers } from "next/headers";
+import { Suspense } from "react";
 import { AvisoPrimeiroUso } from "@/components/home/AvisoPrimeiroUso";
 import { CabecalhoHome } from "@/components/home/CabecalhoHome";
 import { CartaoModulo } from "@/components/home/CartaoModulo";
 import { ResumoPeriodo } from "@/components/home/ResumoPeriodo";
 import { classeFontesLanding } from "@/components/landing/fontes";
+import { COOKIE_IDIOMA, COOKIE_TEMA, escolherIdioma, TEXTOS } from "@/components/landing/idiomas";
 import { TelaApresentacao } from "@/components/landing/TelaApresentacao";
 import { Secao } from "@/components/ui/Secao";
 import { ehAdmin } from "@/lib/admin-servidor";
 import { estaLogado } from "@/lib/sessao";
 import { criarClienteServidor } from "@/lib/supabase/servidor";
 
-const METADADOS_LANDING: Metadata = {
-  title: "No Corre! | Controle financeiro para entregadores",
-  description: "Entregas, corridas, despesas e metas num app feito para entregadores de São Sebastião do Paraíso.",
-};
+/** Idioma e tema da landing: escolhidos na página (cookies) ou pelo idioma do navegador. */
+async function preferenciasLanding() {
+  const [armazenados, cabecalhos] = await Promise.all([cookies(), headers()]);
+  const idioma = escolherIdioma(armazenados.get(COOKIE_IDIOMA)?.value, cabecalhos.get("accept-language"));
+  const tema = armazenados.get(COOKIE_TEMA)?.value === "claro" ? "claro" : "escuro";
+  return { idioma, tema } as const;
+}
 
 export async function generateMetadata(): Promise<Metadata> {
-  return (await estaLogado()) ? {} : METADADOS_LANDING;
+  if (await estaLogado()) return {};
+  const { meta } = TEXTOS[(await preferenciasLanding()).idioma];
+  return { title: meta.titulo, description: meta.descricao };
 }
 
 /**
@@ -26,9 +34,10 @@ export async function generateMetadata(): Promise<Metadata> {
  */
 export default async function Pagina() {
   if (!(await estaLogado())) {
+    const { idioma, tema } = await preferenciasLanding();
     return (
       <div className={classeFontesLanding}>
-        <TelaApresentacao logado={false} />
+        <TelaApresentacao logado={false} idioma={idioma} tema={tema} />
       </div>
     );
   }
@@ -38,9 +47,12 @@ export default async function Pagina() {
 async function Home() {
   // A RLS de perfis só devolve a linha do próprio usuário, então não precisa de filtro.
   const supabase = await criarClienteServidor();
-  const { data: perfil } = await supabase.from("perfis").select("nome").maybeSingle();
+  // Em paralelo: cada ida ao banco custa uma viagem de rede.
+  const [{ data: perfil }, admin] = await Promise.all([
+    supabase.from("perfis").select("nome").maybeSingle(),
+    ehAdmin(),
+  ]);
   const primeiroNome = perfil?.nome.split(" ")[0];
-  const admin = await ehAdmin();
 
   return (
     <>
@@ -90,7 +102,9 @@ async function Home() {
           )}
         </div>
       </main>
-      <AvisoPrimeiroUso />
+      <Suspense>
+        <AvisoPrimeiroUso />
+      </Suspense>
     </>
   );
 }

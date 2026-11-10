@@ -233,6 +233,17 @@ semana, total de registros por tabela, cadastros e lançamentos por dia nos
 últimos 30 dias, tamanho do banco e das fotos, e nome e datas dos últimos 10
 cadastros. Nenhum valor em dinheiro nem lançamento de outra pessoa sai dela.
 
+A migration `20261110120000_mais_metricas_admin` recriou a função com mais
+dados: uso real pelas sessões (`auth.sessions.updated_at`, renovada a cada hora
+com o app aberto; `last_sign_in_at` só muda no login e subestima quem fica
+logado no PWA), ativos hoje/7/30 dias,
+retenção de 7 dias, contas que nunca lançaram, receitas pendentes, metas
+ativas, categorias mais usadas (por contagem), tamanho de cada tabela e
+pessoas lançando por dia. Tudo é contado na hora em que o painel abre. A função também devolve
+celular x computador pelo user agent das sessões, mas o painel não mostra:
+login e renovação de sessão passam pelo servidor do app, então o user agent
+gravado é o do servidor, não o do aparelho da pessoa.
+
 Número de requisições à API não está no banco (só na Management API do
 Supabase, que exige token de acesso à conta) e por isso ficou de fora.
 

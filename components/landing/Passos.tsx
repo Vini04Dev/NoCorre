@@ -2,7 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useVisivel } from "./animacao";
-import { PASSOS } from "./dados";
+import { useTextos } from "./ContextoLanding";
+
+/** Quantos passos há (os textos ficam em idiomas.ts). */
+const PASSOS_TOTAL = 3;
 
 /** Tempo entre um passo e o seguinte; a linha leva parte desse tempo para chegar. */
 const RITMO = 900;
@@ -27,6 +30,7 @@ function curva(a: Ponto, b: Ponto) {
  * entra quando a linha chega nele.
  */
 export function Passos() {
+  const passos = useTextos().passos.itens;
   const [ref, visivel] = useVisivel<HTMLDivElement>("0px 0px -25% 0px");
   const numeros = useRef<(HTMLSpanElement | null)[]>([]);
   const [caminhos, setCaminhos] = useState<string[]>([]);
@@ -38,7 +42,7 @@ export function Passos() {
       // offsetLeft/Top ignoram o transform da entrada: mede a posição final dos números.
       // O ResizeObserver pode disparar enquanto a tela é desmontada (refs já nulos).
       const elementos = numeros.current.filter((numero): numero is HTMLSpanElement => Boolean(numero?.offsetParent));
-      if (elementos.length !== PASSOS.length) return;
+      if (elementos.length !== PASSOS_TOTAL) return;
       const centros = elementos.map((numero) => {
         const card = numero.offsetParent as HTMLElement;
         return {
@@ -57,11 +61,11 @@ export function Passos() {
   return (
     <div ref={ref} className="relative mx-auto w-full max-w-5xl">
       <ol className="relative flex flex-col pl-6 md:flex-row md:items-start md:pl-0">
-        {PASSOS.map(({ titulo, texto }, indice) => (
+        {passos.map(({ titulo, texto }, indice) => (
           <li
             key={titulo}
             style={{
-              zIndex: PASSOS.length - indice,
+              zIndex: PASSOS_TOTAL - indice,
               transitionDelay: visivel ? `${indice * RITMO + (indice ? 500 : 0)}ms` : "0ms",
             }}
             className={`relative flex-1 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
@@ -71,7 +75,7 @@ export function Passos() {
             }`}
           >
             <div
-              className={`flex flex-col gap-4 rounded-2xl border border-white/10 bg-[#171824] p-7 pl-9 shadow-[0_30px_60px_-25px_rgba(0,0,0,0.9)] ${
+              className={`flex flex-col gap-4 rounded-2xl border border-l-tinta/10 bg-l-cartao p-7 pl-9 shadow-[0_30px_60px_-25px_var(--l-sombra)] ${
                 // A borda esquerda fica por baixo do card anterior: o texto começa depois dela.
                 indice > 0 ? "md:pt-10 md:pl-14" : "md:pt-10 md:pl-7"
               }`}
@@ -80,12 +84,12 @@ export function Passos() {
                 ref={(elemento) => {
                   numeros.current[indice] = elemento;
                 }}
-                className="absolute top-7 -left-5 grid size-10 place-items-center rounded-full bg-dourado-claro text-base font-black text-marinho ring-4 ring-[#0d0e16] md:-top-5 md:left-14"
+                className="absolute top-7 -left-5 grid size-10 place-items-center rounded-full bg-dourado-claro text-base font-black text-marinho ring-4 ring-l-fundo md:-top-5 md:left-14"
               >
                 {indice + 1}
               </span>
-              <h3 className="text-xl font-bold text-white">{titulo}</h3>
-              <p className="text-sm text-cinza-claro">{texto}</p>
+              <h3 className="text-xl font-bold text-l-titulo">{titulo}</h3>
+              <p className="text-sm text-l-texto">{texto}</p>
             </div>
           </li>
         ))}

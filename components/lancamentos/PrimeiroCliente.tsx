@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { classeBotao } from "@/components/ui/Botao";
 
-const EXEMPLOS = ["iFood", "99", "Vai Moto", "Pizzaria do Zé", "Corridas avulsas"];
+const EXEMPLOS = ["iFood", "99", "Vai Moto", "Entrega avulsa", "Corridas avulsas"];
 
 /**
  * Conteúdo do painel de primeiro uso: toda receita pertence a um cliente,

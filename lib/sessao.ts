@@ -1,9 +1,18 @@
 import "server-only";
+import { cache } from "react";
+import { validarClaims } from "@/lib/supabase/claims";
 import { criarClienteServidor } from "@/lib/supabase/servidor";
 
-/** Há sessão válida nesta requisição? (getClaims valida a assinatura do token.) */
+/**
+ * Claims da sessão nesta requisição. Com cache() do React, layout, página e
+ * ehAdmin() compartilham uma única validação em vez de repetir getClaims
+ * (que valida a assinatura do token) a cada chamada.
+ */
+export const obterClaims = cache(async () => {
+  return validarClaims(await criarClienteServidor());
+});
+
+/** Há sessão válida nesta requisição? */
 export async function estaLogado() {
-  const supabase = await criarClienteServidor();
-  const { data } = await supabase.auth.getClaims();
-  return Boolean(data?.claims);
+  return Boolean(await obterClaims());
 }

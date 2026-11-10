@@ -44,7 +44,7 @@ export function Terminal() {
   return (
     <div
       ref={ref}
-      className="overflow-hidden rounded-xl border border-white/10 bg-[#08090e] text-left shadow-[0_40px_80px_-30px_rgba(0,0,0,0.9)]"
+      className="landing-escura overflow-hidden rounded-xl border border-white/10 bg-[#08090e] text-left shadow-[0_40px_80px_-30px_rgba(0,0,0,0.9)]"
     >
       <div className="flex items-center gap-2 border-b border-white/8 px-4 py-3">
         <span className="size-3 rounded-full bg-white/15" />

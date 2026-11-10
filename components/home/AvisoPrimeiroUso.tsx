@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { PrimeiroCliente } from "@/components/lancamentos/PrimeiroCliente";
 import { PainelInferior } from "@/components/ui/PainelInferior";
+import { useAvisoForcado } from "@/hooks/useAvisoForcado";
 import { useClientes } from "@/hooks/useClientes";
+import { useNovidadesPendentes } from "@/hooks/useNovidades";
 
 const CHAVE_DISPENSADO = "nocorre:primeiro-uso-dispensado";
 
@@ -21,12 +23,17 @@ function lerDispensado() {
  */
 export function AvisoPrimeiroUso() {
   const { data: clientes } = useClientes();
+  // O aviso de novidades vem primeiro; este espera ele ser fechado.
+  const [novidadesPendentes] = useNovidadesPendentes();
   // Só roda no navegador: no servidor a lista ainda não existe e nada é exibido.
   const [dispensado, setDispensado] = useState(() => typeof window !== "undefined" && lerDispensado());
 
-  if (dispensado || clientes?.length !== 0) return null;
+  const [forcado, limparForcado] = useAvisoForcado("primeiro-uso");
+  const normal = !dispensado && !novidadesPendentes && clientes?.length === 0;
+  if (!normal && !forcado) return null;
 
   function dispensar() {
+    limparForcado();
     setDispensado(true);
     try {
       sessionStorage.setItem(CHAVE_DISPENSADO, "1");
@@ -36,7 +43,7 @@ export function AvisoPrimeiroUso() {
   }
 
   return (
-    <PainelInferior idTitulo="primeiro-cliente-titulo" aoFechar={dispensar}>
+    <PainelInferior idTitulo="primeiro-cliente-titulo" aoFechar={dispensar} centralizado>
       <PrimeiroCliente aoFechar={dispensar} />
     </PainelInferior>
   );

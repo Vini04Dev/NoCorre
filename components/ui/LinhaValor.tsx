@@ -2,7 +2,7 @@ import Image from "next/image";
 
 type Props = {
   rotulo: string;
-  valor: string;
+  valor: React.ReactNode;
   icone: string;
   /** Classe de cor do valor, ex.: "text-positivo". */
   corValor: string;

@@ -11,6 +11,7 @@ import { Botao } from "@/components/ui/Botao";
 import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
 import { CampoTexto } from "@/components/ui/CampoTexto";
 import { SeletorChips } from "@/components/ui/SeletorChips";
+import { useCategoriaPorCliente } from "@/hooks/useCategoriaPorCliente";
 import { useClientes } from "@/hooks/useClientes";
 import { useSalvarReceita } from "@/hooks/useLancamentos";
 import type { Receita } from "@/hooks/useMovimentacoes";
@@ -44,7 +45,10 @@ export function FormularioReceita({ receita }: { receita?: Receita }) {
   // Com um cliente só, ele já vem escolhido.
   const [clienteEscolhido, setClienteEscolhido] = useState(receita?.cliente_id);
   const clienteId = clienteEscolhido ?? (clientes?.length === 1 ? clientes[0].id : "");
-  const [categoria, setCategoria] = useState(receita?.tipo ?? CATEGORIAS_PADRAO.receita[0]);
+  // Sem escolha da pessoa, vale a categoria de costume do cliente (última receita dele).
+  const { data: categoriaDoCliente } = useCategoriaPorCliente();
+  const [categoriaEscolhida, setCategoria] = useState<string | null>(receita?.tipo ?? null);
+  const categoria = categoriaEscolhida ?? categoriaDoCliente?.get(clienteId) ?? CATEGORIAS_PADRAO.receita[0];
   const [valores, setValores] = useState<Valores>(() => valoresIniciais(receita));
   const [forma, setForma] = useState<FormaPagamento | null>(receita?.forma_pagamento ?? null);
   const [situacao, setSituacao] = useState<StatusPagamento>(receita?.status_pagamento ?? "pago");
@@ -103,7 +107,13 @@ export function FormularioReceita({ receita }: { receita?: Receita }) {
           <select
             id={idCliente}
             value={clienteId}
-            onChange={(evento) => setClienteEscolhido(evento.target.value)}
+            onChange={(evento) => {
+              const id = evento.target.value;
+              setClienteEscolhido(id);
+              // Trocar o cliente traz a categoria que costuma acompanhar ele.
+              const deCostume = categoriaDoCliente?.get(id);
+              if (deCostume) setCategoria(deCostume);
+            }}
             aria-invalid={erros.cliente ? true : undefined}
             className={`appearance-none rounded-[10px] border bg-white bg-[url('/icones/seta-baixo.svg')] bg-[right_14px_center] bg-no-repeat px-[14px] py-[11px] text-[13px] outline-none focus:border-dourado ${
               erros.cliente ? "border-negativo" : "border-cinza-claro"

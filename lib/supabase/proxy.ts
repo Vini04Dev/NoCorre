@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/types/database";
+import { validarClaims } from "./claims";
 import { supabaseChave, supabaseUrl } from "./config";
 
 /** Telas que qualquer pessoa pode abrir sem estar logada. */
@@ -40,8 +41,8 @@ export async function atualizarSessao(request: NextRequest) {
 
   // getClaims valida a assinatura do token. Não trocar por getSession, que só lê o
   // cookie e não deve ser usado para decidir acesso no servidor.
-  const { data } = await supabase.auth.getClaims();
-  const logado = Boolean(data?.claims);
+  // Repete uma vez se a falha for de rede, para não tratar quem está logado como visitante.
+  const logado = Boolean(await validarClaims(supabase));
   const caminho = request.nextUrl.pathname;
 
   // A landing morava em /apresentacao; agora é "/" (app/(app)/page.tsx escolhe entre
