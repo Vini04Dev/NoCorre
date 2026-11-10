@@ -1,6 +1,8 @@
 -- Mais métricas no painel de administração: uso real pelas sessões, retenção,
 -- quem nunca lançou, pendentes, metas ativas, categorias mais usadas, tamanho
 -- das tabelas e quantas pessoas usaram por dia. Continua só com contagens.
+-- Os últimos cadastros passam a 20 e trazem o id, usado pela função
+-- metricas_usuario_admin() (no fim do arquivo) para o detalhe de cada pessoa.
 -- A função é recriada inteira (create or replace); as permissões continuam
 -- as mesmas, mas são reaplicadas por garantia.
 
@@ -125,13 +127,13 @@ begin
     -- Só nome e datas, para acompanhar o piloto. E-mail e dados financeiros ficam de fora.
     'ultimos_cadastros', (
       select coalesce(jsonb_agg(jsonb_build_object(
-        'nome', c.nome, 'criado_em', c.created_at, 'ultimo_acesso', c.last_sign_in_at
+        'id', c.id, 'nome', c.nome, 'criado_em', c.created_at, 'ultimo_acesso', c.last_sign_in_at
       ) order by c.created_at desc), '[]'::jsonb)
       from (
-        select p.nome, u.created_at, u.last_sign_in_at
+        select u.id, p.nome, u.created_at, u.last_sign_in_at
         from auth.users u join public.perfis p on p.id = u.id
         order by u.created_at desc
-        limit 10
+        limit 20
       ) c
     )
   ) into resultado;
@@ -143,3 +145,45 @@ $$;
 -- Funções novas nascem executáveis por todos; aqui só o service_role chama.
 revoke all on function public.metricas_admin() from public, anon, authenticated;
 grant execute on function public.metricas_admin() to service_role;
+
+-- Detalhe de uma pessoa no painel: quantos registros ela tem em cada tabela e
+-- quando usou o app. Mesmas regras da função geral: só contagens e datas,
+-- nenhum valor em dinheiro, e só o service_role executa.
+create function public.metricas_usuario_admin(p_usuario uuid)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select jsonb_build_object(
+    'receitas', (select count(*) from public.receitas where usuario_id = p_usuario),
+    'receitas_pendentes', (select count(*) from public.receitas where usuario_id = p_usuario and status_pagamento = 'pendente'),
+    'entregas', (select coalesce(sum(quantidade), 0) from public.receitas where usuario_id = p_usuario),
+    'despesas', (select count(*) from public.despesas where usuario_id = p_usuario),
+    'clientes', (select count(*) from public.clientes where usuario_id = p_usuario),
+    'categorias', (select count(*) from public.categorias where usuario_id = p_usuario),
+    'eventos', (select count(*) from public.eventos where usuario_id = p_usuario),
+    'metas', (select count(*) from public.metas where usuario_id = p_usuario),
+    'metas_ativas', (select count(*) from public.metas where usuario_id = p_usuario and status = 'ativa'),
+    'fotos', (select count(*) from storage.objects o
+              where o.bucket_id in ('fotos-clientes', 'fotos-perfil')
+                and (storage.foldername(o.name))[1] = p_usuario::text),
+    'primeiro_lancamento', (select min(created_at) from (
+      select created_at from public.receitas where usuario_id = p_usuario
+      union all select created_at from public.despesas where usuario_id = p_usuario) l),
+    'ultimo_lancamento', (select max(created_at) from (
+      select created_at from public.receitas where usuario_id = p_usuario
+      union all select created_at from public.despesas where usuario_id = p_usuario) l),
+    'ultimo_uso', (select max(updated_at) from auth.sessions where user_id = p_usuario),
+    'aparelho', (select case
+                   when bool_or(user_agent ~* '(iphone|android|mobile)') and bool_or(user_agent !~* '(iphone|android|mobile)') then 'celular e computador'
+                   when bool_or(user_agent ~* '(iphone|android|mobile)') then 'celular'
+                   when count(*) > 0 then 'computador'
+                 end
+                 from auth.sessions where user_id = p_usuario)
+  );
+$$;
+
+revoke all on function public.metricas_usuario_admin(uuid) from public, anon, authenticated;
+grant execute on function public.metricas_usuario_admin(uuid) to service_role;

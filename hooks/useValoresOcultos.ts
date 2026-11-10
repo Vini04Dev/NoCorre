@@ -39,5 +39,10 @@ export function useValoresOcultos() {
   return [ocultos, alternar] as const;
 }
 
-/** Texto no lugar de um valor escondido. */
-export const VALOR_OCULTO = "R$ •••••";
+/**
+ * Versão de mentira do valor, com o mesmo formato (dígitos viram 8), para o
+ * borrão ter o tamanho certo sem o número real estar na página.
+ */
+export function mascarar(texto: string) {
+  return texto.replace(/\d/g, "8");
+}

@@ -9,7 +9,7 @@ import { CirculoProgresso } from "@/components/metas/CirculoProgresso";
 import { Secao } from "@/components/ui/Secao";
 import { useMetas } from "@/hooks/useMetas";
 import { useEstatisticasPerfil, usePerfil } from "@/hooks/usePerfil";
-import { useValoresOcultos } from "@/hooks/useValoresOcultos";
+import { Valor } from "@/components/ui/Valor";
 import { corDaMeta, textoProgresso } from "@/lib/metas";
 
 const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
@@ -85,7 +85,6 @@ export function TelaPerfil({ admin = false }: { admin?: boolean }) {
   const { data: estatisticas } = useEstatisticasPerfil();
   const { data: clientes } = useClientes();
   const { data: metas } = useMetas();
-  const [ocultos] = useValoresOcultos();
 
   if (isPending) return <p className="p-6 text-center text-[13px] text-cinza-escuro">Carregando...</p>;
   if (isError || !perfil) {
@@ -101,7 +100,7 @@ export function TelaPerfil({ admin = false }: { admin?: boolean }) {
     },
     { valor: clientes ? String(clientes.length) : "–", rotulo: "clientes" },
     {
-      valor: !estatisticas ? "–" : ocultos ? "R$ •••" : `R$ ${compacto.format(estatisticas.receitaTotal)}`,
+      valor: !estatisticas ? "–" : <Valor texto={`R$ ${compacto.format(estatisticas.receitaTotal)}`} />,
       rotulo: "receita total",
     },
   ];
@@ -183,6 +182,7 @@ export function TelaPerfil({ admin = false }: { admin?: boolean }) {
         <ul className="rounded-[12px] border border-cinza-claro bg-white px-3.5 py-1">
           <ItemConfiguracao href="/perfil/editar" icone="/icones/perfil-dados.svg" rotulo="Dados pessoais" />
           <ItemConfiguracao href="/perfil/sobre" icone="/icones/perfil-sobre.svg" rotulo="Sobre o No Corre!" />
+          <ItemConfiguracao href="/perfil/novidades" icone="/icones/perfil-sobre.svg" rotulo="Notas de atualização" />
           <ItemConfiguracao href="/perfil/seguranca" icone="/icones/perfil-seguranca.svg" rotulo="Senha e segurança" />
           {admin && <ItemConfiguracao href="/admin" icone="/icones/relatorios.svg" rotulo="Painel do sistema" />}
           <li>

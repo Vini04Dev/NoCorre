@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Valor } from "@/components/ui/Valor";
 import type { Despesa, Receita } from "@/hooks/useMovimentacoes";
 import { dataHoraParaCampos } from "@/lib/data";
 
@@ -11,8 +12,6 @@ type Props = {
   fim: Date;
   receitas: Receita[];
   despesas: Despesa[];
-  /** Olhinho fechado: mostra só as cores do dia, sem os valores. */
-  ocultos?: boolean;
 };
 
 function somarDias(data: Date, dias: number) {
@@ -24,7 +23,7 @@ function somarDias(data: Date, dias: number) {
  * (dourado) e a despesa (cinza) daquele dia. Tocar num dia com lançamentos abre
  * o Resumo filtrado nele. Dias de fora do período aparecem apagados.
  */
-export function Calendario({ inicio, fim, receitas, despesas, ocultos = false }: Props) {
+export function Calendario({ inicio, fim, receitas, despesas }: Props) {
   const somas = new Map<string, { receita: number; despesa: number }>();
   const somar = (dataHora: string, campo: "receita" | "despesa", valor: number | null) => {
     const chave = dataHoraParaCampos(new Date(dataHora)).data;
@@ -70,8 +69,8 @@ export function Calendario({ inicio, fim, receitas, despesas, ocultos = false }:
               </span>
               {soma && dentro && (
                 <span className="mt-auto flex flex-col items-end text-[9px] leading-3 font-semibold">
-                  {soma.receita > 0 && <span className="text-[#b07d12]">{ocultos ? "•••" : valorCurto.format(soma.receita / 100)}</span>}
-                  {soma.despesa > 0 && <span className="text-cinza-escuro">{ocultos ? "•••" : valorCurto.format(soma.despesa / 100)}</span>}
+                  {soma.receita > 0 && <span className="text-[#b07d12]"><Valor texto={valorCurto.format(soma.receita / 100)} /></span>}
+                  {soma.despesa > 0 && <span className="text-cinza-escuro"><Valor texto={valorCurto.format(soma.despesa / 100)} /></span>}
                 </span>
               )}
             </>

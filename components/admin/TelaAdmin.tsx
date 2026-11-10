@@ -2,6 +2,7 @@ import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
 import { Secao } from "@/components/ui/Secao";
 import { formatarBytes, type MetricasAdmin } from "@/lib/admin";
 import { BotaoAtualizar } from "./BotaoAtualizar";
+import { TabelaCadastros } from "./TabelaCadastros";
 
 // Limites do plano gratuito do Supabase, para mostrar quanto já foi usado.
 const LIMITE_BANCO = 500 * 1024 * 1024;
@@ -247,28 +248,9 @@ export function TelaAdmin({ metricas, erro }: { metricas: MetricasAdmin | null; 
               </Secao>
             </div>
 
-            <Secao titulo="ÚLTIMOS CADASTROS">
+            <Secao titulo="ÚLTIMOS CADASTROS · TOQUE PARA VER OS REGISTROS">
               <div className={`${CARTAO} overflow-x-auto p-0`}>
-                <table className="w-full text-left text-xs">
-                  <thead className="text-[11px] text-cinza-escuro">
-                    <tr className="border-b border-cinza-claro">
-                      <th className="px-4 py-2.5 font-semibold">Nome</th>
-                      <th className="px-4 py-2.5 font-semibold">Cadastro</th>
-                      <th className="px-4 py-2.5 font-semibold">Último acesso</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {metricas.ultimos_cadastros.map((pessoa) => (
-                      <tr key={`${pessoa.nome}-${pessoa.criado_em}`} className="border-b border-cinza-claro last:border-0">
-                        <td className="max-w-40 truncate px-4 py-2.5 font-semibold">{pessoa.nome}</td>
-                        <td className="px-4 py-2.5 whitespace-nowrap">{dataHora.format(new Date(pessoa.criado_em))}</td>
-                        <td className="px-4 py-2.5 whitespace-nowrap text-cinza-escuro">
-                          {pessoa.ultimo_acesso ? dataHora.format(new Date(pessoa.ultimo_acesso)) : "Nunca entrou"}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <TabelaCadastros pessoas={metricas.ultimos_cadastros} />
               </div>
             </Secao>
           </div>

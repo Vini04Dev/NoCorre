@@ -43,7 +43,7 @@ export function FundoAnimado() {
         alvo.style.setProperty("--aceso", k.toFixed(3));
       }
       if (luz.current) {
-        luz.current.style.background = `radial-gradient(600px circle at ${x}% ${yLuz}%, var(--l-luz), transparent 70%)`;
+        luz.current.style.background = `radial-gradient(var(--l-raio-luz) circle at ${x}% ${yLuz}%, var(--l-luz), transparent 70%)`;
       }
     }
     function agendar() {

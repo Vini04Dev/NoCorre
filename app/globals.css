@@ -68,6 +68,7 @@ body {
   --l-destaque: #ffd36a;
   --l-pontos: rgba(255, 255, 255, 0.09);
   --l-luz: rgba(255, 211, 106, 0.07);
+  --l-raio-luz: 600px;
   --l-sombra: rgba(0, 0, 0, 0.9);
   color-scheme: dark;
 }
@@ -81,8 +82,10 @@ body {
   --l-suave: #676c7c;
   --l-destaque: #9a6a0c;
   --l-pontos: rgba(43, 45, 66, 0.12);
-  --l-luz: rgba(224, 169, 46, 0.16);
+  /* No fundo claro a luz precisa ser bem mais forte para aparecer. */
+  --l-luz: rgba(255, 190, 50, 0.42);
   --l-sombra: rgba(43, 45, 66, 0.18);
+  --l-raio-luz: 520px;
   color-scheme: light;
 }
 

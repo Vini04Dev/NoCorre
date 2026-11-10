@@ -6,7 +6,7 @@ import { LinhaValor } from "@/components/ui/LinhaValor";
 import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
 import { useEstadoDaTela } from "@/hooks/useEstadoDaTela";
 import { useMovimentacoes } from "@/hooks/useMovimentacoes";
-import { useValoresOcultos, VALOR_OCULTO } from "@/hooks/useValoresOcultos";
+import { Valor } from "@/components/ui/Valor";
 import { formatarMoeda } from "@/lib/formatar";
 import { intervaloDoPeriodo, type FiltroPeriodo } from "@/lib/periodo";
 import { calcularTotais } from "@/lib/totais";
@@ -22,9 +22,8 @@ export function ResumoPeriodo() {
   const [visao, setVisao] = useEstadoDaTela<Visao>("home:visao", "lista");
   const { data, isError } = useMovimentacoes(periodo);
   const totais = calcularTotais(data?.receitas ?? [], data?.despesas ?? []);
-  const [ocultos] = useValoresOcultos();
   // Enquanto carrega, mostra "–" em vez de um R$ 0,00 que pareceria verdadeiro.
-  const moeda = (valor: number) => (!data ? "–" : ocultos ? VALOR_OCULTO : formatarMoeda(valor));
+  const moeda = (valor: number) => (!data ? "–" : <Valor texto={formatarMoeda(valor)} />);
 
   // "Hoje" é sempre a lista: um calendário de um quadrado só não diz nada.
   const permiteCalendario = periodo.tipo !== "dia";
@@ -68,7 +67,7 @@ export function ResumoPeriodo() {
               </div>
             ))}
           </dl>
-          {data && <Calendario {...intervaloDoPeriodo(periodo)} receitas={data.receitas} despesas={data.despesas} ocultos={ocultos} />}
+          {data && <Calendario {...intervaloDoPeriodo(periodo)} receitas={data.receitas} despesas={data.despesas} />}
         </div>
       ) : (
         <div className="flex flex-col gap-[5px]">
