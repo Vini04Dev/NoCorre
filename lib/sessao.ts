@@ -1,5 +1,6 @@
 import "server-only";
 import { cache } from "react";
+import { validarClaims } from "@/lib/supabase/claims";
 import { criarClienteServidor } from "@/lib/supabase/servidor";
 
 /**
@@ -8,9 +9,7 @@ import { criarClienteServidor } from "@/lib/supabase/servidor";
  * (que valida a assinatura do token) a cada chamada.
  */
 export const obterClaims = cache(async () => {
-  const supabase = await criarClienteServidor();
-  const { data } = await supabase.auth.getClaims();
-  return data?.claims ?? null;
+  return validarClaims(await criarClienteServidor());
 });
 
 /** Há sessão válida nesta requisição? */
