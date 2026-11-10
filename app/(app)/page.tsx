@@ -38,9 +38,12 @@ export default async function Pagina() {
 async function Home() {
   // A RLS de perfis só devolve a linha do próprio usuário, então não precisa de filtro.
   const supabase = await criarClienteServidor();
-  const { data: perfil } = await supabase.from("perfis").select("nome").maybeSingle();
+  // Em paralelo: cada ida ao banco custa uma viagem de rede.
+  const [{ data: perfil }, admin] = await Promise.all([
+    supabase.from("perfis").select("nome").maybeSingle(),
+    ehAdmin(),
+  ]);
   const primeiroNome = perfil?.nome.split(" ")[0];
-  const admin = await ehAdmin();
 
   return (
     <>
