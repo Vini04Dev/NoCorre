@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
+import { IconeCirculo } from "@/components/ui/IconeCirculo";
 import { dataDaNota, NOTAS, VERSAO_ATUAL } from "@/lib/novidades";
 
 export const metadata: Metadata = { title: "Notas de atualização | No Corre!" };
@@ -14,7 +15,7 @@ export default function Pagina() {
         <div aria-hidden className="pointer-events-none absolute -top-16 -right-10 size-44 rounded-full bg-dourado/30 blur-3xl" />
         <p className="relative text-[11px] font-semibold tracking-[0.66px] text-dourado-claro">VERSÃO ATUAL</p>
         <p className="relative mt-1 text-4xl font-black">v{VERSAO_ATUAL}</p>
-        <p className="relative mt-1 text-xs text-cinza-claro">O que mudou no No Corre!, versão por versão.</p>
+        <p className="relative mt-1 text-xs text-cinza-claro">Histórico de mudanças do No Corre!, versão por versão.</p>
       </section>
 
       <ol className="relative flex flex-col gap-8 border-l-2 border-dashed border-cinza-claro pl-5">
@@ -34,10 +35,8 @@ export default function Pagina() {
             </div>
             <ul className="grid gap-2.5">
               {nota.destaques.map(({ icone, titulo, texto }) => (
-                <li key={titulo} className="flex gap-3 rounded-[12px] border border-black/8 bg-white p-3.5 shadow-cartao">
-                  <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-dourado-claro/40 text-lg">
-                    {icone}
-                  </span>
+                <li key={titulo} className="flex items-start gap-3 rounded-[12px] border border-black/8 bg-white p-3.5 shadow-cartao">
+                  <IconeCirculo src={icone} />
                   <span className="flex flex-col gap-0.5">
                     <span className="text-[13px] font-bold">{titulo}</span>
                     <span className="text-[11px] leading-relaxed text-cinza-escuro">{texto}</span>

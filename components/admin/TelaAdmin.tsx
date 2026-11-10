@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
 import { Secao } from "@/components/ui/Secao";
 import { formatarBytes, type MetricasAdmin } from "@/lib/admin";
@@ -254,6 +255,33 @@ export function TelaAdmin({ metricas, erro }: { metricas: MetricasAdmin | null; 
               </div>
             </Secao>
           </div>
+
+          <Secao titulo="AVISOS DO APP">
+            <div className={`${CARTAO} flex flex-col gap-2 text-xs`}>
+              <p className="text-cinza-escuro">
+                Telas que só aparecem sob condição. Abra para conferir como cada pessoa vê.
+              </p>
+              {[
+                { href: "/?aviso=novidades", rotulo: "Aviso de atualização", quando: "abre a cada versão nova, ao entrar" },
+                { href: "/?aviso=primeiro-uso", rotulo: "Aviso de primeiro cliente", quando: "abre no Início enquanto não há cliente" },
+                { href: "/perfil/novidades", rotulo: "Notas de atualização", quando: "Perfil > Notas de atualização" },
+              ].map(({ href, rotulo, quando }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="flex items-center justify-between gap-3 rounded-[10px] border border-cinza-claro px-3 py-2.5 transition-colors hover:bg-cinza-fundo"
+                >
+                  <span className="flex flex-col">
+                    <span className="font-semibold">{rotulo}</span>
+                    <span className="text-[11px] text-cinza-escuro">{quando}</span>
+                  </span>
+                  <span aria-hidden className="text-lg text-cinza">
+                    ›
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </Secao>
 
           <p className="text-[11px] text-cinza-escuro">
             Requisições à API e tráfego ficam no painel do Supabase (Reports), fora do app.

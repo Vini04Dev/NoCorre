@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { cookies, headers } from "next/headers";
+import { Suspense } from "react";
 import { AvisoPrimeiroUso } from "@/components/home/AvisoPrimeiroUso";
 import { CabecalhoHome } from "@/components/home/CabecalhoHome";
 import { CartaoModulo } from "@/components/home/CartaoModulo";
@@ -101,7 +102,9 @@ async function Home() {
           )}
         </div>
       </main>
-      <AvisoPrimeiroUso />
+      <Suspense>
+        <AvisoPrimeiroUso />
+      </Suspense>
     </>
   );
 }

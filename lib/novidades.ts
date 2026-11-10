@@ -6,6 +6,7 @@
  * pessoa ainda não viu abre sozinha num aviso ao entrar no app.
  */
 
+/** `icone`: caminho de um ícone de linha em /public/icones (nunca emoji). */
 export type Destaque = { icone: string; titulo: string; texto: string };
 
 export type Nota = {
@@ -21,43 +22,43 @@ export const NOTAS: Nota[] = [
   {
     versao: "0.0.1",
     data: "2026-11-10",
-    titulo: "O corre começou",
-    resumo: "A primeira versão do No Corre!: tudo o que você precisa para saber quanto entra, quanto sai e quanto sobra.",
+    titulo: "Primeira versão",
+    resumo: "O controle completo do seu corre: o que entra, o que sai e quanto sobra.",
     destaques: [
       {
-        icone: "💰",
-        titulo: "Saldo na hora",
-        texto: "O Início mostra saldo, recebidos, pendentes, despesas e entregas do dia, da semana ou do mês, em lista ou no calendário.",
+        icone: "/icones/saldo.svg",
+        titulo: "Saldo do período",
+        texto: "Saldo, recebidos, pendentes, despesas e entregas do dia, da semana ou do mês, em lista ou no calendário.",
       },
       {
-        icone: "➕",
-        titulo: "Lançar é rápido",
-        texto: "Receita (entrega, corrida ou gorjeta) e despesa em poucos toques, com o total calculado enquanto você digita. O app lembra a categoria de costume de cada cliente e de cada descrição.",
+        icone: "/icones/adicionar.svg",
+        titulo: "Lançamento rápido",
+        texto: "Receita (entrega, corrida ou gorjeta) e despesa com o total calculado na hora. A categoria de costume de cada cliente e de cada descrição já vem marcada.",
       },
       {
-        icone: "🧾",
-        titulo: "Resumo do seu corre",
-        texto: "Todas as movimentações com filtros por período, categoria, cliente e situação. Toque num lançamento para editar, excluir ou marcar como pago.",
+        icone: "/icones/lista.svg",
+        titulo: "Resumo",
+        texto: "Todas as movimentações com filtros por período, categoria, cliente e situação. Cada lançamento pode ser editado, excluído ou marcado como pago.",
       },
       {
-        icone: "📊",
-        titulo: "Relatórios que ensinam",
-        texto: "Tendências contra o período anterior, previsão do fim do mês, o dia e o horário que mais rendem, os últimos 6 meses e o saldo acumulado.",
+        icone: "/icones/relatorios.svg",
+        titulo: "Relatórios",
+        texto: "Comparação com o período anterior, previsão do fim do mês, dia e horário que mais rendem, últimos 6 meses e saldo acumulado.",
       },
       {
-        icone: "🎯",
+        icone: "/icones/alvo.svg",
         titulo: "Metas e contas",
         texto: "Metas de receita, de entregas ou de limite de gasto, e contas parceladas que abatem a cada pagamento.",
       },
       {
-        icone: "👁️",
-        titulo: "Olhinho do saldo",
-        texto: "Esconda os valores com um toque quando estiver usando o celular perto de outras pessoas.",
+        icone: "/icones/olho.svg",
+        titulo: "Esconder valores",
+        texto: "Um toque no olho do Início esconde os valores da tela.",
       },
       {
-        icone: "💻",
-        titulo: "No celular e no computador",
-        texto: "Instale como app na tela de início do celular ou use no computador, com menu lateral e telas mais largas.",
+        icone: "/icones/dispositivos.svg",
+        titulo: "Celular e computador",
+        texto: "Instale na tela de início do celular ou use no computador, com menu lateral e telas mais largas.",
       },
     ],
   },
