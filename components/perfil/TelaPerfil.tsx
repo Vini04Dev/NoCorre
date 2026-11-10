@@ -9,6 +9,7 @@ import { CirculoProgresso } from "@/components/metas/CirculoProgresso";
 import { Secao } from "@/components/ui/Secao";
 import { useMetas } from "@/hooks/useMetas";
 import { useEstatisticasPerfil, usePerfil } from "@/hooks/usePerfil";
+import { useValoresOcultos } from "@/hooks/useValoresOcultos";
 import { corDaMeta, textoProgresso } from "@/lib/metas";
 
 const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
@@ -84,6 +85,7 @@ export function TelaPerfil({ admin = false }: { admin?: boolean }) {
   const { data: estatisticas } = useEstatisticasPerfil();
   const { data: clientes } = useClientes();
   const { data: metas } = useMetas();
+  const [ocultos] = useValoresOcultos();
 
   if (isPending) return <p className="p-6 text-center text-[13px] text-cinza-escuro">Carregando...</p>;
   if (isError || !perfil) {
@@ -98,7 +100,10 @@ export function TelaPerfil({ admin = false }: { admin?: boolean }) {
       rotulo: "metas batidas",
     },
     { valor: clientes ? String(clientes.length) : "–", rotulo: "clientes" },
-    { valor: estatisticas ? `R$ ${compacto.format(estatisticas.receitaTotal)}` : "–", rotulo: "receita total" },
+    {
+      valor: !estatisticas ? "–" : ocultos ? "R$ •••" : `R$ ${compacto.format(estatisticas.receitaTotal)}`,
+      rotulo: "receita total",
+    },
   ];
   const veiculo = [perfil.veiculo, perfil.ano_veiculo].filter(Boolean).join(" · ");
 
