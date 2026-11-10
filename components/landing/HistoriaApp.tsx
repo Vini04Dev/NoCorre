@@ -2,34 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { suave, trecho } from "./animacao";
+import { useTextos } from "./ContextoLanding";
 import { MockupCelular, TelaConta, TelaLancamento, TelaMeta, TelaSaldo } from "./MockupCelular";
 
-const PASSOS = [
-  {
-    selo: "SALDO",
-    titulo: "Quanto sobrou. Agora.",
-    texto: "Recebidos, pendentes e despesas do dia, da semana ou do mês. Sem planilha, sem caderninho.",
-    Tela: TelaSaldo,
-  },
-  {
-    selo: "LANÇAMENTO",
-    titulo: "Dois toques por entrega.",
-    texto: "Entrega, corrida ou gorjeta. O total aparece enquanto você digita.",
-    Tela: TelaLancamento,
-  },
-  {
-    selo: "METAS",
-    titulo: "A meta enche junto com o tanque.",
-    texto: "Defina quanto quer faturar ou quantas entregas quer fazer e veja o círculo completar.",
-    Tela: TelaMeta,
-  },
-  {
-    selo: "CONTAS",
-    titulo: "Cada parcela no lugar certo.",
-    texto: "Financiamento, água, luz: o pagamento abate da conta escolhida e o app avisa quanto falta.",
-    Tela: TelaConta,
-  },
-];
+/** Telas do celular, na ordem dos textos de idiomas.ts (historia). */
+const TELAS = [TelaSaldo, TelaLancamento, TelaMeta, TelaConta];
 
 /**
  * Celular preso ao lado enquanto os textos passam: a tela troca conforme o
@@ -38,6 +15,7 @@ const PASSOS = [
  * só quando ele chega no lugar a primeira tela começa a animar.
  */
 export function HistoriaApp() {
+  const textos = useTextos().historia;
   // -1: nenhum passo lido ainda (a seção está abaixo da tela). O celular mostra a
   // primeira tela parada e só anima quando o primeiro texto chega ao meio.
   const [ativo, setAtivo] = useState(-1);
@@ -94,14 +72,14 @@ export function HistoriaApp() {
 
   return (
     // overflow-y-clip (e não hidden) corta o celular na linha sem quebrar o sticky.
-    <div ref={secao} className="border-t border-white/10 [overflow-y:clip]">
+    <div ref={secao} className="border-t border-l-tinta/10 [overflow-y:clip]">
       <div className="mx-auto grid w-full max-w-6xl gap-10 px-5 sm:px-8 lg:grid-cols-2">
         <div className="sticky top-16 z-10 order-first flex h-[calc(100dvh-4rem)] items-center justify-center lg:order-last">
           <div ref={celular} className="will-change-transform">
             <MockupCelular className="scale-[0.8] sm:scale-100">
-              {PASSOS.map(({ selo, Tela }, indice) => (
+              {TELAS.map((Tela, indice) => (
                 <div
-                  key={selo}
+                  key={indice}
                   aria-hidden={indice !== exibido}
                   className={`absolute inset-0 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                     indice === exibido ? "translate-y-0 opacity-100" : indice < exibido ? "-translate-y-6 opacity-0" : "translate-y-6 opacity-0"
@@ -115,9 +93,9 @@ export function HistoriaApp() {
         </div>
 
         <div className="relative z-20 -mt-[60dvh] flex flex-col lg:mt-0">
-          {PASSOS.map(({ selo, titulo, texto }, indice) => (
+          {textos.map(({ selo, titulo, texto }, indice) => (
             <div
-              key={selo}
+              key={indice}
               data-indice={indice}
               ref={(elemento) => {
                 passos.current[indice] = elemento;
@@ -125,13 +103,13 @@ export function HistoriaApp() {
               className="flex min-h-[90dvh] items-end pb-[12dvh] lg:items-center lg:pb-0"
             >
               <div
-                className={`flex flex-col gap-3 rounded-3xl bg-[#0d0e16]/85 p-6 backdrop-blur transition-opacity duration-500 lg:bg-transparent lg:p-0 lg:backdrop-blur-none ${
+                className={`flex flex-col gap-3 rounded-3xl bg-l-fundo/85 p-6 backdrop-blur transition-opacity duration-500 lg:bg-transparent lg:p-0 lg:backdrop-blur-none ${
                   indice === ativo ? "opacity-100" : "opacity-30"
                 }`}
               >
-                <span className="text-xs font-semibold tracking-[0.14em] text-dourado-claro uppercase">{selo}</span>
-                <h3 className="text-3xl font-titulo font-bold tracking-[-0.03em] text-white sm:text-5xl">{titulo}</h3>
-                <p className="max-w-md text-base text-cinza-claro sm:text-lg">{texto}</p>
+                <span className="text-xs font-semibold tracking-[0.14em] text-l-destaque uppercase">{selo}</span>
+                <h3 className="text-3xl font-titulo font-bold tracking-[-0.03em] text-l-titulo sm:text-5xl">{titulo}</h3>
+                <p className="max-w-md text-base text-l-texto sm:text-lg">{texto}</p>
               </div>
             </div>
           ))}

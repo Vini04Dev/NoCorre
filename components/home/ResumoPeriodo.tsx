@@ -6,6 +6,7 @@ import { LinhaValor } from "@/components/ui/LinhaValor";
 import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
 import { useEstadoDaTela } from "@/hooks/useEstadoDaTela";
 import { useMovimentacoes } from "@/hooks/useMovimentacoes";
+import { Valor } from "@/components/ui/Valor";
 import { formatarMoeda } from "@/lib/formatar";
 import { intervaloDoPeriodo, type FiltroPeriodo } from "@/lib/periodo";
 import { calcularTotais } from "@/lib/totais";
@@ -22,7 +23,7 @@ export function ResumoPeriodo() {
   const { data, isError } = useMovimentacoes(periodo);
   const totais = calcularTotais(data?.receitas ?? [], data?.despesas ?? []);
   // Enquanto carrega, mostra "–" em vez de um R$ 0,00 que pareceria verdadeiro.
-  const moeda = (valor: number) => (data ? formatarMoeda(valor) : "–");
+  const moeda = (valor: number) => (!data ? "–" : <Valor texto={formatarMoeda(valor)} />);
 
   // "Hoje" é sempre a lista: um calendário de um quadrado só não diz nada.
   const permiteCalendario = periodo.tipo !== "dia";

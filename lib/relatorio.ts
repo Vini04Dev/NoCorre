@@ -183,3 +183,144 @@ export function gerarAvisos(
 
   return avisos;
 }
+
+/* ---------- Tendências, mapa do corre e evolução mensal ---------- */
+
+type ItemValor = { valor_total: number | null };
+type ItemReceita = ItemValor & { status_pagamento: string; quantidade: number };
+
+const somaCentavos = (itens: ItemValor[]) => itens.reduce((soma, item) => soma + centavos(item.valor_total), 0);
+const somaPagas = (receitas: ItemReceita[]) =>
+  somaCentavos(receitas.filter((r) => r.status_pagamento === "pago"));
+
+export type Tendencia = {
+  chave: "receita" | "despesa" | "saldo" | "entregas" | "ticket";
+  rotulo: string;
+  atual: number;
+  anterior: number;
+  /** Variação em % contra o período anterior; null quando não havia base para comparar. */
+  variacao: number | null;
+  /** Subir é bom (receita) ou ruim (despesa)? */
+  subirEhBom: boolean;
+  dinheiro: boolean;
+};
+
+/**
+ * Comparação com o período anterior de mesmo tamanho: receita paga, despesas,
+ * saldo, entregas (soma das quantidades, pagas ou não) e ticket médio
+ * (receita paga por entrega paga).
+ */
+export function tendencias(
+  atual: { receitas: ItemReceita[]; despesas: ItemValor[] },
+  anterior: { receitas: ItemReceita[]; despesas: ItemValor[] },
+): Tendencia[] {
+  const medir = (dados: typeof atual) => {
+    const receita = somaPagas(dados.receitas);
+    const despesa = somaCentavos(dados.despesas);
+    const entregas = dados.receitas.reduce((soma, r) => soma + r.quantidade, 0);
+    const entregasPagas = dados.receitas.filter((r) => r.status_pagamento === "pago").reduce((s, r) => s + r.quantidade, 0);
+    return {
+      receita: receita / 100,
+      despesa: despesa / 100,
+      saldo: (receita - despesa) / 100,
+      entregas,
+      ticket: entregasPagas ? receita / entregasPagas / 100 : 0,
+    };
+  };
+  const a = medir(atual);
+  const b = medir(anterior);
+  const variacao = (agora: number, antes: number) =>
+    antes === 0 ? null : Math.round(((agora - antes) / Math.abs(antes)) * 100);
+  const linha = (chave: Tendencia["chave"], rotulo: string, subirEhBom: boolean, dinheiro: boolean): Tendencia => ({
+    chave,
+    rotulo,
+    atual: a[chave],
+    anterior: b[chave],
+    variacao: variacao(a[chave], b[chave]),
+    subirEhBom,
+    dinheiro,
+  });
+  return [
+    linha("receita", "Receita", true, true),
+    linha("despesa", "Despesas", false, true),
+    linha("saldo", "Saldo", true, true),
+    linha("entregas", "Entregas", true, false),
+    linha("ticket", "Média por entrega", true, true),
+  ];
+}
+
+export const FAIXAS_HORARIO = ["0h", "3h", "6h", "9h", "12h", "15h", "18h", "21h"];
+/** Segunda primeiro (regra 10). */
+export const DIAS_MAPA = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+
+/**
+ * "Mapa do corre": receita paga somada por dia da semana (linhas, segunda
+ * primeiro) e faixa de 3 horas (colunas). Mostra quando o corre mais rende.
+ */
+export function mapaDoCorre(receitas: (ItemReceita & { data_hora: string })[]) {
+  const celulas = DIAS_MAPA.map(() => new Array<number>(FAIXAS_HORARIO.length).fill(0));
+  for (const r of receitas) {
+    if (r.status_pagamento !== "pago") continue;
+    const data = new Date(r.data_hora);
+    celulas[(data.getDay() + 6) % 7][Math.floor(data.getHours() / 3)] += centavos(r.valor_total);
+  }
+  return celulas.map((linha) => linha.map((valor) => valor / 100));
+}
+
+const MESES_CURTOS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+
+export type Mes = { rotulo: string; receita: number; despesa: number; saldo: number; acumulado: number };
+
+/** Receita paga, despesas e saldo de cada mês a partir de `inicio`, e o saldo acumulado. */
+export function porMes(
+  receitas: (ItemReceita & { data_hora: string })[],
+  despesas: (ItemValor & { data_hora: string })[],
+  inicio: Date,
+  meses: number,
+): Mes[] {
+  const indice = (dataHora: string) => {
+    const data = new Date(dataHora);
+    return (data.getFullYear() - inicio.getFullYear()) * 12 + data.getMonth() - inicio.getMonth();
+  };
+  const receita = new Array<number>(meses).fill(0);
+  const despesa = new Array<number>(meses).fill(0);
+  for (const r of receitas) {
+    const i = indice(r.data_hora);
+    if (r.status_pagamento === "pago" && i >= 0 && i < meses) receita[i] += centavos(r.valor_total);
+  }
+  for (const d of despesas) {
+    const i = indice(d.data_hora);
+    if (i >= 0 && i < meses) despesa[i] += centavos(d.valor_total);
+  }
+  let acumulado = 0;
+  return receita.map((valor, i) => {
+    const saldo = valor - despesa[i];
+    acumulado += saldo;
+    const mes = new Date(inicio.getFullYear(), inicio.getMonth() + i, 1);
+    return {
+      rotulo: MESES_CURTOS[mes.getMonth()],
+      receita: valor / 100,
+      despesa: despesa[i] / 100,
+      saldo: saldo / 100,
+      acumulado: acumulado / 100,
+    };
+  });
+}
+
+/**
+ * Previsão para o fim do mês atual no ritmo de hoje: o que entrou e saiu até
+ * agora, dividido pelos dias corridos e multiplicado pelos dias do mês.
+ * Só faz sentido a partir do 3º dia; antes disso devolve null.
+ */
+export function previsaoDoMes(receitaPaga: number, despesas: number, hoje = new Date()) {
+  const diasNoMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).getDate();
+  const corridos = hoje.getDate();
+  if (corridos < 3) return null;
+  const fator = diasNoMes / corridos;
+  return {
+    receita: receitaPaga * fator,
+    despesa: despesas * fator,
+    saldo: (receitaPaga - despesas) * fator,
+    diasRestantes: diasNoMes - corridos,
+  };
+}

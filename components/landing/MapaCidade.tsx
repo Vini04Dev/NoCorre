@@ -1,5 +1,6 @@
 "use client";
 
+import { useTextos } from "./ContextoLanding";
 import { memo, useRef } from "react";
 import { suave, trecho, useProgressoRolagem } from "./animacao";
 import { CAIXAS, CENTRO_CIDADE, CIDADE, CODIGO_MG, ESTADOS } from "./mapa-dados";
@@ -45,7 +46,7 @@ const Contornos = memo(function Contornos() {
           d={d}
           vectorEffect="non-scaling-stroke"
           strokeWidth={1}
-          className={id === CODIGO_MG ? "fill-dourado/25 stroke-dourado-claro" : "fill-white/[0.06] stroke-white/20"}
+          className={id === CODIGO_MG ? "fill-dourado/25 stroke-dourado-claro" : "fill-l-tinta/[0.06] stroke-l-tinta/20"}
         />
       ))}
       <path d={CIDADE} vectorEffect="non-scaling-stroke" strokeWidth={2} className="fill-dourado/40 stroke-dourado-claro" />
@@ -53,21 +54,15 @@ const Contornos = memo(function Contornos() {
   );
 });
 
-const ETAPAS = [
-  { ate: 0.22, titulo: "Brasil", texto: "Milhares de entregadores rodando todo dia, quase sempre sem controle do que ganham." },
-  { ate: 0.6, titulo: "Minas Gerais", texto: "No Sul de Minas, o corre é de moto: app, central, pizzaria e mototáxi." },
-  {
-    ate: 1.01,
-    titulo: "São Sebastião do Paraíso",
-    texto: "É aqui que o No Corre! nasceu e roda o teste piloto, com entregadores da cidade.",
-  },
-];
+/** Até que ponto da rolagem (0 a 1) vale cada etapa; os textos ficam em idiomas.ts. */
+const ETAPAS = [0.22, 0.6, 1.01];
 
 /**
  * Seção alta com o mapa preso na tela: rolar dá zoom do Brasil até Minas e,
  * depois, até São Sebastião do Paraíso, onde aparecem o pino e as entregas.
  */
 export function MapaCidade() {
+  const t = useTextos().cidade;
   const secao = useRef<HTMLElement>(null);
   const svg = useRef<SVGSVGElement>(null);
   const pino = useRef<SVGGElement>(null);
@@ -87,7 +82,7 @@ export function MapaCidade() {
     pino.current?.setAttribute("opacity", String(mostrarPino));
     pontos.current?.setAttribute("opacity", String(trecho(p, 0.8, 0.9)));
 
-    const atual = ETAPAS.findIndex((etapa) => p < etapa.ate);
+    const atual = ETAPAS.findIndex((ate) => p < ate);
     textos.current.forEach((texto, indice) => {
       if (!texto) return;
       texto.style.opacity = indice === atual ? "1" : "0";
@@ -98,12 +93,12 @@ export function MapaCidade() {
   const [, , larguraCidade, alturaCidade] = CAIXAS.cidade;
 
   return (
-    <section ref={secao} aria-label="Onde o No Corre! roda" className="relative h-[320vh]">
+    <section ref={secao} aria-label={t.rotulo} className="relative h-[320vh]">
       <div className="sticky top-0 flex h-dvh flex-col overflow-hidden lg:flex-row">
         <div className="relative z-10 flex flex-col gap-3 px-5 pt-24 sm:px-8 lg:w-[42%] lg:justify-center lg:pt-0 lg:pl-[max(2rem,calc((100vw-72rem)/2+2rem))]">
-          <span className="text-xs font-semibold tracking-[0.14em] text-dourado-claro uppercase">DE ONDE A GENTE VEM</span>
+          <span className="text-xs font-semibold tracking-[0.14em] text-l-destaque uppercase">{t.selo}</span>
           <div className="relative min-h-[150px] sm:min-h-[170px]">
-            {ETAPAS.map(({ titulo, texto }, indice) => (
+            {t.etapas.map(({ titulo, texto }, indice) => (
               <div
                 key={titulo}
                 ref={(elemento) => {
@@ -112,8 +107,8 @@ export function MapaCidade() {
                 style={{ opacity: indice === 0 ? 1 : 0 }}
                 className="absolute inset-0 flex flex-col gap-3 transition-[opacity,transform] duration-500 ease-out"
               >
-                <h2 className="text-4xl font-titulo font-bold tracking-[-0.03em] text-white sm:text-5xl">{titulo}</h2>
-                <p className="max-w-md text-base text-cinza-claro sm:text-lg">{texto}</p>
+                <h2 className="text-4xl font-titulo font-bold tracking-[-0.03em] text-l-titulo sm:text-5xl">{titulo}</h2>
+                <p className="max-w-md text-base text-l-texto sm:text-lg">{texto}</p>
               </div>
             ))}
           </div>
@@ -126,7 +121,7 @@ export function MapaCidade() {
             preserveAspectRatio="xMidYMid meet"
             className="absolute inset-0 size-full"
             role="img"
-            aria-label="Mapa do Brasil com Minas Gerais e São Sebastião do Paraíso em destaque"
+            aria-label={t.mapa}
           >
             <Contornos />
             <g ref={pontos} opacity={0}>

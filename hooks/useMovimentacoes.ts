@@ -54,7 +54,7 @@ export function useMovimentacoes(periodo: FiltroPeriodo) {
 
 /**
  * Dados dos Relatórios: o período escolhido e o anterior de mesmo tamanho
- * (para comparar despesas), numa busca só, separados aqui.
+ * (para as tendências e os avisos), numa busca só, separados aqui.
  */
 export function useRelatorio(periodo: FiltroPeriodo) {
   return useQuery({
@@ -68,7 +68,7 @@ export function useRelatorio(periodo: FiltroPeriodo) {
         inicio,
         fim,
         atual: { receitas: receitas.filter(noPeriodo), despesas: despesas.filter(noPeriodo) },
-        anterior: { despesas: despesas.filter((d) => !noPeriodo(d)) },
+        anterior: { receitas: receitas.filter((r) => !noPeriodo(r)), despesas: despesas.filter((d) => !noPeriodo(d)) },
       };
     },
   });
@@ -114,6 +114,60 @@ export function useDespesa(id: string) {
       const { data, error } = await criarClienteNavegador().from("despesas").select("*").eq("id", id).maybeSingle();
       if (error) throw new Error(traduzirErroBanco(error));
       return data;
+    },
+  });
+}
+
+export type LinhaHistorico = Pick<Receita, "data_hora" | "valor_total" | "status_pagamento" | "quantidade" | "cliente_id">;
+export type LinhaHistoricoDespesa = Pick<Despesa, "data_hora" | "valor_total">;
+
+/**
+ * Busca todas as linhas, de 1000 em 1000: a API do Supabase devolve no máximo
+ * 1000 por consulta, e seis meses de corre passam disso fácil.
+ */
+async function buscarTudo<T>(pagina: (de: number, ate: number) => PromiseLike<{ data: T[] | null; error: Parameters<typeof traduzirErroBanco>[0] | null }>) {
+  const linhas: T[] = [];
+  for (let de = 0; ; de += 1000) {
+    const { data, error } = await pagina(de, de + 999);
+    if (error) throw new Error(traduzirErroBanco(error));
+    linhas.push(...(data ?? []));
+    if (!data || data.length < 1000) return linhas;
+  }
+}
+
+/**
+ * Últimos `meses` meses inteiros (o atual incluído), só com as colunas que os
+ * gráficos de evolução usam. Não depende do período escolhido na tela.
+ */
+export function useHistoricoMeses(meses = 6) {
+  return useQuery({
+    queryKey: ["movimentacoes", "historico", meses],
+    queryFn: async () => {
+      const hoje = new Date();
+      const inicio = new Date(hoje.getFullYear(), hoje.getMonth() - (meses - 1), 1);
+      const fim = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 1);
+      const supabase = criarClienteNavegador();
+      const [receitas, despesas] = await Promise.all([
+        buscarTudo<LinhaHistorico>((de, ate) =>
+          supabase
+            .from("receitas")
+            .select("data_hora, valor_total, status_pagamento, quantidade, cliente_id")
+            .gte("data_hora", inicio.toISOString())
+            .lt("data_hora", fim.toISOString())
+            .order("data_hora")
+            .range(de, ate),
+        ),
+        buscarTudo<LinhaHistoricoDespesa>((de, ate) =>
+          supabase
+            .from("despesas")
+            .select("data_hora, valor_total")
+            .gte("data_hora", inicio.toISOString())
+            .lt("data_hora", fim.toISOString())
+            .order("data_hora")
+            .range(de, ate),
+        ),
+      ]);
+      return { inicio, receitas, despesas };
     },
   });
 }

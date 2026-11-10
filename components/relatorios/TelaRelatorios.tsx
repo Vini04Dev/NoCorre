@@ -11,9 +11,22 @@ import { PainelInferior } from "@/components/ui/PainelInferior";
 import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
 import { useClientes } from "@/hooks/useClientes";
 import { useEstadoDaTela } from "@/hooks/useEstadoDaTela";
-import { usePendentes, useRelatorio } from "@/hooks/useMovimentacoes";
+import { useHistoricoMeses, usePendentes, useRelatorio } from "@/hooks/useMovimentacoes";
 import type { FiltroPeriodo } from "@/lib/periodo";
-import { gerarAvisos, porCategoria, rankingClientes, receitaPorDia } from "@/lib/relatorio";
+import {
+  gerarAvisos,
+  mapaDoCorre,
+  porCategoria,
+  porMes,
+  previsaoDoMes,
+  rankingClientes,
+  receitaPorDia,
+  tendencias,
+} from "@/lib/relatorio";
+import { ComparativoMensal } from "./ComparativoMensal";
+import { EvolucaoSaldo } from "./EvolucaoSaldo";
+import { MapaDoCorre } from "./MapaDoCorre";
+import { Tendencias } from "./Tendencias";
 
 /**
  * Relatórios: não repete os números da Home. Mostra receita por dia, receitas e
@@ -37,6 +50,23 @@ export function TelaRelatorios() {
   const categoriasReceita = porCategoria(receitas.filter((r) => r.status_pagamento === "pago"));
   const categoriasDespesa = porCategoria(despesas);
   const ranking = rankingClientes(receitas);
+  const historico = useHistoricoMeses(6);
+  const meses = historico.data
+    ? porMes(
+        clienteId ? historico.data.receitas.filter((r) => r.cliente_id === clienteId) : historico.data.receitas,
+        historico.data.despesas,
+        historico.data.inicio,
+        6,
+      )
+    : [];
+  const listaTendencias = dados
+    ? tendencias({ receitas, despesas }, { receitas: doCliente(dados.anterior.receitas), despesas: dados.anterior.despesas })
+    : [];
+  // A previsão só faz sentido olhando o mês que ainda está correndo.
+  const previsao =
+    periodo.tipo === "mes" && listaTendencias.length
+      ? previsaoDoMes(listaTendencias[0].atual, listaTendencias[1].atual)
+      : null;
   const avisos = dados
     ? gerarAvisos({ receitas, despesas }, dados.anterior, doCliente(pendentes.data ?? []))
     : [];
@@ -76,6 +106,7 @@ export function TelaRelatorios() {
 
       {dados && (
         <>
+          <Tendencias itens={listaTendencias} previsao={previsao} />
           <GraficoBarras barras={receitaPorDia(receitas, dados.inicio, dados.fim)} />
 
           <div className="flex flex-col gap-[18px] lg:grid lg:grid-cols-2 lg:items-start lg:gap-8">
@@ -104,8 +135,16 @@ export function TelaRelatorios() {
 
           <RankingClientes total={ranking.total} posicoes={ranking.posicoes} />
           <ListaAvisos avisos={avisos} />
+          <MapaDoCorre celulas={mapaDoCorre(receitas)} />
           </div>
         </>
+      )}
+
+      {meses.length > 0 && (
+        <div className="flex flex-col gap-[18px] lg:grid lg:grid-cols-2 lg:items-start lg:gap-8">
+          <ComparativoMensal meses={meses} />
+          <EvolucaoSaldo meses={meses} />
+        </div>
       )}
 
       {painelAberto && (

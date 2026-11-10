@@ -1,5 +1,5 @@
 import "server-only";
-import { criarClienteServidor } from "@/lib/supabase/servidor";
+import { obterClaims } from "@/lib/sessao";
 
 /**
  * A conta é ADM quando o e-mail da sessão está em ADMIN_EMAIL (variável do
@@ -13,9 +13,7 @@ export async function ehAdmin() {
     .filter(Boolean);
   if (lista.length === 0) return false;
 
-  const supabase = await criarClienteServidor();
-  // getClaims valida o JWT da sessão; o e-mail não vem de nada que o navegador mande à parte.
-  const { data } = await supabase.auth.getClaims();
-  const email = data?.claims.email;
+  // Claims validados do JWT da sessão; o e-mail não vem de nada que o navegador mande à parte.
+  const email = (await obterClaims())?.email;
   return typeof email === "string" && lista.includes(email.toLowerCase());
 }

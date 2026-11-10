@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Valor } from "@/components/ui/Valor";
 import type { Despesa, Receita } from "@/hooks/useMovimentacoes";
 import { dataHoraParaCampos } from "@/lib/data";
 
@@ -68,8 +69,8 @@ export function Calendario({ inicio, fim, receitas, despesas }: Props) {
               </span>
               {soma && dentro && (
                 <span className="mt-auto flex flex-col items-end text-[9px] leading-3 font-semibold">
-                  {soma.receita > 0 && <span className="text-[#b07d12]">{valorCurto.format(soma.receita / 100)}</span>}
-                  {soma.despesa > 0 && <span className="text-cinza-escuro">{valorCurto.format(soma.despesa / 100)}</span>}
+                  {soma.receita > 0 && <span className="text-[#b07d12]"><Valor texto={valorCurto.format(soma.receita / 100)} /></span>}
+                  {soma.despesa > 0 && <span className="text-cinza-escuro"><Valor texto={valorCurto.format(soma.despesa / 100)} /></span>}
                 </span>
               )}
             </>

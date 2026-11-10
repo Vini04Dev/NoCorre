@@ -1,4 +1,5 @@
 import type { calcularTotais } from "@/lib/totais";
+import { Valor } from "@/components/ui/Valor";
 import { formatarMoeda } from "@/lib/formatar";
 
 type Props = {
@@ -9,7 +10,7 @@ type Props = {
 
 /** Saldo do período em destaque e, abaixo, recebidos, pendentes e despesas. */
 export function CartaoSaldo({ nomePeriodo, totais }: Props) {
-  const moeda = (valor: number | undefined) => (totais ? formatarMoeda(valor ?? 0) : "–");
+  const moeda = (valor: number | undefined) => (!totais ? "–" : <Valor texto={formatarMoeda(valor ?? 0)} />);
 
   return (
     <section className="flex flex-col gap-3 rounded-[10px] border border-black/8 bg-white px-4 py-3.5 shadow-cartao">

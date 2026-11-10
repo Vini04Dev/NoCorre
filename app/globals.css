@@ -29,6 +29,15 @@
   --font-titulo: var(--font-titulo);
   --font-mono: var(--font-mono-landing), ui-monospace, monospace;
 
+  /* Cores da landing, que mudam com o tema (valores em .landing, abaixo). */
+  --color-l-fundo: var(--l-fundo);
+  --color-l-cartao: var(--l-cartao);
+  --color-l-tinta: var(--l-tinta);
+  --color-l-titulo: var(--l-titulo);
+  --color-l-texto: var(--l-texto);
+  --color-l-suave: var(--l-suave);
+  --color-l-destaque: var(--l-destaque);
+
   --shadow-cartao: 0px 4px 4px 0px rgba(0, 0, 0, 0.1);
   --shadow-segmento: 0px 4px 4px 0px rgba(0, 0, 0, 0.13);
   --shadow-segmento-ativo: 0px 4px 4px 0px rgba(0, 0, 0, 0.09);
@@ -40,3 +49,54 @@ body {
   background: var(--color-fundo);
   color: var(--color-marinho);
 }
+
+/*
+ * Temas da landing (components/landing/ContextoLanding.tsx põe data-tema na raiz).
+ * "tinta" é a cor das linhas e superfícies translúcidas: branca no escuro,
+ * marinho no claro. Celular desenhado, terminal e card final usam .landing-escura
+ * para continuarem escuros nos dois temas.
+ */
+.landing,
+.landing [data-tema="escuro"],
+.landing-escura {
+  --l-fundo: #0d0e16;
+  --l-cartao: #171824;
+  --l-tinta: #ffffff;
+  --l-titulo: #ffffff;
+  --l-texto: #dfe1e6;
+  --l-suave: #b0b6bf;
+  --l-destaque: #ffd36a;
+  --l-pontos: rgba(255, 255, 255, 0.09);
+  --l-luz: rgba(255, 211, 106, 0.07);
+  --l-raio-luz: 600px;
+  --l-sombra: rgba(0, 0, 0, 0.9);
+  color-scheme: dark;
+}
+
+.landing[data-tema="claro"] {
+  --l-fundo: #f6f6f8;
+  --l-cartao: #ffffff;
+  --l-tinta: #2b2d42;
+  --l-titulo: #2b2d42;
+  --l-texto: #474b5c;
+  --l-suave: #676c7c;
+  --l-destaque: #9a6a0c;
+  --l-pontos: rgba(43, 45, 66, 0.12);
+  /* No fundo claro a luz precisa ser bem mais forte para aparecer. */
+  --l-luz: rgba(255, 190, 50, 0.42);
+  --l-sombra: rgba(43, 45, 66, 0.18);
+  --l-raio-luz: 520px;
+  color-scheme: light;
+}
+
+.landing[data-tema="claro"] .landing-escura {
+  --l-fundo: #0d0e16;
+  --l-cartao: #171824;
+  --l-tinta: #ffffff;
+  --l-titulo: #ffffff;
+  --l-texto: #dfe1e6;
+  --l-suave: #b0b6bf;
+  --l-destaque: #ffd36a;
+  color-scheme: dark;
+}
+

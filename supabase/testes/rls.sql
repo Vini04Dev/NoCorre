@@ -158,6 +158,12 @@ begin
   exception when insufficient_privilege then ok := true;
   end;
   if not ok then raise exception 'FALHA 15a: usuário logado leu as métricas'; end if;
+  ok := false;
+  begin
+    perform public.metricas_usuario_admin(bia);
+  exception when insufficient_privilege then ok := true;
+  end;
+  if not ok then raise exception 'FALHA 15c: usuário logado leu o detalhe de outra pessoa'; end if;
   reset role;
   set local role service_role;
   if (public.metricas_admin() -> 'usuarios' ->> 'total')::int < 2 then raise exception 'FALHA 15b'; end if;

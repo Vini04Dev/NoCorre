@@ -304,6 +304,7 @@ export type Database = {
     Functions: {
       excluir_minha_conta: { Args: never; Returns: undefined }
       metricas_admin: { Args: never; Returns: Json }
+      metricas_usuario_admin: { Args: { p_usuario: string }; Returns: Json }
     }
     Enums: {
       cor_evento: "amarelo" | "verde" | "vermelho" | "azul" | "roxo" | "cinza"
