@@ -34,12 +34,11 @@ function Detalhe({ dados }: { dados: MetricasUsuario }) {
           </div>
         ))}
       </dl>
-      <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] lg:grid-cols-4">
+      <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] lg:grid-cols-3">
         {[
           ["Primeiro lançamento", quando(dados.primeiro_lancamento)],
           ["Último lançamento", quando(dados.ultimo_lancamento)],
           ["Último uso do app", quando(dados.ultimo_uso)],
-          ["Aparelho", dados.aparelho ?? "–"],
         ].map(([rotulo, valor]) => (
           <div key={rotulo}>
             <dt className="text-cinza-escuro">{rotulo}</dt>

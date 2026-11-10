@@ -70,10 +70,13 @@ function BarrasPorDia({
   );
 }
 
-/** Segunda linha de números: retenção, quem nunca lançou, pendências e aparelho. */
+/**
+ * Segunda linha de números: retenção, quem nunca lançou e pendências.
+ * Aparelho (celular x computador) não entra: o login e a renovação da sessão
+ * passam pelo servidor, então o Supabase guarda o navegador do servidor, não o da pessoa.
+ */
 function Saude({ metricas }: { metricas: MetricasAdmin }) {
   const retencao = metricas.retencao_7d;
-  const uso = metricas.uso;
   const percentual = retencao && retencao.base ? Math.round((retencao.voltaram / retencao.base) * 100) : null;
   const itens = [
     {
@@ -84,14 +87,9 @@ function Saude({ metricas }: { metricas: MetricasAdmin }) {
     { rotulo: "Nunca lançaram", valor: numero(metricas.sem_lancamento ?? 0), detalhe: "contas sem receita nem despesa" },
     { rotulo: "Receitas pendentes", valor: numero(metricas.receitas_pendentes ?? 0), detalhe: "a receber, de todos" },
     { rotulo: "Metas ativas", valor: numero(metricas.metas_ativas ?? 0), detalhe: "em andamento" },
-    {
-      rotulo: "Aparelho (30 dias)",
-      valor: uso ? `${numero(uso.celular_30d)} · ${numero(uso.computador_30d)}` : "–",
-      detalhe: "celular · computador",
-    },
   ];
   return (
-    <dl className="grid grid-cols-2 gap-3 lg:grid-cols-5 lg:gap-4">
+    <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
       {itens.map((item) => (
         <div key={item.rotulo} className={`${CARTAO} flex flex-col-reverse gap-0.5 p-3`}>
           <dt className="text-[11px] text-cinza-escuro">
