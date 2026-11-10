@@ -43,7 +43,7 @@ export function FundoAnimado() {
         alvo.style.setProperty("--aceso", k.toFixed(3));
       }
       if (luz.current) {
-        luz.current.style.background = `radial-gradient(600px circle at ${x}% ${yLuz}%, rgba(255, 211, 106, 0.07), transparent 70%)`;
+        luz.current.style.background = `radial-gradient(600px circle at ${x}% ${yLuz}%, var(--l-luz), transparent 70%)`;
       }
     }
     function agendar() {
@@ -65,7 +65,7 @@ export function FundoAnimado() {
         ref={pontos}
         className="absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_80%)]"
         style={{
-          backgroundImage: "radial-gradient(rgba(255,255,255,0.09) 1px, transparent 1px)",
+          backgroundImage: "radial-gradient(var(--l-pontos) 1px, transparent 1px)",
           backgroundSize: "28px 28px",
         }}
       />

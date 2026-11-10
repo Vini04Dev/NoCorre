@@ -1,22 +1,25 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Contador } from "./Contador";
-import { DEPOIMENTOS, LINKS_NAVEGACAO, NUMEROS, PERFIS, PERGUNTAS, PLANO_GRATIS, PLANO_PRO } from "./dados";
+import { ProvedorLanding } from "./ContextoLanding";
+import { ANCORAS, NUMEROS } from "./dados";
 import { Frase } from "./Frase";
 import { FundoAnimado } from "./FundoAnimado";
 import { Graficos } from "./Graficos";
 import { Hero } from "./Hero";
 import { HistoriaApp } from "./HistoriaApp";
+import { TEXTOS, type Idioma, type Tema, type Textos } from "./idiomas";
 import { MapaCidade } from "./MapaCidade";
 import { Passos } from "./Passos";
 import { Revelar } from "./Revelar";
+import { SeletoresLanding } from "./SeletoresLanding";
 import { Terminal } from "./Terminal";
 
 const CONTEUDO = "mx-auto w-full max-w-6xl px-5 sm:px-8";
 const BOTAO_PRINCIPAL =
   "inline-flex items-center justify-center rounded-lg bg-dourado-claro px-6 py-3 text-sm font-bold text-marinho transition hover:bg-[#ffdd85]";
 const BOTAO_SECUNDARIO =
-  "inline-flex items-center justify-center rounded-lg border border-white/20 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10";
+  "inline-flex items-center justify-center rounded-lg border border-l-tinta/20 px-6 py-3 text-sm font-semibold text-l-titulo transition hover:bg-l-tinta/10";
 
 function Marca() {
   return (
@@ -24,7 +27,7 @@ function Marca() {
       <span className="size-8 overflow-hidden rounded-[9px] bg-white">
         <Image src="/imagens/logo.png" alt="" width={32} height={32} />
       </span>
-      <span className="font-titulo text-lg font-bold tracking-[-0.02em] text-white">No Corre!</span>
+      <span className="font-titulo text-lg font-bold tracking-[-0.02em] text-l-titulo">No Corre!</span>
     </Link>
   );
 }
@@ -32,9 +35,9 @@ function Marca() {
 function Titulo({ selo, titulo, texto }: { selo: string; titulo: string; texto?: string }) {
   return (
     <Revelar className="mx-auto flex max-w-3xl flex-col items-center gap-4 text-center">
-      <span className="text-xs font-semibold tracking-[0.14em] text-dourado-claro uppercase">{selo}</span>
-      <h2 className="text-4xl font-titulo font-bold tracking-[-0.03em] text-white sm:text-6xl">{titulo}</h2>
-      {texto && <p className="max-w-2xl text-base text-cinza-claro sm:text-xl">{texto}</p>}
+      <span className="text-xs font-semibold tracking-[0.14em] text-l-destaque uppercase">{selo}</span>
+      <h2 className="text-4xl font-titulo font-bold tracking-[-0.03em] text-l-titulo sm:text-6xl">{titulo}</h2>
+      {texto && <p className="max-w-2xl text-base text-l-texto sm:text-xl">{texto}</p>}
     </Revelar>
   );
 }
@@ -48,57 +51,60 @@ function Check() {
   );
 }
 
-function BarraSuperior({ logado }: { logado: boolean }) {
+function BarraSuperior({ logado, t }: { logado: boolean; t: Textos }) {
   return (
-    <header className="fixed inset-x-0 top-0 z-30 border-b border-white/8 bg-[#0d0e16]/70 backdrop-blur-xl">
-      <nav aria-label="Navegação do site" className={`${CONTEUDO} flex h-14 items-center justify-between gap-6`}>
+    <header className="fixed inset-x-0 top-0 z-30 border-b border-l-tinta/8 bg-l-fundo/70 backdrop-blur-xl">
+      <nav aria-label={t.nav.rotulo} className={`${CONTEUDO} flex h-14 items-center justify-between gap-6`}>
         <Marca />
-        <ul className="hidden items-center gap-7 text-[13px] text-cinza-claro md:flex">
-          {LINKS_NAVEGACAO.map(({ href, rotulo }) => (
+        <ul className="hidden items-center gap-7 text-[13px] text-l-texto md:flex">
+          {ANCORAS.map((href, indice) => (
             <li key={href}>
-              <a href={href} className="transition hover:text-white">
-                {rotulo}
+              <a href={href} className="transition hover:text-l-titulo">
+                {t.nav.links[indice]}
               </a>
             </li>
           ))}
         </ul>
+        <div className="flex items-center gap-1.5">
+          <SeletoresLanding />
         {logado ? (
           <Link href="/" className="rounded-md bg-white px-4 py-1.5 text-[13px] font-semibold text-marinho transition hover:bg-cinza-claro">
-            Abrir o app
+            {t.nav.abrirApp}
           </Link>
         ) : (
-          <div className="flex items-center gap-1.5">
-            <Link href="/entrar" className="rounded-md px-3.5 py-1.5 text-[13px] font-semibold text-white transition hover:bg-white/10">
-              Entrar
+          <>
+            <Link href="/entrar" className="rounded-md px-3.5 py-1.5 text-[13px] font-semibold text-l-titulo transition hover:bg-l-tinta/10">
+              {t.nav.entrar}
             </Link>
             <Link
               href="/cadastrar"
               className="rounded-md bg-dourado-claro px-4 py-1.5 text-[13px] font-semibold text-marinho transition hover:bg-[#ffdd85]"
             >
-              Criar conta
+              {t.nav.criarConta}
             </Link>
-          </div>
+          </>
         )}
+        </div>
       </nav>
     </header>
   );
 }
 
-function Numeros() {
+function Numeros({ t }: { t: Textos }) {
   return (
-    <section className="border-y border-white/8">
+    <section className="border-y border-l-tinta/8">
       <dl className={`${CONTEUDO} grid gap-8 py-14 text-center sm:grid-cols-3`}>
-        {NUMEROS.map(({ ate, prefixo, sufixo, rotulo, casas }, indice) => (
-          <Revelar key={rotulo} atraso={indice * 120} className="flex flex-col-reverse gap-1">
-            <dt className="text-sm text-cinza">{rotulo}</dt>
-            <dd className="font-titulo text-4xl font-bold text-white sm:text-5xl">
+        {NUMEROS.map(({ ate, prefixo, sufixo, casas }, indice) => (
+          <Revelar key={t.numeros[indice]} atraso={indice * 120} className="flex flex-col-reverse gap-1">
+            <dt className="text-sm text-l-suave">{t.numeros[indice]}</dt>
+            <dd className="font-titulo text-4xl font-bold text-l-titulo sm:text-5xl">
               <Contador ate={ate} prefixo={prefixo} sufixo={sufixo} casas={casas} />
             </dd>
           </Revelar>
         ))}
       </dl>
-      <ul className={`${CONTEUDO} flex flex-wrap justify-center gap-x-8 gap-y-2 pb-12 text-sm text-cinza`}>
-        {PERFIS.map((perfil) => (
+      <ul className={`${CONTEUDO} flex flex-wrap justify-center gap-x-8 gap-y-2 pb-12 text-sm text-l-suave`}>
+        {t.perfis.map((perfil) => (
           <li key={perfil}>{perfil}</li>
         ))}
       </ul>
@@ -106,26 +112,26 @@ function Numeros() {
   );
 }
 
-function ComoFunciona() {
+function ComoFunciona({ t }: { t: Textos }) {
   return (
     <section className="py-16 sm:py-24">
       <div className={`${CONTEUDO} flex flex-col gap-14`}>
-        <Titulo selo="COMEÇAR É RÁPIDO" titulo="Três passos. Menos de um minuto." />
+        <Titulo selo={t.passos.selo} titulo={t.passos.titulo} />
         <Passos />
       </div>
     </section>
   );
 }
 
-function Depoimentos() {
+function Depoimentos({ t }: { t: Textos }) {
   return (
     <section className="py-16 sm:py-24">
       <div className={`${CONTEUDO} flex flex-col gap-14`}>
-        <Titulo selo="QUEM JÁ RODA COM A GENTE" titulo="Adeus, caderninho." />
+        <Titulo selo={t.depoimentos.selo} titulo={t.depoimentos.titulo} />
         <ul className="grid gap-5 md:grid-cols-3">
-          {DEPOIMENTOS.map(({ nome, papel, texto }, indice) => (
+          {t.depoimentos.itens.map(({ nome, papel, texto }, indice) => (
             <Revelar key={nome} como="zoom" atraso={indice * 150}>
-              <li className="flex h-full flex-col gap-6 rounded-2xl bg-white p-7 text-marinho">
+              <li className="flex h-full flex-col gap-6 rounded-2xl bg-white p-7 text-marinho ring-1 ring-black/5">
                 <blockquote className="flex-1 text-lg leading-relaxed font-medium">“{texto}”</blockquote>
                 <div className="flex items-center gap-3">
                   <span className="grid size-10 place-items-center rounded-full bg-marinho text-sm font-bold text-dourado-claro">
@@ -145,23 +151,23 @@ function Depoimentos() {
   );
 }
 
-function Planos() {
+function Planos({ t }: { t: Textos }) {
   return (
     <section id="planos" className="scroll-mt-14 py-16 sm:py-24">
       <div className={`${CONTEUDO} flex flex-col gap-14`}>
-        <Titulo selo="PLANOS" titulo="Grátis para começar. Grátis para continuar." />
+        <Titulo selo={t.planos.selo} titulo={t.planos.titulo} />
         <div className="mx-auto grid w-full max-w-4xl gap-5 md:grid-cols-2">
           <Revelar como="esquerda" duracao={1600}>
             <div className="flex h-full flex-col gap-6 rounded-2xl bg-dourado-claro p-8 text-marinho">
               <div className="flex items-start justify-between">
-                <h3 className="text-lg font-bold">Grátis</h3>
-                <span className="rounded-full bg-marinho px-3 py-1 text-[11px] font-bold text-dourado-claro">DISPONÍVEL</span>
+                <h3 className="text-lg font-bold">{t.planos.gratis}</h3>
+                <span className="rounded-full bg-marinho px-3 py-1 text-[11px] font-bold text-dourado-claro">{t.planos.disponivel}</span>
               </div>
               <p className="font-titulo text-5xl font-bold">
-                R$ 0<span className="text-base font-medium">/mês</span>
+                R$ 0<span className="text-base font-medium">{t.planos.porMes}</span>
               </p>
               <ul className="flex flex-col gap-3 text-sm font-medium">
-                {PLANO_GRATIS.map((item) => (
+                {t.planos.itensGratis.map((item) => (
                   <li key={item} className="flex items-center gap-2.5">
                     <span aria-hidden className="grid size-5 place-items-center rounded-full bg-marinho text-[11px] text-dourado-claro">
                       ✓
@@ -171,24 +177,24 @@ function Planos() {
                 ))}
               </ul>
               <Link href="/cadastrar" className="mt-auto rounded-lg bg-marinho px-6 py-3 text-center text-sm font-bold text-white">
-                Criar minha conta
+                {t.planos.criarMinhaConta}
               </Link>
             </div>
           </Revelar>
           <Revelar como="direita" atraso={250} duracao={1600}>
-            <div className="flex h-full flex-col gap-6 rounded-2xl border border-white/10 bg-white/[0.04] p-8 text-white">
+            <div className="flex h-full flex-col gap-6 rounded-2xl border border-l-tinta/10 bg-l-tinta/[0.04] p-8 text-l-titulo">
               <h3 className="text-lg font-bold">Pro</h3>
-              <p className="font-titulo text-5xl font-bold text-cinza">Em breve</p>
-              <ul className="flex flex-col gap-3 text-sm text-cinza-claro">
-                {PLANO_PRO.map((item) => (
+              <p className="font-titulo text-5xl font-bold text-l-suave">{t.planos.emBreve}</p>
+              <ul className="flex flex-col gap-3 text-sm text-l-texto">
+                {t.planos.itensPro.map((item) => (
                   <li key={item} className="flex items-center gap-2.5">
                     <Check />
                     {item}
                   </li>
                 ))}
               </ul>
-              <span className="mt-auto rounded-lg border border-white/15 px-6 py-3 text-center text-sm text-cinza">
-                Avisaremos no app
+              <span className="mt-auto rounded-lg border border-l-tinta/15 px-6 py-3 text-center text-sm text-l-suave">
+                {t.planos.avisaremos}
               </span>
             </div>
           </Revelar>
@@ -198,21 +204,21 @@ function Planos() {
   );
 }
 
-function Perguntas() {
+function Perguntas({ t }: { t: Textos }) {
   return (
     <section id="perguntas" className="scroll-mt-14 py-16 sm:py-24">
       <div className={`${CONTEUDO} flex flex-col gap-12`}>
-        <Titulo selo="DÚVIDAS" titulo="Perguntas frequentes" />
-        <div className="mx-auto flex w-full max-w-3xl flex-col divide-y divide-white/10 border-y border-white/10">
-          {PERGUNTAS.map(({ pergunta, resposta }) => (
+        <Titulo selo={t.perguntas.selo} titulo={t.perguntas.titulo} />
+        <div className="mx-auto flex w-full max-w-3xl flex-col divide-y divide-l-tinta/10 border-y border-l-tinta/10">
+          {t.perguntas.itens.map(({ pergunta, resposta }) => (
             <details key={pergunta} className="group py-5">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-semibold text-white">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-semibold text-l-titulo">
                 {pergunta}
-                <span aria-hidden className="text-2xl text-dourado-claro transition group-open:rotate-45">
+                <span aria-hidden className="text-2xl text-l-destaque transition group-open:rotate-45">
                   +
                 </span>
               </summary>
-              <p className="mt-3 text-cinza-claro">{resposta}</p>
+              <p className="mt-3 text-l-texto">{resposta}</p>
             </details>
           ))}
         </div>
@@ -221,7 +227,7 @@ function Perguntas() {
   );
 }
 
-function ChamadaFinal({ logado }: { logado: boolean }) {
+function ChamadaFinal({ logado, t }: { logado: boolean; t: Textos }) {
   return (
     <section id="entrar" className="scroll-mt-14 px-5 pb-20 sm:px-8">
       <Revelar como="zoom">
@@ -229,7 +235,7 @@ function ChamadaFinal({ logado }: { logado: boolean }) {
             --aceso, que acende o brilho dourado e a borda. */}
         <div
           data-luz-alvo
-          className="relative mx-auto flex max-w-6xl flex-col items-center gap-6 overflow-hidden rounded-[36px] bg-[linear-gradient(160deg,#2a2b33,#16171c)] px-6 py-20 text-center sm:py-28"
+          className="landing-escura relative mx-auto flex max-w-6xl flex-col items-center gap-6 overflow-hidden rounded-[36px] bg-[linear-gradient(160deg,#2a2b33,#16171c)] px-6 py-20 text-center sm:py-28"
         >
           <div
             aria-hidden
@@ -244,26 +250,26 @@ function ChamadaFinal({ logado }: { logado: boolean }) {
           <div
             aria-hidden
             style={{ opacity: "calc(0.4 + var(--aceso, 0) * 0.6)" }}
-            className="pointer-events-none absolute inset-0 rounded-[36px] ring-1 ring-white/10 ring-inset"
+            className="pointer-events-none absolute inset-0 rounded-[36px] ring-1 ring-l-tinta/10 ring-inset"
           />
-          <h2 className="relative max-w-3xl font-titulo text-4xl font-bold tracking-[-0.03em] text-white sm:text-6xl">
-            Bora Correr?
+          <h2 className="relative max-w-3xl font-titulo text-4xl font-bold tracking-[-0.03em] text-l-titulo sm:text-6xl">
+            {t.final.titulo}
           </h2>
-          <p className="relative max-w-xl text-lg text-cinza-claro">
-            {logado ? "Sua conta já está aberta neste aparelho." : "Crie sua conta grátis ou entre para continuar de onde parou."}
+          <p className="relative max-w-xl text-lg text-l-texto">
+            {logado ? t.final.logado : t.final.deslogado}
           </p>
           <div className="relative flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
             {logado ? (
               <Link href="/" className={BOTAO_PRINCIPAL}>
-                Abrir o app
+                {t.nav.abrirApp}
               </Link>
             ) : (
               <>
                 <Link href="/cadastrar" className={BOTAO_PRINCIPAL}>
-                  Criar conta grátis
+                  {t.final.criarGratis}
                 </Link>
                 <Link href="/entrar" className={BOTAO_SECUNDARIO}>
-                  Já tenho conta, entrar
+                  {t.final.jaTenho}
                 </Link>
               </>
             )}
@@ -277,20 +283,20 @@ function ChamadaFinal({ logado }: { logado: boolean }) {
 const REPOSITORIO = "https://github.com/Vini04Dev/NoCorre";
 const EMAIL = "vini0102033@gmail.com";
 
-function CodigoAberto() {
+function CodigoAberto({ t }: { t: Textos }) {
   return (
     <section id="codigo" className="scroll-mt-14 py-16 sm:py-24">
       <div className={`${CONTEUDO} grid items-center gap-12 lg:grid-cols-2`}>
         <Revelar como="esquerda" className="flex flex-col items-start gap-6">
-          <span className="text-xs font-semibold tracking-[0.14em] text-dourado-claro uppercase">Código aberto</span>
-          <h2 className="font-titulo text-4xl font-bold tracking-[-0.03em] text-white sm:text-6xl">
-            Open source, à vista de todo mundo.
+          <span className="text-xs font-semibold tracking-[0.14em] text-l-destaque uppercase">{t.codigo.selo}</span>
+          <h2 className="font-titulo text-4xl font-bold tracking-[-0.03em] text-l-titulo sm:text-6xl">
+            {t.codigo.titulo}
           </h2>
-          <p className="max-w-xl text-lg text-cinza-claro">
-            O código do No Corre! é aberto e está no GitHub. Qualquer pessoa pode ver como o app é feito.
+          <p className="max-w-xl text-lg text-l-texto">
+            {t.codigo.texto}
           </p>
           <a href={REPOSITORIO} target="_blank" rel="noreferrer" className={BOTAO_SECUNDARIO}>
-            Ver no GitHub ↗
+            {t.codigo.botao}
           </a>
         </Revelar>
         <Revelar como="direita" atraso={150} className="min-w-0">
@@ -301,91 +307,94 @@ function CodigoAberto() {
   );
 }
 
-function Rodape() {
+function Rodape({ t }: { t: Textos }) {
   return (
-    <footer className="border-t border-white/8">
+    <footer className="border-t border-l-tinta/8">
       <div className={`${CONTEUDO} grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1.2fr]`}>
         <div className="flex flex-col gap-3">
           <Marca />
-          <p className="max-w-xs text-sm text-cinza">
-            Controle de entregas e receita para motoboys e entregadores. Nascido em São Sebastião do Paraíso, MG.
+          <p className="max-w-xs text-sm text-l-suave">
+            {t.rodape.sobre}
           </p>
         </div>
-        <nav aria-label="Produto" className="flex flex-col gap-3 text-sm">
-          <span className="font-semibold text-white">Produto</span>
-          {LINKS_NAVEGACAO.map(({ href, rotulo }) => (
-            <a key={href} href={href} className="text-cinza transition hover:text-white">
-              {rotulo}
+        <nav aria-label={t.rodape.produto} className="flex flex-col gap-3 text-sm">
+          <span className="font-semibold text-l-titulo">{t.rodape.produto}</span>
+          {ANCORAS.map((href, indice) => (
+            <a key={href} href={href} className="text-l-suave transition hover:text-l-titulo">
+              {t.nav.links[indice]}
             </a>
           ))}
         </nav>
-        <nav aria-label="Acesso" className="flex flex-col gap-3 text-sm">
-          <span className="font-semibold text-white">Acesso</span>
-          <Link href="/entrar" className="text-cinza transition hover:text-white">
-            Entrar
+        <nav aria-label={t.rodape.acesso} className="flex flex-col gap-3 text-sm">
+          <span className="font-semibold text-l-titulo">{t.rodape.acesso}</span>
+          <Link href="/entrar" className="text-l-suave transition hover:text-l-titulo">
+            {t.nav.entrar}
           </Link>
-          <Link href="/cadastrar" className="text-cinza transition hover:text-white">
-            Criar conta
+          <Link href="/cadastrar" className="text-l-suave transition hover:text-l-titulo">
+            {t.nav.criarConta}
           </Link>
-          <a href={REPOSITORIO} target="_blank" rel="noreferrer" className="text-cinza transition hover:text-white">
+          <a href={REPOSITORIO} target="_blank" rel="noreferrer" className="text-l-suave transition hover:text-l-titulo">
             GitHub
           </a>
         </nav>
         <div className="flex flex-col gap-3 text-sm">
-          <span className="font-semibold text-white">Contato</span>
-          <a href={`mailto:${EMAIL}`} className="break-all text-cinza transition hover:text-white">
+          <span className="font-semibold text-l-titulo">{t.rodape.contato}</span>
+          <a href={`mailto:${EMAIL}`} className="break-all text-l-suave transition hover:text-l-titulo">
             {EMAIL}
           </a>
-          <span className="text-cinza">São Sebastião do Paraíso, MG</span>
+          <span className="text-l-suave">São Sebastião do Paraíso, MG</span>
         </div>
       </div>
-      <div className="border-t border-white/8">
-        <p className={`${CONTEUDO} py-6 text-center text-xs text-cinza sm:text-left`}>
-          © {new Date().getFullYear()} No Corre!. Todos os direitos reservados.
+      <div className="border-t border-l-tinta/8">
+        <p className={`${CONTEUDO} py-6 text-center text-xs text-l-suave sm:text-left`}>
+          © {new Date().getFullYear()} No Corre!. {t.rodape.direitos}
         </p>
       </div>
     </footer>
   );
 }
 
-/** Landing page. Quem já está logado vê "Abrir o app" no lugar de Entrar/Criar conta. */
-export function TelaApresentacao({ logado }: { logado: boolean }) {
+type Props = { logado: boolean; idioma: Idioma; tema: Tema };
+
+/**
+ * Landing page. Quem já está logado vê "Abrir o app" no lugar de Entrar/Criar conta.
+ * Idioma e tema chegam do servidor (cookies) e podem ser trocados na barra de cima.
+ */
+export function TelaApresentacao({ logado, idioma, tema }: Props) {
+  const t = TEXTOS[idioma];
   return (
     // overflow-x-clip (e não hidden) segura os itens que entram de lado sem quebrar o sticky.
-    <div className="relative isolate min-h-dvh overflow-x-clip scroll-smooth bg-[#0d0e16] text-white">
+    <ProvedorLanding
+      idioma={idioma}
+      temaInicial={tema}
+      className="relative isolate min-h-dvh overflow-x-clip scroll-smooth bg-l-fundo text-l-titulo transition-colors duration-500"
+    >
       <FundoAnimado />
-      <BarraSuperior logado={logado} />
+      <BarraSuperior logado={logado} t={t} />
       <main>
         <Hero />
-        <Numeros />
-        <Frase
-          texto="Cada entrega, cada corrida, cada real que entra e sai. Tudo no seu bolso, do jeito que o corre flui."
-          destaque={["entrega,", "corrida,", "real"]}
-        />
+        <Numeros t={t} />
+        <Frase texto={t.frase.texto} destaque={t.frase.destaque} />
         <section id="historia" className="scroll-mt-14">
           <HistoriaApp />
         </section>
         <section id="relatorios" className="scroll-mt-14 py-16 sm:py-24">
           <div className={`${CONTEUDO} flex flex-col gap-14`}>
-            <Titulo
-              selo="RELATÓRIOS"
-              titulo="Números que mostram o caminho."
-              texto="Descubra o dia que mais rende, para onde vai o dinheiro e se a meta do mês vai bater."
-            />
+            <Titulo selo={t.relatorios.selo} titulo={t.relatorios.titulo} texto={t.relatorios.texto} />
             <Graficos />
           </div>
         </section>
         <div id="cidade" className="scroll-mt-14">
           <MapaCidade />
         </div>
-        <ComoFunciona />
-        <Depoimentos />
-        <Planos />
-        <CodigoAberto />
-        <Perguntas />
-        <ChamadaFinal logado={logado} />
+        <ComoFunciona t={t} />
+        <Depoimentos t={t} />
+        <Planos t={t} />
+        <CodigoAberto t={t} />
+        <Perguntas t={t} />
+        <ChamadaFinal logado={logado} t={t} />
       </main>
-      <Rodape />
-    </div>
+      <Rodape t={t} />
+    </ProvedorLanding>
   );
 }

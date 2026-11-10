@@ -22,7 +22,7 @@ export function Frase({ texto, destaque }: { texto: string; destaque: string[] }
   return (
     <section ref={secao} className="relative h-[170vh]">
       <div className="sticky top-0 flex h-dvh items-center">
-        <p className="mx-auto max-w-5xl px-5 text-4xl leading-[1.15] font-titulo font-bold tracking-[-0.03em] text-white sm:px-8 sm:text-6xl lg:text-7xl">
+        <p className="mx-auto max-w-5xl px-5 text-4xl leading-[1.15] font-titulo font-bold tracking-[-0.03em] text-l-titulo sm:px-8 sm:text-6xl lg:text-7xl">
           {palavras.map((palavra, indice) => (
             <span
               key={indice}
@@ -31,7 +31,7 @@ export function Frase({ texto, destaque }: { texto: string; destaque: string[] }
               }}
               style={{ opacity: 0.15 }}
               className={`transition-opacity duration-200 motion-reduce:!opacity-100 ${
-                destaque.includes(palavra) ? "text-dourado-claro" : ""
+                destaque.includes(palavra) ? "text-l-destaque" : ""
               }`}
             >
               {palavra}{" "}

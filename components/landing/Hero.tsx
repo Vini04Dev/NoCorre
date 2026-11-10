@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { trecho } from "./animacao";
+import { useTextos } from "./ContextoLanding";
 import { MockupCelular, TelaEntrar } from "./MockupCelular";
 
 /** Quanto o celular desce a cada pixel rolado: perto de 1, ele quase fica parado na tela. */
@@ -22,6 +23,7 @@ const FOLGA = 16;
  * inteiro na tela antes de a linha da seção alcançá-lo.
  */
 export function Hero() {
+  const t = useTextos().hero;
   const secao = useRef<HTMLElement>(null);
   const texto = useRef<HTMLDivElement>(null);
   const celular = useRef<HTMLDivElement>(null);
@@ -80,25 +82,26 @@ export function Hero() {
   });
 
   return (
-    <section ref={secao} className="relative overflow-hidden border-b border-white/10">
+    <section ref={secao} className="relative overflow-hidden border-b border-l-tinta/10">
       <div className="mx-auto grid min-h-dvh w-full max-w-6xl items-center gap-12 px-5 pt-28 pb-[45svh] sm:px-8 lg:grid-cols-[1.15fr_1fr] lg:pt-20 lg:pb-0">
         <div
           ref={texto}
           className="relative z-10 flex flex-col items-center gap-5 text-center will-change-transform lg:items-start lg:text-left"
         >
-          <span {...entrada(0, "text-sm font-medium text-cinza-claro")}>
-            De entregador para entregador<span className="hidden sm:inline"> · São Sebastião do Paraíso</span>
+          <span {...entrada(0, "text-sm font-medium text-l-texto")}>
+            {t.selo}
+            <span className="hidden sm:inline"> · {t.cidade}</span>
           </span>
           <h1
             {...entrada(
               120,
-              "max-w-3xl font-titulo text-5xl leading-[0.98] font-bold tracking-[-0.035em] text-white sm:text-7xl lg:text-[5.5rem]",
+              "max-w-3xl font-titulo text-5xl leading-[0.98] font-bold tracking-[-0.035em] text-l-titulo sm:text-7xl lg:text-[5.5rem]",
             )}
           >
-            Seu corre. <span className="text-dourado-claro">No controle.</span>
+            {t.titulo} <span className="text-l-destaque">{t.destaque}</span>
           </h1>
-          <p {...entrada(240, "max-w-xl text-base text-cinza-claro sm:text-xl")}>
-            Entregas, corridas, despesas e metas num app feito para quem vive em cima da moto.
+          <p {...entrada(240, "max-w-xl text-base text-l-texto sm:text-xl")}>
+            {t.texto}
           </p>
         </div>
         <div ref={celular} className="relative will-change-transform">
