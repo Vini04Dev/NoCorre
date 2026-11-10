@@ -264,7 +264,6 @@ export function TelaAdmin({ metricas, erro }: { metricas: MetricasAdmin | null; 
               {[
                 { href: "/?aviso=novidades", rotulo: "Aviso de atualização", quando: "abre a cada versão nova, ao entrar" },
                 { href: "/?aviso=primeiro-uso", rotulo: "Aviso de primeiro cliente", quando: "abre no Início enquanto não há cliente" },
-                { href: "/perfil/novidades", rotulo: "Notas de atualização", quando: "Perfil > Notas de atualização" },
               ].map(({ href, rotulo, quando }) => (
                 <Link
                   key={href}

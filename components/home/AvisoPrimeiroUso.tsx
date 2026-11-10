@@ -43,7 +43,7 @@ export function AvisoPrimeiroUso() {
   }
 
   return (
-    <PainelInferior idTitulo="primeiro-cliente-titulo" aoFechar={dispensar}>
+    <PainelInferior idTitulo="primeiro-cliente-titulo" aoFechar={dispensar} centralizado>
       <PrimeiroCliente aoFechar={dispensar} />
     </PainelInferior>
   );

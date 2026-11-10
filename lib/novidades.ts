@@ -26,7 +26,7 @@ export const NOTAS: Nota[] = [
     resumo: "O controle completo do seu corre: o que entra, o que sai e quanto sobra.",
     destaques: [
       {
-        icone: "/icones/saldo.svg",
+        icone: "/icones/saldo-linha.svg",
         titulo: "Saldo do período",
         texto: "Saldo, recebidos, pendentes, despesas e entregas do dia, da semana ou do mês, em lista ou no calendário.",
       },
