@@ -183,7 +183,8 @@ function Destaque() {
         <Contador ate={92} sufixo="%" />
       </span>
       <span className="text-sm text-l-texto">
-        {t.metaDetalhe(<Contador ate={644} />)}
+        <Contador ate={644} />
+        {t.metaDetalhe}
       </span>
     </Cartao>
   );

@@ -21,13 +21,16 @@ const BOTAO_PRINCIPAL =
 const BOTAO_SECUNDARIO =
   "inline-flex items-center justify-center rounded-lg border border-l-tinta/20 px-6 py-3 text-sm font-semibold text-l-titulo transition hover:bg-l-tinta/10";
 
-function Marca() {
+/** `compacta` esconde o nome no celular (a barra de cima precisa do espaço). */
+function Marca({ compacta = false }: { compacta?: boolean }) {
   return (
     <Link href="/" className="flex items-center gap-2.5">
       <span className="size-8 overflow-hidden rounded-[9px] bg-white">
         <Image src="/imagens/logo.png" alt="" width={32} height={32} />
       </span>
-      <span className="font-titulo text-lg font-bold tracking-[-0.02em] text-l-titulo">No Corre!</span>
+      <span className={`font-titulo text-lg font-bold tracking-[-0.02em] whitespace-nowrap text-l-titulo ${compacta ? "hidden sm:inline" : ""}`}>
+        No Corre!
+      </span>
     </Link>
   );
 }
@@ -54,8 +57,8 @@ function Check() {
 function BarraSuperior({ logado, t }: { logado: boolean; t: Textos }) {
   return (
     <header className="fixed inset-x-0 top-0 z-30 border-b border-l-tinta/8 bg-l-fundo/70 backdrop-blur-xl">
-      <nav aria-label={t.nav.rotulo} className={`${CONTEUDO} flex h-14 items-center justify-between gap-6`}>
-        <Marca />
+      <nav aria-label={t.nav.rotulo} className={`${CONTEUDO} flex h-14 items-center justify-between gap-3 sm:gap-6`}>
+        <Marca compacta />
         <ul className="hidden items-center gap-7 text-[13px] text-l-texto md:flex">
           {ANCORAS.map((href, indice) => (
             <li key={href}>
@@ -73,12 +76,12 @@ function BarraSuperior({ logado, t }: { logado: boolean; t: Textos }) {
           </Link>
         ) : (
           <>
-            <Link href="/entrar" className="rounded-md px-3.5 py-1.5 text-[13px] font-semibold text-l-titulo transition hover:bg-l-tinta/10">
+            <Link href="/entrar" className="rounded-md px-2.5 py-1.5 text-[13px] font-semibold whitespace-nowrap sm:px-3.5 text-l-titulo transition hover:bg-l-tinta/10">
               {t.nav.entrar}
             </Link>
             <Link
               href="/cadastrar"
-              className="rounded-md bg-dourado-claro px-4 py-1.5 text-[13px] font-semibold text-marinho transition hover:bg-[#ffdd85]"
+              className="rounded-md bg-dourado-claro px-3 py-1.5 text-[13px] font-semibold whitespace-nowrap text-marinho transition hover:bg-[#ffdd85] sm:px-4"
             >
               {t.nav.criarConta}
             </Link>

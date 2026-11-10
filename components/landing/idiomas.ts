@@ -68,7 +68,8 @@ const pt = {
     entregasPorDia: "Entregas por dia da semana",
     dias: ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"],
     meta: "Meta de entregas do mês",
-    metaDetalhe: (feitas: React.ReactNode) => [feitas, " de 700 entregas. Faltam 56 em 4 dias."],
+    /** Vem logo depois do número de entregas feitas (644). */
+    metaDetalhe: " de 700 entregas. Faltam 56 em 4 dias.",
     paraOnde: "Para onde vai o dinheiro",
     despesasPorCategoria: "Despesas por categoria",
     categorias: ["Combustível", "Manutenção", "Alimentação", "Diária Central"],
@@ -237,7 +238,8 @@ const en: Textos = {
     entregasPorDia: "Deliveries per weekday",
     dias: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     meta: "Monthly delivery goal",
-    metaDetalhe: (feitas: React.ReactNode) => [feitas, " of 700 deliveries. 56 to go in 4 days."],
+    /** Vem logo depois do número de entregas feitas (644). */
+    metaDetalhe: " of 700 deliveries. 56 to go in 4 days.",
     paraOnde: "Where the money goes",
     despesasPorCategoria: "Expenses by category",
     categorias: ["Fuel", "Maintenance", "Food", "Hub daily fee"],
@@ -402,7 +404,8 @@ const es: Textos = {
     entregasPorDia: "Entregas por día de la semana",
     dias: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
     meta: "Meta de entregas del mes",
-    metaDetalhe: (feitas: React.ReactNode) => [feitas, " de 700 entregas. Faltan 56 en 4 días."],
+    /** Vem logo depois do número de entregas feitas (644). */
+    metaDetalhe: " de 700 entregas. Faltan 56 en 4 días.",
     paraOnde: "A dónde va el dinero",
     despesasPorCategoria: "Gastos por categoría",
     categorias: ["Combustible", "Mantenimiento", "Comida", "Cuota de la central"],

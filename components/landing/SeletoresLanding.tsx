@@ -7,17 +7,19 @@ import { IDIOMAS, NOME_IDIOMA, type Idioma } from "./idiomas";
 export function SeletoresLanding() {
   const { idioma, mudarIdioma, tema, alternarTema, textos } = useLanding();
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-0.5 sm:gap-1">
       <label className="relative">
         <span className="sr-only">{textos.nav.idioma}</span>
         <select
           value={idioma}
           onChange={(evento) => mudarIdioma(evento.target.value as Idioma)}
-          className="cursor-pointer appearance-none rounded-md bg-transparent py-1.5 pr-2 pl-2 text-[13px] font-semibold text-l-texto uppercase transition hover:bg-l-tinta/10"
+          aria-label={textos.nav.idioma}
+          className="cursor-pointer appearance-none rounded-md bg-transparent px-1.5 py-1.5 sm:px-2 text-[13px] font-semibold text-l-texto uppercase transition hover:bg-l-tinta/10"
         >
           {IDIOMAS.map((codigo) => (
-            <option key={codigo} value={codigo} className="text-marinho normal-case">
-              {codigo.toUpperCase()} · {NOME_IDIOMA[codigo]}
+            // Só a sigla, para caber na barra do celular; o nome completo vai no title.
+            <option key={codigo} value={codigo} title={NOME_IDIOMA[codigo]} className="text-marinho">
+              {codigo.toUpperCase()}
             </option>
           ))}
         </select>
