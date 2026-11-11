@@ -169,6 +169,8 @@ begin
   select count(*) into n from public.moto_componentes;
   if n <> 0 then raise exception 'FALHA 17b: viu manutenção alheia'; end if;
   reset role;
+  -- volta a Ana para o grátis para não afetar os testes seguintes
+  update public.perfis set plano = 'gratis' where id = ana;
   log := log || '17 saude da moto ok; ';
 
   -- módulo admin: métricas só para o service_role, nunca para usuário logado
