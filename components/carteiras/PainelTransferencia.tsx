@@ -13,13 +13,22 @@ const CLASSE_SELECT =
   "w-full appearance-none rounded-[10px] border border-cinza-claro bg-white bg-[url('/icones/seta-baixo.svg')] bg-[right_14px_center] bg-no-repeat px-[14px] py-[11px] text-[13px] outline-none focus:border-dourado";
 
 /** Dinheiro que muda de carteira, como um saque do banco para a mão. Não é receita nem despesa. */
-export function PainelTransferencia({ carteiras, aoFechar }: { carteiras: Carteira[]; aoFechar: () => void }) {
+export function PainelTransferencia({
+  carteiras,
+  origem: origemInicial,
+  aoFechar,
+}: {
+  carteiras: Carteira[];
+  /** Carteira de onde sai o dinheiro (a que estava aberta na tela). */
+  origem?: string;
+  aoFechar: () => void;
+}) {
   const transferir = useTransferir();
   const idOrigem = useId();
   const idDestino = useId();
   const agora = dataHoraParaCampos(new Date());
-  const [origem, setOrigem] = useState(carteiras[0]?.id ?? "");
-  const [destino, setDestino] = useState(carteiras[1]?.id ?? "");
+  const [origem, setOrigem] = useState(origemInicial ?? carteiras[0]?.id ?? "");
+  const [destino, setDestino] = useState(carteiras.find((c) => c.id !== (origemInicial ?? carteiras[0]?.id))?.id ?? "");
   const [centavos, setCentavos] = useState(0);
   const [data, setData] = useState(agora.data);
   const [erro, setErro] = useState<string>();

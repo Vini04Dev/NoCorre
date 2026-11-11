@@ -78,6 +78,27 @@ export function useTransferencias(ativo = true) {
   });
 }
 
+/** Transferências de um intervalo [inicio, fim), para o extrato de cada carteira. */
+export function useTransferenciasDoPeriodo(inicio: Date, fim: Date, ativo = true) {
+  return useQuery({
+    enabled: ativo,
+    queryKey: [...CHAVE, "transferencias", inicio.toISOString(), fim.toISOString()],
+    queryFn: async () => {
+      const { data, error } = await criarClienteNavegador()
+        .from("transferencias")
+        .select("*")
+        .gte("data_hora", inicio.toISOString())
+        .lt("data_hora", fim.toISOString())
+        .order("data_hora", { ascending: false });
+      if (error) {
+        if (tabelaAusente(error)) return [] as Transferencia[];
+        throw new Error(traduzirErroBanco(error));
+      }
+      return data;
+    },
+  });
+}
+
 function useMutacaoCarteira<T>(executar: (variaveis: T) => Promise<void>) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -89,8 +110,19 @@ function useMutacaoCarteira<T>(executar: (variaveis: T) => Promise<void>) {
   });
 }
 
+type SalvarCarteira = {
+  id?: string;
+  dados: DadosCarteira;
+  /**
+   * Quanto a pessoa diz que tem nela hoje. O app acerta o saldo inicial para o
+   * saldo calculado bater com esse valor, sem mexer em nenhum lançamento.
+   * Resolve, por exemplo, a principal que herdou todos os lançamentos antigos.
+   */
+  saldoAtual?: number;
+};
+
 export function useSalvarCarteira() {
-  return useMutacaoCarteira(async ({ id, dados }: { id?: string; dados: DadosCarteira }) => {
+  return useMutacaoCarteira(async ({ id, dados, saldoAtual }: SalvarCarteira) => {
     const supabase = criarClienteNavegador();
     // Só uma principal por pessoa (índice único no banco): desmarca as outras antes.
     if (dados.padrao) {
@@ -100,8 +132,26 @@ export function useSalvarCarteira() {
       if (error) throw new Error(traduzirErroBanco(error));
     }
     const tabela = supabase.from("carteiras");
-    const { error } = id ? await tabela.update(dados).eq("id", id) : await tabela.insert(dados);
-    if (error) throw new Error(traduzirErroBanco(error, { duplicado: "Você já tem uma carteira com esse nome." }));
+    const salvo = id
+      ? await tabela.update(dados).eq("id", id).select("id, saldo_inicial").single()
+      : await tabela.insert(dados).select("id, saldo_inicial").single();
+    if (salvo.error) {
+      throw new Error(traduzirErroBanco(salvo.error, { duplicado: "Você já tem uma carteira com esse nome." }));
+    }
+    if (saldoAtual === undefined) return;
+
+    // O saldo calculado depende dos lançamentos (e, na principal, dos sem
+    // carteira), então só dá para acertar depois de salvar.
+    const saldos = await supabase.rpc("saldos_carteiras");
+    if (saldos.error) throw new Error(traduzirErroBanco(saldos.error));
+    const calculado = Number(saldos.data.find((linha) => linha.carteira_id === salvo.data.id)?.saldo ?? 0);
+    const diferenca = Math.round((saldoAtual - calculado) * 100) / 100;
+    if (diferenca === 0) return;
+    const { error } = await supabase
+      .from("carteiras")
+      .update({ saldo_inicial: Math.round((Number(salvo.data.saldo_inicial) + diferenca) * 100) / 100 })
+      .eq("id", salvo.data.id);
+    if (error) throw new Error(traduzirErroBanco(error));
   });
 }
 

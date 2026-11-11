@@ -23,6 +23,7 @@ export type Database = {
           nome: string
           padrao: boolean
           saldo_inicial: number
+          tipo: string | null
           usuario_id: string
         }
         Insert: {
@@ -33,6 +34,7 @@ export type Database = {
           nome: string
           padrao?: boolean
           saldo_inicial?: number
+          tipo?: string | null
           usuario_id?: string
         }
         Update: {
@@ -43,6 +45,7 @@ export type Database = {
           nome?: string
           padrao?: boolean
           saldo_inicial?: number
+          tipo?: string | null
           usuario_id?: string
         }
         Relationships: []
