@@ -55,6 +55,33 @@
 body {
   background: var(--color-fundo);
   color: var(--color-marinho);
+  /* Toque duplo não dá zoom nem atrasa o clique (o pinça continua funcionando). */
+  touch-action: manipulation;
+}
+
+/*
+ * App instalado: tocar duas vezes num texto não deve selecioná-lo como numa
+ * página. Campos continuam selecionáveis (copiar e colar valores, nomes).
+ */
+.casca-app {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.casca-app :is(input, textarea, select, [contenteditable="true"]) {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
+/*
+ * O Safari do iPhone dá zoom ao focar campo com fonte menor que 16px. Só no
+ * iOS (que reconhece -webkit-touch-callout) os campos sobem para 16px.
+ */
+@supports (-webkit-touch-callout: none) {
+  :is(input, textarea, select) {
+    font-size: max(16px, 1em);
+  }
 }
 
 /*
