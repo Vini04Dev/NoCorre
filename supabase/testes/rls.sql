@@ -148,6 +148,29 @@ begin
   if not ok then raise exception 'FALHA 10: anon leu clientes'; end if;
   log := log || '10 anon sem acesso; ';
 
+  -- saúde da moto (Pro): só Pro grava, cada um só vê o seu
+  reset role;
+  perform set_config('request.jwt.claims', json_build_object('sub', ana, 'role', 'authenticated')::text, true);
+  set local role authenticated;
+  ok := false;
+  begin
+    insert into public.moto_quilometragem (km) values (1000);
+  exception when insufficient_privilege then ok := true;
+  end;
+  if not ok then raise exception 'FALHA 17a: conta grátis gravou quilometragem'; end if;
+  reset role;
+  update public.perfis set plano = 'pro' where id = ana;
+  set local role authenticated;
+  insert into public.moto_quilometragem (km) values (1000);
+  insert into public.moto_componentes (tipo, nome, intervalo_km, km_ultima_troca) values ('oleo', 'Óleo', 3000, 1000);
+  reset role;
+  perform set_config('request.jwt.claims', json_build_object('sub', bia, 'role', 'authenticated')::text, true);
+  set local role authenticated;
+  select count(*) into n from public.moto_componentes;
+  if n <> 0 then raise exception 'FALHA 17b: viu manutenção alheia'; end if;
+  reset role;
+  log := log || '17 saude da moto ok; ';
+
   -- módulo admin: métricas só para o service_role, nunca para usuário logado
   reset role;
   perform set_config('request.jwt.claims', json_build_object('sub', ana, 'role', 'authenticated')::text, true);

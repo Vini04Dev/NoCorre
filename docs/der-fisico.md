@@ -306,6 +306,24 @@ sessão), o mesmo dado do detalhe da pessoa.
 Número de requisições à API não está no banco (só na Management API do
 Supabase, que exige token de acesso à conta) e por isso ficou de fora.
 
+## Saúde da moto (Pro)
+
+Migration `20261111120000_saude_moto`.
+
+- `moto_quilometragem` (`km` integer ≥ 0, `registrado_em`): leituras do
+  odômetro. A quilometragem atual é a leitura mais recente. "Somar km rodados"
+  grava a leitura nova (atual + rodados).
+- `moto_componentes` (`tipo`, `nome`, `intervalo_km` > 0, `km_ultima_troca`,
+  `ativo`; único por `(usuario_id, tipo)`): itens acompanhados. Os padrões
+  (óleo 3.000 km, relação 15.000, pneu traseiro 15.000, dianteiro 20.000,
+  freios 10.000) vivem em `lib/moto.ts` e são só sugestão.
+- Desgaste = (km atual − km da última troca) ÷ intervalo: até 70% em dia, 90%
+  trocar logo, 100% passou da hora. Calculado na hora, nunca salvo.
+- RLS: ler e excluir os próprios; criar e editar só com `eh_pro()`.
+- **Para desfazer:** `drop table public.moto_componentes; drop table
+  public.moto_quilometragem;` e `supabase migration repair --status reverted
+  20261111120000`.
+
 ## Segurança (RLS)
 
 Todas as tabelas têm RLS ligada e quatro políticas (select, insert, update,
