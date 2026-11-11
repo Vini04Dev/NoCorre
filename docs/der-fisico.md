@@ -228,6 +228,10 @@ ADM liga o Pro pelo painel do sistema (servidor, com a Secret key).
 - `public.eh_pro()` (security definer, `search_path` vazio) devolve se quem
   chamou é Pro. As tabelas de recursos Pro usam essa função na política de
   RLS de escrita, então o banco recusa gravação de quem não é Pro.
+- Neste projeto as tabelas não dão acesso automático ao `service_role`. A
+  migration `20261111130000_plano_admin` libera para ele só ler `id` e
+  `plano` de `perfis` e alterar `plano`, que é o que o painel precisa para
+  ligar e desligar o Pro.
 
 ## Carteiras (Pro)
 

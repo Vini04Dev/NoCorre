@@ -16,7 +16,7 @@ export const RECURSOS_PRO = [
     chave: "tema",
     icone: "/icones/tema.svg",
     titulo: "Tema do app",
-    texto: "Modo escuro e outras cores para o app, do jeito que ficar melhor para você.",
+    texto: "Escolha a cor de destaque do app: dourado, verde, azul, laranja ou roxo.",
   },
 ] as const;
 
