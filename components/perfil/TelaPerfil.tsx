@@ -181,13 +181,21 @@ export function TelaPerfil({ admin = false }: { admin?: boolean }) {
       {perfil.plano === "pro" && (
         <Link
           href="/moto"
-          className="-mt-2 flex items-center justify-between rounded-[12px] border border-cinza-claro bg-white px-3.5 py-2.5 text-xs font-semibold"
+          className="-mt-2 flex items-center gap-3 rounded-[12px] border border-cinza-claro bg-white px-3.5 py-2"
         >
-          <span className="flex items-center gap-2">
-            Saúde da moto
-            <span className="rounded-md bg-marinho px-1.5 py-0.5 text-[9px] font-bold tracking-[0.6px] text-dourado-claro">PRO</span>
+          <span className="grid size-10 shrink-0 place-items-center rounded-full bg-dourado-claro">
+            <Image src="/icones/saude-moto.svg" alt="" width={20} height={20} />
           </span>
-          <span aria-hidden className="text-lg text-cinza">
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="flex items-center gap-1.5 text-xs font-semibold">
+              Saúde da moto
+              <span className="rounded-md bg-marinho px-1.5 py-0.5 text-[9px] font-bold tracking-[0.6px] text-dourado-claro">
+                PRO
+              </span>
+            </span>
+            <span className="text-[10px] text-cinza">Trocas, quilometragem e avisos</span>
+          </span>
+          <span aria-hidden className="text-lg font-semibold text-cinza">
             ›
           </span>
         </Link>

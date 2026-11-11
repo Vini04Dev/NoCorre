@@ -50,7 +50,8 @@ async function Home() {
   const supabase = await criarClienteServidor();
   // Em paralelo: cada ida ao banco custa uma viagem de rede.
   const [{ data: perfil }, admin] = await Promise.all([
-    supabase.from("perfis").select("nome").maybeSingle(),
+    // "*" e não ("nome, plano"): antes da migration do plano a coluna não existe e a consulta falharia.
+    supabase.from("perfis").select("*").maybeSingle(),
     ehAdmin(),
   ]);
   const primeiroNome = perfil?.nome.split(" ")[0];
@@ -87,6 +88,15 @@ async function Home() {
                 icone="/icones/cadastro.svg"
                 tamanhoIcone={41}
               />
+              {perfil?.plano === "pro" && (
+                <CartaoModulo
+                  href="/moto"
+                  titulo="Saúde da moto"
+                  descricao="Quilometragem, troca de óleo, pneus, relação e freios no tempo certo."
+                  icone="/icones/moto-modulo.svg"
+                  tamanhoIcone={38}
+                />
+              )}
               <p className="text-center text-xs text-cinza-escuro">Mais módulos em breve.</p>
             </nav>
           </Secao>
