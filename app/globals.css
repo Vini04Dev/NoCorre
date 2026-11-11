@@ -57,7 +57,8 @@
 }
 
 body {
-  background: var(--color-fundo);
+  /* --t-fundo: fundo do tema do app (lib/tema-app.ts); sem tema, o fundo padrão. */
+  background: var(--t-fundo, var(--color-fundo));
   color: var(--color-marinho);
   /* Toque duplo não dá zoom nem atrasa o clique (o pinça continua funcionando). */
   touch-action: manipulation;
@@ -177,9 +178,6 @@ body {
   /* O "branco" dos cartões e painéis é a superfície do tema. */
   .casca-app :is(.bg-white, .bg-white\/90) {
     --color-white: var(--t-superficie);
-  }
-  body:has(.casca-app) {
-    background: var(--t-fundo);
   }
 
   /* Superfícies de cor fixa. */
