@@ -1,16 +1,19 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import {
-  CHAVE_FUNDO_APP,
-  CHAVE_TEMA_APP,
-  FUNDOS_APP,
-  TEMAS_APP,
-  type FundoApp,
-  type TemaApp,
-} from "@/lib/tema-app";
+import { CHAVE_TEMA_APP, TEMAS_APP, type TemaApp } from "@/lib/tema-app";
 
+const PADRAO = TEMAS_APP[0].valor;
 const ouvintes = new Set<() => void>();
+
+function ler(): TemaApp {
+  try {
+    const valor = localStorage.getItem(CHAVE_TEMA_APP);
+    return TEMAS_APP.some((t) => t.valor === valor) ? (valor as TemaApp) : PADRAO;
+  } catch {
+    return PADRAO;
+  }
+}
 
 function inscrever(ouvinte: () => void) {
   ouvintes.add(ouvinte);
@@ -18,51 +21,26 @@ function inscrever(ouvinte: () => void) {
 }
 
 /**
- * Preferência visual guardada no aparelho e refletida no <html> como data-*.
- * O primeiro valor da lista é o padrão: com ele, nada fica guardado.
+ * Guarda o tema no aparelho e o põe no <html> (data-tema-app e, nos escuros,
+ * data-tema-escuro). O CSS só muda as telas logadas (.casca-app).
  */
-function preferencia<T extends string>(chave: string, valores: readonly T[], atributo: "temaApp" | "fundoApp") {
-  const padrao = valores[0];
-
-  function ler(): T {
-    try {
-      const valor = localStorage.getItem(chave);
-      return valores.includes(valor as T) ? (valor as T) : padrao;
-    } catch {
-      return padrao;
-    }
+export function aplicarTemaApp(tema: TemaApp) {
+  try {
+    if (tema === PADRAO) localStorage.removeItem(CHAVE_TEMA_APP);
+    else localStorage.setItem(CHAVE_TEMA_APP, tema);
+  } catch {
+    // Sem armazenamento: o tema vale só até fechar o app.
   }
-
-  function aplicar(valor: T) {
-    try {
-      if (valor === padrao) localStorage.removeItem(chave);
-      else localStorage.setItem(chave, valor);
-    } catch {
-      // Sem armazenamento: vale só até fechar o app.
-    }
-    if (valor === padrao) delete document.documentElement.dataset[atributo];
-    else document.documentElement.dataset[atributo] = valor;
-    ouvintes.forEach((ouvinte) => ouvinte());
-  }
-
-  return { ler, aplicar, padrao };
+  const raiz = document.documentElement.dataset;
+  if (tema === PADRAO) delete raiz.temaApp;
+  else raiz.temaApp = tema;
+  if (TEMAS_APP.find((t) => t.valor === tema)?.escuro) raiz.temaEscuro = "";
+  else delete raiz.temaEscuro;
+  ouvintes.forEach((ouvinte) => ouvinte());
 }
 
-const cor = preferencia<TemaApp>(CHAVE_TEMA_APP, TEMAS_APP.map((t) => t.valor), "temaApp");
-const fundo = preferencia<FundoApp>(CHAVE_FUNDO_APP, FUNDOS_APP.map((f) => f.valor), "fundoApp");
-
-/** O CSS de cor e fundo só vale dentro das telas logadas (.casca-app). */
-export const aplicarTemaApp = cor.aplicar;
-export const aplicarFundoApp = fundo.aplicar;
-
-/** Cor de destaque escolhida neste aparelho. */
+/** Tema escolhido neste aparelho. */
 export function useTemaApp() {
-  const tema = useSyncExternalStore(inscrever, cor.ler, () => cor.padrao);
+  const tema = useSyncExternalStore(inscrever, ler, () => PADRAO);
   return [tema, aplicarTemaApp] as const;
-}
-
-/** Tom de fundo escolhido neste aparelho. */
-export function useFundoApp() {
-  const valor = useSyncExternalStore(inscrever, fundo.ler, () => fundo.padrao);
-  return [valor, aplicarFundoApp] as const;
 }

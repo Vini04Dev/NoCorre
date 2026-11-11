@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { PainelLancamento } from "@/components/lancamentos/PainelLancamento";
+import { IconeMenu } from "@/components/ui/Icones";
 
 type ItemNavegacao = {
   href: string;
@@ -39,7 +39,7 @@ function LinkNavegacao({ item, ativo }: { item: ItemNavegacao; ativo: boolean })
       aria-current={ativo ? "page" : undefined}
       className="flex flex-col items-center gap-0.5 pt-[11px] text-[11px] text-marinho"
     >
-      <Image src={ativo ? item.iconeAtivo : item.icone} alt="" width={24} height={24} data-cor-fixa={ativo || undefined} />
+      <IconeMenu src={item.icone} ativo={ativo} />
       {item.rotulo}
     </Link>
   );
@@ -67,9 +67,20 @@ export function BarraNavegacao() {
             aria-haspopup="dialog"
             className="absolute -top-10 grid size-20 place-items-center"
           >
-            <Image src="/icones/botao-mais-fundo.svg" alt="" width={80} height={80} className="absolute" data-cor-fixa />
-            <Image src="/icones/botao-mais-circulo.svg" alt="" width={64} height={64} className="absolute" data-cor-fixa />
-            <Image src="/icones/mais.svg" alt="" width={55} height={55} className="absolute" data-cor-fixa />
+            {/* Desenhado em CSS para acompanhar a cor de destaque do tema. */}
+            <span aria-hidden className="absolute size-20 rounded-full bg-white/25" />
+            <span
+              aria-hidden
+              className="absolute grid size-16 place-items-center rounded-full text-marinho shadow-[inset_0_4px_4px_rgb(255_255_255/0.35)]"
+              style={{
+                background:
+                  "linear-gradient(30deg, var(--color-dourado-claro) 0%, var(--color-dourado) 45%, color-mix(in srgb, var(--color-dourado) 70%, #000) 100%)",
+              }}
+            >
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" />
+              </svg>
+            </span>
           </button>
         </div>
 

@@ -5,32 +5,35 @@
  * bg-marinho, text-positivo, border-cinza-claro etc.
  */
 /*
- * Fora do "inline": as classes usam var(--color-...), e o tema do app (recurso
- * Pro) troca essas variáveis: dourado (cor de destaque) e os tons de fundo
- * (fundo, cartões, cinzas, bordas e, nos tons escuros, o marinho do texto).
+ * Fora do "inline": as classes usam var(--color-...), e os temas do app (recurso
+ * Pro) trocam essas variáveis. Os valores abaixo são os do tema Clássico e
+ * precisam bater com lib/tema-app.ts (o teste de contraste confere).
+ * Cinzas, verde e amarelo foram ajustados para o contraste mínimo da WCAG (AA).
  */
 @theme {
   --color-dourado-claro: #ffd36a;
   --color-dourado: #e0a92e;
+  --color-dourado-icone: #c89e3b;
+  /* Dourado como texto: mais escuro, para passar no contraste sobre o branco. */
+  --color-dourado-texto: #916408;
   --color-marinho: #2b2d42;
   --color-fundo: #f9fafb;
-  --color-cinza-escuro: #9196a2;
+  --color-cinza: #6c7180;
+  --color-cinza-escuro: #5c6170;
   --color-cinza-claro: #dfe1e6;
   --color-cinza-fundo: #f3f4f6;
   --color-painel: #e8e8e8;
   --color-texto-segmento: #1f2937;
+  --color-positivo: #3a8500;
+  --color-recebido: #347701;
+  --color-pendente: #857000;
+  --color-negativo: #cc0000;
   --shadow-cartao: 0px 4px 4px 0px rgba(0, 0, 0, 0.1);
 }
 
 @theme inline {
-  --color-dourado-icone: #c89e3b;
 
-  --color-cinza: #b0b6bf;
 
-  --color-positivo: #4caf00;
-  --color-recebido: #347701;
-  --color-pendente: #c5a800;
-  --color-negativo: #cc0000;
 
   --font-sans: var(--font-poppins);
   --font-inter: var(--font-inter);
@@ -136,118 +139,114 @@ body {
 }
 
 /*
- * Temas de cor do app (Pro): trocam o destaque dourado (botões, seleção, ícones
- * em círculo) dentro das telas logadas. A landing e o login ficam sempre dourados.
- * O atributo vem de um script no <head> (app/layout.tsx), antes da primeira pintura.
- */
-html[data-tema-app="verde"] .casca-app {
-  --color-dourado-claro: #b5e48c;
-  --color-dourado: #5cb82a;
-}
-html[data-tema-app="azul"] .casca-app {
-  --color-dourado-claro: #a9cbff;
-  --color-dourado: #4a8ef0;
-}
-html[data-tema-app="laranja"] .casca-app {
-  --color-dourado-claro: #ffc29a;
-  --color-dourado: #f08a3c;
-}
-html[data-tema-app="roxo"] .casca-app {
-  --color-dourado-claro: #cdbcff;
-  --color-dourado: #9b7bff;
-}
-
-/*
- * Tons de fundo do app (recurso Pro; lib/tema-app.ts). Na camada base para as
- * classes do Tailwind continuarem valendo por cima.
+ * Temas do app (recurso Pro). Os valores de cada tema (--t-*) vêm de
+ * lib/tema-app.ts, num <style> do <head>; aqui fica só a distribuição deles
+ * pelas superfícies. Tudo na camada base: as classes do Tailwind valem por cima.
  *
- * Cada tom troca o fundo e as superfícies juntos: o cartão (bg-white) fica um
- * pouco mais claro que o fundo, com a mesma sombra, como no tema branco.
- * Nos tons escuros, o texto (marinho) e os ícones de linha ficam claros. Áreas
- * douradas e faixas marinho mantêm as cores originais, com o conteúdo delas.
+ * A ideia: cada superfície define as cores de tinta de quem está dentro dela.
+ * - Superfícies do tema (fundo, cartões, cinzas) usam as cores do tema.
+ * - Superfícies de cor fixa (faixas marinho, áreas douradas, verde, vermelho,
+ *   degradês no style) usam sempre as mesmas cores, em qualquer tema.
+ * Só vale nas telas logadas (.casca-app); landing e login não mudam.
  */
 @layer base {
-  html[data-fundo-app="gelo"] {
-    --color-fundo: #e9ecf0;
-    --superficie: #f6f7f9;
-    --color-cinza-fundo: #e1e4e9;
-    --color-cinza-claro: #d3d7de;
-    --color-painel: #dadde3;
+  .casca-app,
+  .casca-app :is(.bg-white, .bg-white\/90, .bg-cinza-fundo, .bg-cinza-claro, .bg-painel, .bg-fundo) {
+    --color-marinho: var(--t-texto);
+    --color-cinza: var(--t-cinza);
+    --color-cinza-escuro: var(--t-cinza-escuro);
+    --color-cinza-claro: var(--t-cinza-claro);
+    --color-dourado-texto: var(--t-destaque-texto);
+    --color-positivo: var(--t-positivo);
+    --color-recebido: var(--t-recebido);
+    --color-pendente: var(--t-pendente);
+    --color-negativo: var(--t-negativo);
+    --color-white: #ffffff;
   }
-  html[data-fundo-app="nevoa"] {
-    --color-fundo: #cfd4dc;
-    --superficie: #e3e7ec;
-    --color-cinza-fundo: #d5dae1;
-    --color-cinza-claro: #bcc2cc;
-    --color-painel: #c8cdd5;
-  }
-  html[data-fundo-app="grafite"] {
-    --color-fundo: #2c2f3d;
-    --superficie: #383b4c;
-    --color-cinza-fundo: #424658;
-    --color-cinza-claro: #50556a;
-    --color-painel: #3f4355;
-    --color-cinza-escuro: #a7acb9;
-    --color-texto-segmento: #eceef2;
-    --shadow-cartao: 0px 4px 10px 0px rgba(0, 0, 0, 0.35);
-  }
-  html[data-fundo-app="noite"] {
-    --color-fundo: #121319;
-    --superficie: #1d1f28;
-    --color-cinza-fundo: #272a35;
-    --color-cinza-claro: #343745;
-    --color-painel: #23252f;
-    --color-cinza-escuro: #a7acb9;
-    --color-texto-segmento: #eceef2;
-    --shadow-cartao: 0px 4px 10px 0px rgba(0, 0, 0, 0.5);
-  }
-
-  /* Cartões e painéis: o "branco" passa a ser a superfície do tom. */
-  html[data-fundo-app] .casca-app :is(.bg-white, .bg-white\/90) {
-    --color-white: var(--superficie);
-  }
-
-  /* Texto e ícones de linha claros nos tons escuros. */
-  :is(html[data-fundo-app="grafite"], html[data-fundo-app="noite"]) .casca-app {
-    --color-marinho: #eceef2;
+  .casca-app {
+    --color-fundo: var(--t-fundo);
+    --color-cinza-fundo: var(--t-cinza-fundo);
+    --color-painel: var(--t-painel);
+    --color-texto-segmento: var(--t-texto-segmento);
+    --color-dourado: var(--t-destaque);
+    --color-dourado-claro: var(--t-destaque-claro);
+    --color-dourado-icone: var(--t-destaque-icone);
+    --shadow-cartao: var(--t-sombra);
     color: var(--color-marinho);
+  }
+  /* O "branco" dos cartões e painéis é a superfície do tema. */
+  .casca-app :is(.bg-white, .bg-white\/90) {
+    --color-white: var(--t-superficie);
+  }
+  body:has(.casca-app) {
+    background: var(--t-fundo);
+  }
+
+  /* Superfícies de cor fixa. */
+  .casca-app :is([class*="bg-marinho"], [class*="from-marinho"]) {
+    --color-marinho: #2b2d42;
+    --color-white: #ffffff;
+    --color-cinza: #b0b6bf;
+    --color-cinza-escuro: #9196a2;
+    --color-cinza-claro: #dfe1e6;
+    --color-dourado-texto: var(--t-destaque-claro);
     color-scheme: dark;
   }
-  /* Inverte o claro/escuro e devolve o matiz: marinho vira claro, verde continua verde. */
-  :is(html[data-fundo-app="grafite"], html[data-fundo-app="noite"]) .casca-app img[src*="/icones/"]:not([data-cor-fixa]) {
-    filter: invert(1) hue-rotate(180deg);
-  }
-
-  /*
-   * Superfícies de cor própria (dourado, marinho, verde, vermelho, degradês e
-   * fundos definidos no style): ficam como no tema branco, com o que está dentro.
-   */
-  html[data-fundo-app]
-    .casca-app
+  .casca-app
     :is(
       .bg-dourado-claro,
       .bg-dourado,
+      .bg-dourado-icone,
       [class*="from-dourado"],
-      [class*="bg-marinho"],
-      [class*="from-marinho"],
       [class*="bg-positivo"],
       [class*="bg-negativo"],
       [style*="background"]
     ) {
-    --color-white: #ffffff;
     --color-marinho: #2b2d42;
-    --color-cinza-claro: #dfe1e6;
-    --color-cinza-escuro: #9196a2;
+    --color-white: #ffffff;
+    --color-cinza: #5c6170;
+    --color-cinza-escuro: #4a4f5c;
+    color: var(--color-marinho);
     color-scheme: light;
   }
-  :is(html[data-fundo-app="grafite"], html[data-fundo-app="noite"])
+
+  /* Temas escuros (data-tema-escuro, posto junto com o tema no <head>). */
+  html[data-tema-escuro] .casca-app {
+    color-scheme: dark;
+  }
+  /*
+   * Ícones de linha em arquivo (marinho) ficam claros: inverter o claro/escuro
+   * e girar o matiz de volta mantém verde verde e vermelho vermelho. Ícones de
+   * cor própria usam data-cor-fixa; dentro de áreas de cor fixa nada muda.
+   */
+  html[data-tema-escuro] .casca-app img[src*="/icones/"]:not([data-cor-fixa]) {
+    filter: invert(1) hue-rotate(180deg);
+  }
+  html[data-tema-escuro]
     .casca-app
-    :is(.bg-dourado-claro, .bg-dourado, [class*="from-dourado"], [class*="bg-marinho"], [class*="from-marinho"])
+    :is(.bg-dourado-claro, .bg-dourado, .bg-dourado-icone, [class*="from-dourado"], [class*="bg-marinho"], [class*="from-marinho"])
     img[src*="/icones/"]:not([data-cor-fixa]) {
     filter: none;
   }
-  /* Faixas marinho sobre o fundo escuro ganham um contorno para não sumirem. */
-  :is(html[data-fundo-app="grafite"], html[data-fundo-app="noite"]) .casca-app [class*="bg-marinho"] {
+  /*
+   * Seleção e botões marinho quase somem no fundo escuro: ganham contorno na
+   * cor de destaque (WCAG 1.4.11, 3:1). Faixas grandes ganham só um fio claro.
+   */
+  html[data-tema-escuro] .casca-app [class*="bg-marinho"] {
     outline: 1px solid rgb(255 255 255 / 0.08);
+  }
+  html[data-tema-escuro] .casca-app :is(button, a, [role="radio"], [role="tab"])[class*="bg-marinho"] {
+    outline: 1.5px solid var(--color-dourado);
+    outline-offset: -1.5px;
+  }
+}
+
+/*
+ * Dourado como texto (links, "Ver todas"): usa a variante que passa no
+ * contraste do tema. Depois das utilidades do Tailwind, na mesma camada.
+ */
+@layer utilities {
+  .casca-app .text-dourado {
+    color: var(--color-dourado-texto);
   }
 }
