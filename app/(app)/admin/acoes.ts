@@ -16,7 +16,25 @@ export async function buscarDetalheUsuario(id: string): Promise<{ dados?: Metric
   if (!UUID.test(id)) return { erro: "Usuário inválido." };
   const supabase = criarClienteAdmin();
   if (!supabase) return { erro: "Defina SUPABASE_SECRET_KEY no servidor." };
-  const { data, error } = await supabase.rpc("metricas_usuario_admin", { p_usuario: id });
-  if (error) return { erro: error.message };
-  return { dados: data as MetricasUsuario };
+  const [metricas, perfil] = await Promise.all([
+    supabase.rpc("metricas_usuario_admin", { p_usuario: id }),
+    supabase.from("perfis").select("plano").eq("id", id).maybeSingle(),
+  ]);
+  if (metricas.error) return { erro: metricas.error.message };
+  // Sem a migration do plano, a coluna não existe: o detalhe sai sem o plano.
+  const plano = perfil.error ? undefined : perfil.data?.plano;
+  return { dados: { ...(metricas.data as MetricasUsuario), plano } };
+}
+
+/**
+ * Liga ou desliga o Pro de uma pessoa. Só o servidor muda o plano: a pessoa
+ * não tem permissão de update nessa coluna (migration 20261111100000).
+ */
+export async function definirPlano(id: string, plano: "gratis" | "pro"): Promise<{ erro?: string }> {
+  if (!(await ehAdmin())) return { erro: "Acesso restrito à administração." };
+  if (!UUID.test(id) || (plano !== "gratis" && plano !== "pro")) return { erro: "Dados inválidos." };
+  const supabase = criarClienteAdmin();
+  if (!supabase) return { erro: "Defina SUPABASE_SECRET_KEY no servidor." };
+  const { error } = await supabase.from("perfis").update({ plano }).eq("id", id);
+  return error ? { erro: error.message } : {};
 }

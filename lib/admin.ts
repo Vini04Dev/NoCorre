@@ -57,4 +57,6 @@ export type MetricasUsuario = {
   ultimo_lancamento: string | null;
   ultimo_uso: string | null;
   aparelho: string | null;
+  /** Vem de perfis.plano (migration 20261111100000); ausente antes dela. */
+  plano?: "gratis" | "pro";
 };
