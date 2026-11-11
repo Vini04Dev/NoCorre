@@ -98,7 +98,7 @@ export function TelaTema() {
           <p className="text-xs text-cinza-escuro">
             Cada tema já vem com fundo, cartões e cor de destaque combinados e com boa leitura. Vale para este aparelho.
           </p>
-          <div role="radiogroup" aria-label="Tema do app" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div role="radiogroup" aria-label="Tema do app" className="grid grid-cols-2 gap-3">
             {TEMAS_APP.map(({ valor, nome, descricao, cores }) => {
               const ativo = valor === tema;
               return (
