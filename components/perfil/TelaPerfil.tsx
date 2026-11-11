@@ -202,6 +202,7 @@ export function TelaPerfil({ admin = false }: { admin?: boolean }) {
         <ul className="rounded-[12px] border border-cinza-claro bg-white px-3.5 py-1">
           <ItemConfiguracao href="/perfil/editar" icone="/icones/perfil-dados.svg" rotulo="Dados pessoais" />
           <ItemConfiguracao href="/perfil/sobre" icone="/icones/perfil-sobre.svg" rotulo="Sobre o No Corre!" />
+          <ItemConfiguracao href="/perfil/tema" icone="/icones/tema.svg" rotulo="Tema do app" />
           <ItemConfiguracao href="/perfil/novidades" icone="/icones/novidades.svg" rotulo="Notas de atualização" />
           <ItemConfiguracao href="/perfil/seguranca" icone="/icones/perfil-seguranca.svg" rotulo="Senha e segurança" />
           {admin && <ItemConfiguracao href="/admin" icone="/icones/relatorios.svg" rotulo="Painel do sistema" />}
