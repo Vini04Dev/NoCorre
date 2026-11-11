@@ -4,10 +4,17 @@
  * Tokens do design (Figma, Page 1). Viram classes do Tailwind:
  * bg-marinho, text-positivo, border-cinza-claro etc.
  */
-@theme inline {
-  --color-marinho: #2b2d42;
+/*
+ * Dourado fora do "inline": as classes usam var(--color-dourado), e o tema de
+ * cor do app (recurso Pro) troca só essas duas variáveis dentro de .casca-app.
+ */
+@theme {
   --color-dourado-claro: #ffd36a;
   --color-dourado: #e0a92e;
+}
+
+@theme inline {
+  --color-marinho: #2b2d42;
   --color-dourado-icone: #c89e3b;
 
   --color-cinza-escuro: #9196a2;
@@ -98,5 +105,27 @@ body {
   --l-suave: #b0b6bf;
   --l-destaque: #ffd36a;
   color-scheme: dark;
+}
+
+/*
+ * Temas de cor do app (Pro): trocam o destaque dourado (botões, seleção, ícones
+ * em círculo) dentro das telas logadas. A landing e o login ficam sempre dourados.
+ * O atributo vem de um script no <head> (app/layout.tsx), antes da primeira pintura.
+ */
+html[data-tema-app="verde"] .casca-app {
+  --color-dourado-claro: #b5e48c;
+  --color-dourado: #5cb82a;
+}
+html[data-tema-app="azul"] .casca-app {
+  --color-dourado-claro: #a9cbff;
+  --color-dourado: #4a8ef0;
+}
+html[data-tema-app="laranja"] .casca-app {
+  --color-dourado-claro: #ffc29a;
+  --color-dourado: #f08a3c;
+}
+html[data-tema-app="roxo"] .casca-app {
+  --color-dourado-claro: #cdbcff;
+  --color-dourado: #9b7bff;
 }
 

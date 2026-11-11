@@ -10,7 +10,7 @@ import { ehAdmin } from "@/lib/admin-servidor";
  */
 export default async function LayoutFormulario({ children }: LayoutProps<"/">) {
   return (
-    <div className="min-h-dvh lg:pl-64">
+    <div className="casca-app min-h-dvh lg:pl-64">
       <MenuLateral admin={await ehAdmin()} />
       <div className="mx-auto min-h-dvh max-w-[430px] lg:min-h-0 lg:max-w-none lg:px-6 lg:py-10">
         <FaixaStatus />
