@@ -5,23 +5,24 @@
  * bg-marinho, text-positivo, border-cinza-claro etc.
  */
 /*
- * Dourado fora do "inline": as classes usam var(--color-dourado), e o tema de
- * cor do app (recurso Pro) troca só essas duas variáveis dentro de .casca-app.
+ * Fora do "inline": as classes usam var(--color-...), e o tema do app (recurso
+ * Pro) troca essas variáveis: dourado (cor de destaque), fundo e marinho (tons
+ * escuros de fundo).
  */
 @theme {
   --color-dourado-claro: #ffd36a;
   --color-dourado: #e0a92e;
+  --color-marinho: #2b2d42;
+  --color-fundo: #f9fafb;
 }
 
 @theme inline {
-  --color-marinho: #2b2d42;
   --color-dourado-icone: #c89e3b;
 
   --color-cinza-escuro: #9196a2;
   --color-cinza: #b0b6bf;
   --color-cinza-claro: #dfe1e6;
   --color-cinza-fundo: #f3f4f6;
-  --color-fundo: #f9fafb;
   --color-painel: #e8e8e8;
   --color-texto-segmento: #1f2937;
 
@@ -129,3 +130,48 @@ html[data-tema-app="roxo"] .casca-app {
   --color-dourado: #9b7bff;
 }
 
+/*
+ * Tons de fundo do app (recurso Pro; lib/tema-app.ts). Ficam na camada base para
+ * as classes do Tailwind continuarem valendo por cima.
+ *
+ * Nos tons escuros, "marinho" (a cor do texto) vira claro sobre o fundo. Cartões
+ * e superfícies claras (branco, cinzas, dourado) e as faixas marinho voltam a
+ * definir o marinho original para si e para o que está dentro: o conteúdo deles
+ * fica exatamente como no tema claro.
+ */
+@layer base {
+  html[data-fundo-app="gelo"] {
+    --color-fundo: #eceef2;
+  }
+  html[data-fundo-app="nevoa"] {
+    --color-fundo: #d5d9e0;
+  }
+  html[data-fundo-app="grafite"] {
+    --color-fundo: #3a3d4f;
+  }
+  html[data-fundo-app="noite"] {
+    --color-fundo: #16171f;
+  }
+
+  :is(html[data-fundo-app="grafite"], html[data-fundo-app="noite"]) .casca-app {
+    --color-marinho: #eceef2;
+    color: var(--color-marinho);
+    color-scheme: dark;
+  }
+  :is(html[data-fundo-app="grafite"], html[data-fundo-app="noite"])
+    .casca-app
+    :is(.bg-white, .bg-cinza-fundo, .bg-cinza-claro, .bg-painel, .bg-dourado-claro, .bg-dourado, .bg-marinho) {
+    --color-marinho: #2b2d42;
+    color: var(--color-marinho);
+    color-scheme: light;
+  }
+  /* O fundo do painel do computador (lg:bg-fundo) acompanha o tom escolhido. */
+  :is(html[data-fundo-app="grafite"], html[data-fundo-app="noite"]) .casca-app .bg-fundo {
+    --color-marinho: #eceef2;
+    color-scheme: dark;
+  }
+  /* Faixas marinho sobre o fundo escuro ganham um contorno para não sumirem. */
+  :is(html[data-fundo-app="grafite"], html[data-fundo-app="noite"]) .casca-app .bg-marinho {
+    outline: 1px solid rgb(255 255 255 / 0.08);
+  }
+}

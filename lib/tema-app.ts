@@ -12,9 +12,29 @@ export type TemaApp = (typeof TEMAS_APP)[number]["valor"];
 export const CHAVE_TEMA_APP = "nocorre:tema-app";
 
 /**
- * Script do <head>: aplica o tema guardado antes da primeira pintura, sem
- * piscar o dourado. Só aceita os valores conhecidos.
+ * Tons de fundo (recurso Pro), do claro ao escuro. Nos dois escuros o texto
+ * sobre o fundo fica claro; cartões e painéis continuam claros (app/globals.css).
  */
-export const SCRIPT_TEMA_APP = `try{var t=localStorage.getItem("${CHAVE_TEMA_APP}");if(${JSON.stringify(
-  TEMAS_APP.map((t) => t.valor),
-)}.indexOf(t)>0)document.documentElement.dataset.temaApp=t}catch(e){}`;
+export const FUNDOS_APP = [
+  { valor: "branco", rotulo: "Branco", cor: "#f9fafb" },
+  { valor: "gelo", rotulo: "Gelo", cor: "#eceef2" },
+  { valor: "nevoa", rotulo: "Névoa", cor: "#d5d9e0" },
+  { valor: "grafite", rotulo: "Grafite", cor: "#3a3d4f" },
+  { valor: "noite", rotulo: "Noite", cor: "#16171f" },
+] as const;
+
+export type FundoApp = (typeof FUNDOS_APP)[number]["valor"];
+
+export const CHAVE_FUNDO_APP = "nocorre:fundo-app";
+
+/** Lê do aparelho e põe no <html> como data-*, só se for um valor conhecido (o primeiro é o padrão). */
+const aplicarGuardado = (chave: string, valores: readonly string[], atributo: string) =>
+  `try{var v=localStorage.getItem("${chave}");if(${JSON.stringify(valores)}.indexOf(v)>0)document.documentElement.dataset.${atributo}=v}catch(e){}`;
+
+/**
+ * Script do <head>: aplica cor e fundo guardados antes da primeira pintura,
+ * sem piscar o padrão.
+ */
+export const SCRIPT_TEMA_APP =
+  aplicarGuardado(CHAVE_TEMA_APP, TEMAS_APP.map((t) => t.valor), "temaApp") +
+  aplicarGuardado(CHAVE_FUNDO_APP, FUNDOS_APP.map((f) => f.valor), "fundoApp");
