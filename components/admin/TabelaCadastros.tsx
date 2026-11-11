@@ -76,7 +76,7 @@ export function TabelaCadastros({ pessoas }: { pessoas: Pessoa[] }) {
         <tr className="border-b border-cinza-claro">
           <th className="px-4 py-2.5 font-semibold">Nome</th>
           <th className="px-4 py-2.5 font-semibold">Cadastro</th>
-          <th className="px-4 py-2.5 font-semibold">Último acesso</th>
+          <th className="px-4 py-2.5 font-semibold">Último uso</th>
         </tr>
       </thead>
       <tbody>
@@ -106,7 +106,8 @@ export function TabelaCadastros({ pessoas }: { pessoas: Pessoa[] }) {
                 </td>
                 <td className="px-4 py-2.5 whitespace-nowrap">{quando(pessoa.criado_em)}</td>
                 <td className="px-4 py-2.5 whitespace-nowrap text-cinza-escuro">
-                  {pessoa.ultimo_acesso ? quando(pessoa.ultimo_acesso) : "Nunca entrou"}
+                  {/* Mesmo dado do detalhe ("Último uso do app"); antes da migration, o último login. */}
+                  {(pessoa.ultimo_uso ?? pessoa.ultimo_acesso) ? quando(pessoa.ultimo_uso ?? pessoa.ultimo_acesso) : "Nunca entrou"}
                 </td>
               </tr>
               {estaAberta && (

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { formatarMoeda } from "@/lib/formatar";
 import type { Barra } from "@/lib/relatorio";
+import { Valor } from "@/components/ui/Valor";
 
 const ALTURA = 64;
 
@@ -25,7 +26,7 @@ export function GraficoBarras({ barras }: { barras: Barra[] }) {
         {destaque >= 0 && (
           <span aria-live="polite">
             {tocada === null ? "Melhor: " : ""}
-            {barras[destaque].descricao} · {formatarMoeda(barras[destaque].valor)}
+            {barras[destaque].descricao} · <Valor texto={formatarMoeda(barras[destaque].valor)} />
           </span>
         )}
       </div>
