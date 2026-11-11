@@ -212,6 +212,7 @@ export type Database = {
           id: string
           nome: string
           placa: string | null
+          plano: Database["public"]["Enums"]["plano_conta"]
           telefone: string | null
           tipo_sanguineo: string | null
           veiculo: string | null
@@ -223,6 +224,7 @@ export type Database = {
           id: string
           nome: string
           placa?: string | null
+          plano?: Database["public"]["Enums"]["plano_conta"]
           telefone?: string | null
           tipo_sanguineo?: string | null
           veiculo?: string | null
@@ -234,6 +236,7 @@ export type Database = {
           id?: string
           nome?: string
           placa?: string | null
+          plano?: Database["public"]["Enums"]["plano_conta"]
           telefone?: string | null
           tipo_sanguineo?: string | null
           veiculo?: string | null
@@ -302,6 +305,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      eh_pro: { Args: never; Returns: boolean }
       excluir_minha_conta: { Args: never; Returns: undefined }
       metricas_admin: { Args: never; Returns: Json }
       metricas_usuario_admin: { Args: { p_usuario: string }; Returns: Json }
@@ -310,6 +314,7 @@ export type Database = {
       cor_evento: "amarelo" | "verde" | "vermelho" | "azul" | "roxo" | "cinza"
       forma_pagamento: "pix" | "dinheiro"
       parametro_meta: "quantidade" | "receita" | "despesa" | "conta"
+      plano_conta: "gratis" | "pro"
       status_meta: "ativa" | "inativa"
       status_pagamento: "pago" | "pendente"
       tipo_categoria: "receita" | "despesa"
@@ -444,6 +449,7 @@ export const Constants = {
       cor_evento: ["amarelo", "verde", "vermelho", "azul", "roxo", "cinza"],
       forma_pagamento: ["pix", "dinheiro"],
       parametro_meta: ["quantidade", "receita", "despesa", "conta"],
+      plano_conta: ["gratis", "pro"],
       status_meta: ["ativa", "inativa"],
       status_pagamento: ["pago", "pendente"],
       tipo_categoria: ["receita", "despesa"],

@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useState, useTransition } from "react";
-import { buscarDetalheUsuario } from "@/app/(app)/admin/acoes";
+import { buscarDetalheUsuario, definirPlano } from "@/app/(app)/admin/acoes";
 import type { MetricasAdmin, MetricasUsuario } from "@/lib/admin";
 
 const FUSO = "America/Sao_Paulo";
@@ -10,7 +10,9 @@ const quando = (valor: string | null) => (valor ? dataHora.format(new Date(valor
 
 type Pessoa = MetricasAdmin["ultimos_cadastros"][number];
 
-function Detalhe({ dados }: { dados: MetricasUsuario }) {
+function Detalhe({ id, dados, aoMudarPlano }: { id: string; dados: MetricasUsuario; aoMudarPlano: () => void }) {
+  const [mudando, iniciar] = useTransition();
+  const [erro, setErro] = useState<string>();
   const contagens = [
     { rotulo: "Receitas", valor: dados.receitas, extra: dados.receitas_pendentes ? `${dados.receitas_pendentes} pendentes` : "" },
     { rotulo: "Entregas", valor: dados.entregas },
@@ -46,6 +48,28 @@ function Detalhe({ dados }: { dados: MetricasUsuario }) {
           </div>
         ))}
       </dl>
+      {dados.plano && (
+        <div className="flex items-center justify-between gap-3 border-t border-cinza-claro pt-3 text-xs">
+          <span>
+            Plano: <b>{dados.plano === "pro" ? "Pro" : "Grátis"}</b>
+            {erro && <span className="ml-2 text-negativo">{erro}</span>}
+          </span>
+          <button
+            type="button"
+            disabled={mudando}
+            onClick={() =>
+              iniciar(async () => {
+                const resposta = await definirPlano(id, dados.plano === "pro" ? "gratis" : "pro");
+                setErro(resposta.erro);
+                if (!resposta.erro) aoMudarPlano();
+              })
+            }
+            className="rounded-lg border border-marinho px-3 py-1.5 font-semibold disabled:opacity-50"
+          >
+            {mudando ? "Salvando..." : dados.plano === "pro" ? "Voltar ao grátis" : "Liberar Pro"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -114,7 +138,16 @@ export function TabelaCadastros({ pessoas }: { pessoas: Pessoa[] }) {
                 <tr className="border-b border-cinza-claro">
                   <td colSpan={3} className="p-0">
                     {detalhe?.dados ? (
-                      <Detalhe dados={detalhe.dados} />
+                      <Detalhe
+                        id={id!}
+                        dados={detalhe.dados}
+                        aoMudarPlano={() =>
+                          iniciar(async () => {
+                            const resposta = await buscarDetalheUsuario(id!);
+                            setDetalhes((atuais) => ({ ...atuais, [id!]: resposta }));
+                          })
+                        }
+                      />
                     ) : (
                       <p className={`px-4 py-3 text-xs ${detalhe?.erro ? "text-negativo" : "text-cinza-escuro"}`}>
                         {detalhe?.erro ?? (carregando ? "Carregando..." : "")}

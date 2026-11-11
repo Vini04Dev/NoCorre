@@ -33,6 +33,7 @@ usuário) e RLS ligada: cada pessoa só lê e altera as próprias linhas.
 | `status_pagamento` | `pago`, `pendente`                                       |
 | `tipo_categoria`   | `receita`, `despesa`                                     |
 | `cor_evento`       | `amarelo`, `verde`, `vermelho`, `azul`, `roxo`, `cinza`  |
+| `plano_conta`      | `gratis`, `pro`                                          |
 | `parametro_meta`   | `quantidade`, `receita`, `despesa`, `conta`              |
 | `status_meta`      | `ativa`, `inativa`                                       |
 
@@ -60,6 +61,7 @@ ficam em `auth.users`).
 | `ano_veiculo`    | `smallint`    | opcional, `check` entre 1950 e 2100                 |
 | `placa`          | `varchar(10)` | opcional                                            |
 | `foto`           | `text`        | opcional, caminho no bucket `fotos-perfil`          |
+| `plano`          | `plano_conta` | not null, default `gratis`; só o servidor altera    |
 | `created_at`     | `timestamptz` | default `now()`                                     |
 
 Criada automaticamente pelo trigger `ao_criar_usuario` quando alguém se
@@ -212,6 +214,20 @@ O progresso não é coluna: é calculado na hora.
 encerram quando batem o alvo ou quando o período termina; limite de despesa só
 no fim do período; conta a pagar quando é quitada (enquanto não for, continua
 ativa, e passa a "em atraso" depois do fim do período).
+
+## Plano Pro
+
+`perfis.plano` diz se a conta é `gratis` ou `pro`. Não há cobrança ainda: o
+ADM liga o Pro pelo painel do sistema (servidor, com a Secret key).
+
+- Desde a migration `20261111100000_plano_pro`, o `update` em `perfis` vale só
+  para as colunas que o app edita (`nome`, `telefone`, `tipo_sanguineo`,
+  `veiculo`, `ano_veiculo`, `placa`, `foto`), por permissão de coluna. Assim
+  ninguém se dá o Pro pela API. **Coluna nova editável pela pessoa precisa
+  entrar nesse `grant`.**
+- `public.eh_pro()` (security definer, `search_path` vazio) devolve se quem
+  chamou é Pro. As tabelas de recursos Pro usam essa função na política de
+  RLS de escrita, então o banco recusa gravação de quem não é Pro.
 
 ## Administração
 
