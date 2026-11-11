@@ -59,11 +59,11 @@ async function Home() {
     <>
       <CabecalhoHome nome={primeiroNome} />
       <main className="flex flex-col gap-7 px-[17px] pt-6 lg:grid lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:items-start lg:gap-8 lg:px-0 lg:pt-8">
-        <AvisoMoto />
         <Secao titulo="MEU SALDO">
           <ResumoPeriodo />
         </Secao>
         <div className="flex flex-col gap-7">
+          <AvisoMoto />
           <Secao titulo="MÓDULOS">
             <nav aria-label="Módulos" className="flex flex-col gap-4">
               <CartaoModulo
