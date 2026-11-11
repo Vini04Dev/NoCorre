@@ -105,7 +105,7 @@ export function TelaCarteiras() {
       {ativas.length > 0 && escolhida && (
         <>
           {/* Carrossel: rola de lado no celular, com o último cartão para criar outra. */}
-          <div className="-mx-[17px] flex snap-x gap-2.5 overflow-x-auto px-[17px] pt-1 pb-2 lg:mx-0 lg:flex-wrap lg:px-0">
+          <div className="-mx-[17px] flex snap-x gap-2.5 overflow-x-auto px-[17px] [scrollbar-width:none] pt-1 pb-2 lg:mx-0 lg:flex-wrap lg:px-0">
             {ativas.map((carteira) => (
               <CartaoCarteira
                 key={carteira.id}
