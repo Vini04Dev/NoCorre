@@ -101,6 +101,15 @@ async function Home() {
                 icone="/icones/cadastro.svg"
                 tamanhoIcone={41}
               />
+              {perfil?.plano === "pro" && (
+                <CartaoModulo
+                  href="/moto"
+                  titulo="Saúde da moto"
+                  descricao="Quilometragem, troca de óleo, pneus, relação e freios no tempo certo."
+                  icone="/icones/moto-modulo.svg"
+                  tamanhoIcone={38}
+                />
+              )}
               <p className="text-center text-xs text-cinza-escuro">Mais módulos em breve.</p>
             </nav>
           </Secao>
