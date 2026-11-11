@@ -44,7 +44,14 @@ function LinkMenu({ item, ativo }: { item: Item; ativo: boolean }) {
         ativo ? "bg-dourado-claro/35 font-semibold" : "font-medium text-marinho/80 hover:bg-cinza-fundo"
       }`}
     >
-      <Image src={(ativo && item.iconeAtivo) || item.icone} alt="" width={24} height={24} className="size-6" />
+      <Image
+                  src={(ativo && item.iconeAtivo) || item.icone}
+                  alt=""
+                  width={24}
+                  height={24}
+                  className="size-6"
+                  data-cor-fixa={(ativo && Boolean(item.iconeAtivo)) || undefined}
+                />
       {item.rotulo}
     </Link>
   );

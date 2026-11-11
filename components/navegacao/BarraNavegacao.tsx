@@ -39,7 +39,7 @@ function LinkNavegacao({ item, ativo }: { item: ItemNavegacao; ativo: boolean })
       aria-current={ativo ? "page" : undefined}
       className="flex flex-col items-center gap-0.5 pt-[11px] text-[11px] text-marinho"
     >
-      <Image src={ativo ? item.iconeAtivo : item.icone} alt="" width={24} height={24} />
+      <Image src={ativo ? item.iconeAtivo : item.icone} alt="" width={24} height={24} data-cor-fixa={ativo || undefined} />
       {item.rotulo}
     </Link>
   );
@@ -67,9 +67,9 @@ export function BarraNavegacao() {
             aria-haspopup="dialog"
             className="absolute -top-10 grid size-20 place-items-center"
           >
-            <Image src="/icones/botao-mais-fundo.svg" alt="" width={80} height={80} className="absolute" />
-            <Image src="/icones/botao-mais-circulo.svg" alt="" width={64} height={64} className="absolute" />
-            <Image src="/icones/mais.svg" alt="" width={55} height={55} className="absolute" />
+            <Image src="/icones/botao-mais-fundo.svg" alt="" width={80} height={80} className="absolute" data-cor-fixa />
+            <Image src="/icones/botao-mais-circulo.svg" alt="" width={64} height={64} className="absolute" data-cor-fixa />
+            <Image src="/icones/mais.svg" alt="" width={55} height={55} className="absolute" data-cor-fixa />
           </button>
         </div>
 

@@ -243,7 +243,7 @@ html[data-tema-app="roxo"] .casca-app {
   :is(html[data-fundo-app="grafite"], html[data-fundo-app="noite"])
     .casca-app
     :is(.bg-dourado-claro, .bg-dourado, [class*="from-dourado"], [class*="bg-marinho"], [class*="from-marinho"])
-    img {
+    img[src*="/icones/"]:not([data-cor-fixa]) {
     filter: none;
   }
   /* Faixas marinho sobre o fundo escuro ganham um contorno para não sumirem. */
