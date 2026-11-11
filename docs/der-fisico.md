@@ -229,6 +229,45 @@ ADM liga o Pro pelo painel do sistema (servidor, com a Secret key).
   chamou é Pro. As tabelas de recursos Pro usam essa função na política de
   RLS de escrita, então o banco recusa gravação de quem não é Pro.
 
+## Carteiras (Pro)
+
+Migration `20261111110000_carteiras`. Separa o dinheiro por onde ele está
+(conta do banco, dinheiro em mão, conta do salário).
+
+### carteiras
+
+| Coluna          | Tipo            | Regras                                              |
+|-----------------|-----------------|-----------------------------------------------------|
+| `id`            | `uuid`          | PK; `unique (id, usuario_id)` para FKs compostas    |
+| `usuario_id`    | `uuid`          | FK `auth.users`, `on delete cascade`                |
+| `nome`          | `varchar(40)`   | not null, único por pessoa                          |
+| `cor`           | `cor_evento`    | default `azul`                                      |
+| `saldo_inicial` | `numeric(10,2)` | default 0 (quanto tinha ao começar a usar)          |
+| `padrao`        | `boolean`       | no máximo uma por pessoa (índice único parcial)     |
+| `arquivada`     | `boolean`       | some das escolhas, mantém o histórico               |
+
+### transferencias
+
+| Coluna       | Tipo            | Regras                                          |
+|--------------|-----------------|-------------------------------------------------|
+| `origem_id`  | `uuid`          | FK composta `(origem_id, usuario_id)`            |
+| `destino_id` | `uuid`          | FK composta; `check (origem_id <> destino_id)`   |
+| `valor`      | `numeric(10,2)` | `> 0`                                            |
+| `data_hora`  | `timestamptz`   | default `now()`                                  |
+| `observacao` | `varchar(120)`  | opcional                                         |
+
+- `receitas.carteira_id` e `despesas.carteira_id`: opcionais, FK composta com
+  `on delete no action` (carteira com lançamentos não é excluída; arquiva-se).
+  Lançamento sem carteira conta na principal.
+- RLS: ler e excluir os próprios; criar e editar só com `eh_pro()`.
+- `public.saldos_carteiras()` (security invoker): saldo inicial + receitas
+  pagas − despesas ± transferências, por carteira.
+- **Para desfazer** (se o recurso não for adiante):
+  `drop function public.saldos_carteiras(); drop table public.transferencias;
+  alter table public.receitas drop column carteira_id; alter table
+  public.despesas drop column carteira_id; drop table public.carteiras;` e
+  `supabase migration repair --status reverted 20261111110000`.
+
 ## Administração
 
 O painel `/admin` do app abre só para o e-mail definido em `ADMIN_EMAIL`,
