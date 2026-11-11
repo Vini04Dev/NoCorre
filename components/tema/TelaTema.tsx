@@ -68,7 +68,7 @@ export function TelaTema() {
                   className="flex flex-col items-center gap-1.5"
                 >
                   <span
-                    className={`size-12 rounded-full border border-black/15 ${ativo ? "ring-2 ring-dourado ring-offset-2 ring-offset-fundo" : ""}`}
+                    className={`size-12 rounded-full border border-cinza ${ativo ? "ring-2 ring-dourado ring-offset-2 ring-offset-fundo" : ""}`}
                     style={{ background: cor }}
                   />
                   <span className={`text-[11px] ${ativo ? "font-semibold" : "text-cinza-escuro"}`}>{rotulo}</span>

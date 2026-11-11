@@ -160,10 +160,30 @@ html[data-tema-app="roxo"] .casca-app {
   }
   :is(html[data-fundo-app="grafite"], html[data-fundo-app="noite"])
     .casca-app
-    :is(.bg-white, .bg-cinza-fundo, .bg-cinza-claro, .bg-painel, .bg-dourado-claro, .bg-dourado, .bg-marinho) {
+    :is(
+      .bg-white,
+      .bg-cinza-fundo,
+      .bg-cinza-claro,
+      .bg-painel,
+      .bg-dourado-claro,
+      .bg-dourado,
+      [class*="bg-marinho"],
+      [class*="from-marinho"]
+    ) {
     --color-marinho: #2b2d42;
     color: var(--color-marinho);
     color-scheme: light;
+  }
+  /* Ícones de linha marinho soltos sobre o fundo escuro ficam claros... */
+  :is(html[data-fundo-app="grafite"], html[data-fundo-app="noite"]) .casca-app img[src*="/icones/"] {
+    filter: brightness(0) invert(0.92);
+  }
+  /* ...e voltam ao original dentro de cartões e superfícies. */
+  :is(html[data-fundo-app="grafite"], html[data-fundo-app="noite"])
+    .casca-app
+    :is(.bg-white, .bg-cinza-fundo, .bg-cinza-claro, .bg-painel, .bg-dourado-claro, .bg-dourado, [class*="bg-marinho"], [class*="from-marinho"])
+    img {
+    filter: none;
   }
   /* O fundo do painel do computador (lg:bg-fundo) acompanha o tom escolhido. */
   :is(html[data-fundo-app="grafite"], html[data-fundo-app="noite"]) .casca-app .bg-fundo {
