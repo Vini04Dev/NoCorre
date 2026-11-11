@@ -204,6 +204,63 @@ export type Database = {
           },
         ]
       }
+      moto_componentes: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          id: string
+          intervalo_km: number
+          km_ultima_troca: number
+          nome: string
+          tipo: string
+          usuario_id: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          intervalo_km: number
+          km_ultima_troca?: number
+          nome: string
+          tipo: string
+          usuario_id?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          intervalo_km?: number
+          km_ultima_troca?: number
+          nome?: string
+          tipo?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
+      moto_quilometragem: {
+        Row: {
+          created_at: string
+          id: string
+          km: number
+          registrado_em: string
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          km: number
+          registrado_em?: string
+          usuario_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          km?: number
+          registrado_em?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       perfis: {
         Row: {
           ano_veiculo: number | null

@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { AvisoPrimeiroUso } from "@/components/home/AvisoPrimeiroUso";
 import { CabecalhoHome } from "@/components/home/CabecalhoHome";
 import { CartaoModulo } from "@/components/home/CartaoModulo";
+import { AvisoMoto } from "@/components/moto/AvisoMoto";
 import { ResumoPeriodo } from "@/components/home/ResumoPeriodo";
 import { classeFontesLanding } from "@/components/landing/fontes";
 import { COOKIE_IDIOMA, COOKIE_TEMA, escolherIdioma, TEXTOS } from "@/components/landing/idiomas";
@@ -58,6 +59,7 @@ async function Home() {
     <>
       <CabecalhoHome nome={primeiroNome} />
       <main className="flex flex-col gap-7 px-[17px] pt-6 lg:grid lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:items-start lg:gap-8 lg:px-0 lg:pt-8">
+        <AvisoMoto />
         <Secao titulo="MEU SALDO">
           <ResumoPeriodo />
         </Secao>

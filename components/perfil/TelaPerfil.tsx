@@ -178,6 +178,21 @@ export function TelaPerfil({ admin = false }: { admin?: boolean }) {
         </Link>
       </Secao>
 
+      {perfil.plano === "pro" && (
+        <Link
+          href="/moto"
+          className="-mt-2 flex items-center justify-between rounded-[12px] border border-cinza-claro bg-white px-3.5 py-2.5 text-xs font-semibold"
+        >
+          <span className="flex items-center gap-2">
+            Saúde da moto
+            <span className="rounded-md bg-marinho px-1.5 py-0.5 text-[9px] font-bold tracking-[0.6px] text-dourado-claro">PRO</span>
+          </span>
+          <span aria-hidden className="text-lg text-cinza">
+            ›
+          </span>
+        </Link>
+      )}
+
       <Secao titulo="PLANO">
         <Link
           href="/pro"
