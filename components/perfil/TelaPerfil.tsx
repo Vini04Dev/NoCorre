@@ -9,6 +9,7 @@ import { CirculoProgresso } from "@/components/metas/CirculoProgresso";
 import { Secao } from "@/components/ui/Secao";
 import { useMetas } from "@/hooks/useMetas";
 import { useEstatisticasPerfil, usePerfil } from "@/hooks/usePerfil";
+import { IconeTingido } from "@/components/ui/Icones";
 import { Valor } from "@/components/ui/Valor";
 import { corDaMeta, textoProgresso } from "@/lib/metas";
 
@@ -184,7 +185,7 @@ export function TelaPerfil({ admin = false }: { admin?: boolean }) {
           className="flex items-center gap-3 rounded-[12px] border border-cinza-claro bg-white px-3.5 py-2"
         >
           <span className="grid size-10 shrink-0 place-items-center rounded-full bg-marinho">
-            <Image src="/icones/pro-dourado.svg" alt="" width={20} height={20} />
+            <IconeTingido src="/icones/pro-dourado.svg" tamanho={20} cor="bg-dourado-claro" />
           </span>
           <span className="flex min-w-0 flex-1 flex-col">
             <span className="text-xs font-semibold">{perfil.plano === "pro" ? "No Corre! Pro" : "Plano grátis"}</span>

@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { IconeTingido } from "@/components/ui/Icones";
 
 type Props = {
   href: string;
@@ -16,10 +16,9 @@ export function CartaoModulo({ href, titulo, descricao, icone, tamanhoIcone }: P
       href={href}
       className="flex min-h-[75px] items-center gap-2 rounded-[10px] border border-black/8 bg-white py-2.5 pr-2 pl-1.5 shadow-cartao"
     >
-      <span className="relative grid size-[55px] shrink-0 place-items-center">
-        {/* data-cor-fixa: círculo marinho e ícone dourado não mudam nos fundos escuros. */}
-        <Image src="/icones/modulo-circulo.svg" alt="" width={55} height={55} className="absolute" data-cor-fixa />
-        <Image src={icone} alt="" width={tamanhoIcone} height={tamanhoIcone} className="relative" data-cor-fixa />
+      {/* Círculo marinho fixo; o ícone acompanha a cor de destaque do tema. */}
+      <span className="grid size-[55px] shrink-0 place-items-center rounded-full bg-marinho">
+        <IconeTingido src={icone} tamanho={tamanhoIcone} cor="bg-dourado-icone" />
       </span>
       <span className="flex flex-col gap-1">
         <span className="text-[15px] font-semibold uppercase">{titulo}</span>

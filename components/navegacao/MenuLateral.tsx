@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { PainelLancamento } from "@/components/lancamentos/PainelLancamento";
+import { IconeMenu } from "@/components/ui/Icones";
 
 type Item = { href: string; rotulo: string; icone: string; iconeAtivo?: string };
 
@@ -40,14 +41,7 @@ function LinkMenu({ item, ativo }: { item: Item; ativo: boolean }) {
         ativo ? "bg-dourado-claro/35 font-semibold" : "font-medium text-marinho/80 hover:bg-cinza-fundo"
       }`}
     >
-      <Image
-                  src={(ativo && item.iconeAtivo) || item.icone}
-                  alt=""
-                  width={24}
-                  height={24}
-                  className="size-6"
-                  data-cor-fixa={(ativo && Boolean(item.iconeAtivo)) || undefined}
-                />
+      <IconeMenu src={item.icone} ativo={ativo} />
       {item.rotulo}
     </Link>
   );
