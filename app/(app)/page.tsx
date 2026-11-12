@@ -85,7 +85,7 @@ async function Home() {
               <CartaoModulo
                 href="/metas"
                 titulo="Metas"
-                descricao="Defina metas através de parâmetros pessoais e alcance-as com sucesso!"
+                descricao="Defina metas, acompanhe o progresso e não esqueça as contas que vencem todo mês."
                 icone="/icones/metas.svg"
                 tamanhoIcone={39}
               />
@@ -98,13 +98,6 @@ async function Home() {
                   tamanhoIcone={36}
                 />
               )}
-              <CartaoModulo
-                href="/contas"
-                titulo="Contas fixas"
-                descricao="O que vence todo mês, com aviso antes do dia e pagamento em um toque."
-                icone="/icones/conta-fixa-modulo.svg"
-                tamanhoIcone={34}
-              />
               <CartaoModulo
                 href="/cadastro"
                 titulo="Cadastro"
