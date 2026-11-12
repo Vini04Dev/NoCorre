@@ -135,10 +135,20 @@ export function TelaPerfil({ admin = false }: { admin?: boolean }) {
             {/* Plano no lugar do tipo sanguíneo (que segue no Editar). Toque abre a página do Pro. */}
             <Link
               href="/pro"
-              className={`rounded-[10px] px-2.5 py-0.5 text-[9px] font-semibold tracking-[0.54px] ${
+              className={`flex items-center gap-1 rounded-[10px] py-0.5 pr-2.5 pl-2 text-[9px] font-semibold tracking-[0.54px] ${
                 perfil.plano === "pro" ? "bg-black text-dourado" : "bg-dourado text-black"
               }`}
             >
+              {/* Coroa (a mesma do Pro no app) ou pessoa (conta comum), na cor do texto do selo. */}
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path
+                  d={
+                    perfil.plano === "pro"
+                      ? "M3 8.5 7 12l5-6 5 6 4-3.5-1.5 9.5h-15L3 8.5ZM5 21h14"
+                      : "M3.2 19.5c1.4-2.2 4.3-3.7 8.8-3.7s7.4 1.5 8.8 3.7M15.6 8.1a3.6 3.6 0 1 1-7.2 0 3.6 3.6 0 0 1 7.2 0Z"
+                  }
+                />
+              </svg>
               {perfil.plano === "pro" ? "PLANO PRO" : "PLANO GRÁTIS"}
             </Link>
           </div>
