@@ -3,6 +3,9 @@
  * Aqui ficam as contas de data: quando vence neste mês e em que situação está.
  */
 
+/** As contas fixas moram na aba "Contas do mês" de Metas. */
+export const ROTA_CONTAS = "/metas?aba=contas";
+
 /** A partir de quantos dias antes do vencimento o Início avisa. */
 export const DIAS_AVISO = 3;
 

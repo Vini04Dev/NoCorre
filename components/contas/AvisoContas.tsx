@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useAvisoForcado } from "@/hooks/useAvisoForcado";
 import { useConfirmarDebito, useContasFixas, useContasPagasNoMes, type ContaFixa } from "@/hooks/useContasFixas";
-import { pedeAtencao, situacaoDaConta, textoSituacao, type SituacaoConta } from "@/lib/contas-fixas";
+import { ROTA_CONTAS, pedeAtencao, situacaoDaConta, textoSituacao, type SituacaoConta } from "@/lib/contas-fixas";
 import { formatarMoeda } from "@/lib/formatar";
 
 type Item = { conta: ContaFixa; situacao: SituacaoConta };
@@ -76,7 +76,7 @@ function Linha({ conta, situacao, exemplo }: Item & { exemplo: boolean }) {
         </button>
       ) : (
         <Link
-          href={exemplo ? "/contas" : `/novo/despesa?fixa=${conta.id}`}
+          href={exemplo ? ROTA_CONTAS :`/novo/despesa?fixa=${conta.id}`}
           className="shrink-0 rounded-[8px] bg-marinho px-3 py-1.5 text-[11px] font-bold text-white"
         >
           Pagar
@@ -112,7 +112,7 @@ export function AvisoContas() {
     <section aria-label="Contas a vencer" className="flex flex-col gap-1.5">
       <h2 className="flex items-center justify-between text-[11px] font-semibold tracking-[0.66px] text-cinza">
         CONTAS A VENCER
-        <Link href="/contas" className="font-bold tracking-normal text-dourado">
+        <Link href={ROTA_CONTAS}className="font-bold tracking-normal text-dourado">
           Ver todas
         </Link>
       </h2>

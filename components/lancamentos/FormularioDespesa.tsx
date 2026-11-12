@@ -18,6 +18,7 @@ import type { ContaFixa } from "@/hooks/useContasFixas";
 import type { Despesa } from "@/hooks/useMovimentacoes";
 import { CATEGORIA_CONTAS, CATEGORIAS_PADRAO } from "@/lib/categorias-padrao";
 import { camposParaDataHora } from "@/lib/data";
+import { ROTA_CONTAS } from "@/lib/contas-fixas";
 import { formatarMoeda } from "@/lib/formatar";
 import { emAbertoNaConta } from "@/lib/metas";
 
@@ -42,7 +43,7 @@ export function FormularioDespesa({ despesa, contaInicial, fixa }: Props) {
     : contaInicial
       ? `/metas/${contaInicial}`
       : fixa
-        ? "/contas"
+        ? ROTA_CONTAS
         : "/";
 
   const [descricao, setDescricao] = useState(despesa?.observacao ?? fixa?.descricao ?? "");

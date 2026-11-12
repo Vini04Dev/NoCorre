@@ -1,8 +1,7 @@
-import type { Metadata } from "next";
-import { TelaContasFixas } from "@/components/contas/TelaContasFixas";
+import { redirect } from "next/navigation";
+import { ROTA_CONTAS } from "@/lib/contas-fixas";
 
-export const metadata: Metadata = { title: "Contas fixas | No Corre!" };
-
+// As contas fixas viraram uma aba de Metas; o endereço antigo continua valendo.
 export default function Pagina() {
-  return <TelaContasFixas />;
+  redirect(ROTA_CONTAS);
 }
