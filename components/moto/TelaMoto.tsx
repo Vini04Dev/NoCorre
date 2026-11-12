@@ -14,6 +14,7 @@ import { usePlano } from "@/hooks/usePlano";
 import {
   COR_SITUACAO,
   desgaste,
+  ehCg160,
   ehScooter,
   formatarKm,
   parteDo,
@@ -21,6 +22,7 @@ import {
   type ParteDesenho,
   type Situacao,
 } from "@/lib/moto";
+import { CarrosselMoto } from "./CarrosselMoto";
 import { DesenhoMoto } from "./DesenhoMoto";
 import { type CalorParte, MapaCalorMoto } from "./MapaCalorMoto";
 
@@ -202,6 +204,8 @@ export function TelaMoto() {
         </div>
         {ehScooter(perfil?.veiculo) ? (
           <DesenhoMoto partes={partes} scooter descricao={descricaoDesenho} />
+        ) : ehCg160(perfil?.veiculo) ? (
+          <CarrosselMoto partes={calor} descricao={descricaoDesenho} />
         ) : (
           <MapaCalorMoto partes={calor} descricao={descricaoDesenho} />
         )}
