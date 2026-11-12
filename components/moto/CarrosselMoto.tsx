@@ -107,7 +107,7 @@ export function CarrosselMoto({ partes, descricao }: { partes: Partial<Record<Pa
           if (e.key === "ArrowLeft") setPosicao((p) => Math.round(p) + 1);
           if (e.key === "ArrowRight") setPosicao((p) => Math.round(p) - 1);
         }}
-        className={`relative aspect-[950/466] w-full max-w-md touch-pan-y rounded-[10px] outline-offset-2 select-none ${arrastando ? "cursor-grabbing" : "cursor-grab"}`}
+        className={`relative aspect-[950/466] w-full max-w-md touch-pan-y rounded-[10px] outline-offset-2 select-none focus:outline-none focus-visible:outline-2 focus-visible:outline-dourado ${arrastando ? "cursor-grabbing" : "cursor-grab"}`}
         onPointerDown={(e) => {
           e.currentTarget.setPointerCapture(e.pointerId);
           inicio.current = { x: e.clientX, posicao };
