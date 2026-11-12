@@ -24,6 +24,7 @@ import {
   tendencias,
 } from "@/lib/relatorio";
 import { ComparativoMensal } from "./ComparativoMensal";
+import { PrevisaoMes } from "@/components/contas/PrevisaoMes";
 import { EvolucaoSaldo } from "./EvolucaoSaldo";
 import { MapaDoCorre } from "./MapaDoCorre";
 import { Tendencias } from "./Tendencias";
@@ -107,6 +108,8 @@ export function TelaRelatorios() {
       {dados && (
         <>
           <Tendencias itens={listaTendencias} previsao={previsao} />
+          {/* Saldo do mês inteiro: sem sentido com filtro de cliente ou outro período. */}
+          {periodo.tipo === "mes" && !clienteId && <PrevisaoMes />}
           <GraficoBarras barras={receitaPorDia(receitas, dados.inicio, dados.fim)} />
 
           <div className="flex flex-col gap-[18px] lg:grid lg:grid-cols-2 lg:items-start lg:gap-8">

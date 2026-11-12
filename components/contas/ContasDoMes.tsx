@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { PainelContaFixa } from "./PainelContaFixa";
-import { PrevisaoMes } from "./PrevisaoMes";
 import { AvisoErro } from "@/components/ui/AvisoErro";
 import { useConfirmarDebito, useContasFixas, useContasPagasNoMes, type ContaFixa } from "@/hooks/useContasFixas";
 import { pedeAtencao, situacaoDaConta, textoSituacao, type SituacaoConta } from "@/lib/contas-fixas";
@@ -100,8 +99,6 @@ export function ContasDoMes({ painel, setPainel }: { painel: PainelConta; setPai
               </span>
             </div>
           </section>
-
-          <PrevisaoMes faltaPagar={faltaPagar} />
 
           <section className="flex flex-col gap-1.5">
             <h2 className="text-[11px] font-semibold tracking-[0.66px] text-cinza">TOQUE NA CONTA PARA EDITAR</h2>
