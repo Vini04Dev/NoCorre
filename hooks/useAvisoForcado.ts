@@ -6,7 +6,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 export type Aviso =
   | "novidades"
   | "primeiro-uso"
-  | "pro";
+  | "pro"
+  | "moto";
 
 /**
  * `?aviso=novidades` ou `?aviso=primeiro-uso` no endereço abre o aviso na hora,

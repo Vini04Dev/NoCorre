@@ -2,9 +2,16 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useAvisoForcado } from "@/hooks/useAvisoForcado";
 import { useComponentes, useQuilometragem } from "@/hooks/useMoto";
 import { usePlano } from "@/hooks/usePlano";
 import { COR_SITUACAO, desgaste, formatarKm } from "@/lib/moto";
+
+/** Exemplo para a prévia do Painel do sistema. */
+const EXEMPLO = [
+  { c: { nome: "Óleo do motor" }, ...desgaste(12_880, 10_000, 3_000) },
+  { c: { nome: "Freios (pastilha e lona)" }, ...desgaste(12_880, 3_000, 10_000) },
+];
 
 /**
  * Aviso no Início (Pro): a manutenção mais urgente quando passa de 90% do
@@ -14,13 +21,18 @@ export function AvisoMoto() {
   const { ehPro } = usePlano();
   const { data: km } = useQuilometragem(ehPro);
   const { data: componentes } = useComponentes(ehPro);
-  if (!ehPro || km?.atual == null || !componentes?.length) return null;
+  // Aberto pelo Painel do sistema (?aviso=moto): mostra um exemplo, com ou sem dados.
+  const [forcado] = useAvisoForcado("moto");
 
-  const urgentes = componentes
-    .filter((c) => c.ativo)
-    .map((c) => ({ c, ...desgaste(km.atual!, c.km_ultima_troca, c.intervalo_km) }))
-    .filter((i) => i.situacao === "trocar" || i.situacao === "vencido")
-    .sort((a, b) => b.fracao - a.fracao);
+  const urgentes = forcado
+    ? EXEMPLO
+    : !ehPro || km?.atual == null || !componentes?.length
+      ? []
+      : componentes
+          .filter((c) => c.ativo)
+          .map((c) => ({ c, ...desgaste(km.atual!, c.km_ultima_troca, c.intervalo_km) }))
+          .filter((i) => i.situacao === "trocar" || i.situacao === "vencido")
+          .sort((a, b) => b.fracao - a.fracao);
   if (urgentes.length === 0) return null;
 
   const [primeiro] = urgentes;

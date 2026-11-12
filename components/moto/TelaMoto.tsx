@@ -22,6 +22,7 @@ import {
   type Situacao,
 } from "@/lib/moto";
 import { DesenhoMoto } from "./DesenhoMoto";
+import { type CalorParte, MapaCalorMoto } from "./MapaCalorMoto";
 
 const somenteNumeros = (texto: string) => texto.replace(/\D/g, "").slice(0, 7);
 
@@ -171,11 +172,16 @@ export function TelaMoto() {
   if (kmAtual == null || itens.length === 0) return casca(<Configurar />);
 
   const calculados = itens.map((c) => ({ componente: c, ...desgaste(kmAtual, c.km_ultima_troca, c.intervalo_km) }));
-  const partes: Partial<Record<ParteDesenho, Situacao>> = {};
+  // Duas peças na mesma parte (ex.: freio da frente e de trás): vale a mais gasta.
+  const calor: Partial<Record<ParteDesenho, CalorParte>> = {};
   for (const item of calculados) {
     const parte = parteDo(item.componente.tipo);
-    if (parte) partes[parte] = item.situacao;
+    if (parte && item.fracao >= (calor[parte]?.fracao ?? -1)) calor[parte] = { situacao: item.situacao, fracao: item.fracao };
   }
+  const partes: Partial<Record<ParteDesenho, Situacao>> = Object.fromEntries(
+    Object.entries(calor).map(([parte, c]) => [parte, c.situacao]),
+  );
+  const descricaoDesenho = calculados.map((i) => `${i.componente.nome}: ${ROTULO_SITUACAO[i.situacao]}`).join("; ");
   const urgentes = calculados.filter((i) => i.situacao === "trocar" || i.situacao === "vencido").length;
   const modelo = perfil?.veiculo ?? "Sua moto";
 
@@ -194,11 +200,11 @@ export function TelaMoto() {
             <span className="text-lg font-extrabold">{formatarKm(kmAtual)}</span>
           </button>
         </div>
-        <DesenhoMoto
-          partes={partes}
-          scooter={ehScooter(perfil?.veiculo)}
-          descricao={calculados.map((i) => `${i.componente.nome}: ${ROTULO_SITUACAO[i.situacao]}`).join("; ")}
-        />
+        {ehScooter(perfil?.veiculo) ? (
+          <DesenhoMoto partes={partes} scooter descricao={descricaoDesenho} />
+        ) : (
+          <MapaCalorMoto partes={calor} descricao={descricaoDesenho} />
+        )}
         <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-[10px] text-cinza-escuro">
           {(Object.keys(COR_SITUACAO) as Situacao[]).map((s) => (
             <span key={s} className="flex items-center gap-1">
