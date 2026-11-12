@@ -1,0 +1,84 @@
+/*
+ * Animações e respostas ao toque do app.
+ *
+ * Critérios (eficiência é pilar da arquitetura):
+ * - Só CSS, sem biblioteca: zero JavaScript a mais no pacote e nada rodando
+ *   na thread principal durante a animação.
+ * - Só opacity e transform: o navegador anima na GPU, sem recalcular layout
+ *   (nada de height, width, top, box-shadow animados).
+ * - Curtas (120 a 260 ms): mostram de onde a coisa veio sem atrasar o corre.
+ * - Quem pede menos movimento no sistema (prefers-reduced-motion) não vê nenhuma.
+ */
+
+@keyframes nc-surgir {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes nc-subir {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes nc-abrir {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+/* Na camada base: as classes do Tailwind (utilities) continuam mandando. */
+@layer base {
+  /*
+   * Troca de tela: só um esmaecer rápido. Sem transform de propósito: transform
+   * no <main> viraria referência dos elementos "fixed" dentro dele (painéis) e
+   * eles sairiam do lugar. "backwards" não deixa estilo nenhum depois do fim.
+   */
+  .casca-app main {
+    animation: nc-surgir 180ms ease-out backwards;
+  }
+
+  /* Painel que sobe do rodapé: o fundo escurece e a folha desliza (curva de folha do iOS). */
+  .painel-fundo {
+    animation: nc-surgir 180ms ease-out backwards;
+  }
+  .painel-folha {
+    animation: nc-subir 260ms cubic-bezier(0.32, 0.72, 0, 1) backwards;
+  }
+  .painel-janela {
+    animation: nc-abrir 200ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  }
+  /* No computador a folha vira janela no meio da tela. */
+  @media (width >= 64rem) {
+    .painel-folha {
+      animation-name: nc-abrir;
+      animation-duration: 200ms;
+    }
+  }
+
+  /*
+   * Resposta ao toque: botões e links afundam um pouco enquanto o dedo está em
+   * cima. O tap no celular não tem hover; sem isso, o toque parece não ter pegado.
+   * Fica fora o botão invisível que fecha os painéis (ocupa a tela toda).
+   */
+  .casca-app :is(a, button, [role="radio"], label):not([aria-label="Fechar"]) {
+    transition-property: transform, color, background-color, border-color, opacity;
+    transition-duration: 120ms;
+    transition-timing-function: ease-out;
+  }
+  .casca-app :is(a, button, [role="radio"]):not([aria-label="Fechar"], :disabled):active {
+    transform: scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

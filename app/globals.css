@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./animacoes.css";
 
 /*
  * Tokens do design (Figma, Page 1). Viram classes do Tailwind:
