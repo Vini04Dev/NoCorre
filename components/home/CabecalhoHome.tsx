@@ -5,8 +5,8 @@ import { BotaoOlho } from "./BotaoOlho";
 import { SinoNotificacoes } from "@/components/notificacoes/SinoNotificacoes";
 
 /**
- * Faixa do Início: saudação à esquerda; à direita o sininho de notificações e
- * o olho (esconder valores). Mesmo degradê da esquerda para a direita no
+ * Faixa do Início: saudação à esquerda; à direita o olho (esconder valores) e
+ * o sininho de notificações. Mesmo degradê da esquerda para a direita no
  * celular e no computador.
  */
 export function CabecalhoHome({ nome }: { nome?: string }) {
@@ -25,11 +25,11 @@ export function CabecalhoHome({ nome }: { nome?: string }) {
         <p className="mt-0.5 text-[13px] font-medium text-cinza-claro lg:text-base">Bora pro corre!?</p>
       </div>
       <div className="flex shrink-0 items-center gap-2">
+        <BotaoOlho className="shrink-0" />
         {/* useSearchParams (prévia ?aviso=vencimento) precisa de Suspense em volta. */}
         <Suspense>
           <SinoNotificacoes />
         </Suspense>
-        <BotaoOlho className="shrink-0" />
       </div>
     </header>
   );
