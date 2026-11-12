@@ -48,19 +48,19 @@ export function useEstadoDaTela<T>(chave: string, inicial: T) {
     () => inicial,
   );
 
-  const mudar = useCallback(
-    (novo: T) => {
-      try {
-        sessionStorage.setItem(PREFIXO + chave, JSON.stringify(novo));
-      } catch {
-        // Sem armazenamento (aba anônima restrita): o filtro só não fica salvo.
-      }
-      ouvintes.forEach((ouvinte) => ouvinte());
-    },
-    [chave],
-  );
+  const mudar = useCallback((novo: T) => gravarEstadoDaTela(chave, novo), [chave]);
 
   return [valor, mudar] as const;
+}
+
+/** Grava o estado de outra tela antes de abri-la (ex.: Início leva ao Resumo já filtrado). */
+export function gravarEstadoDaTela<T>(chave: string, valor: T) {
+  try {
+    sessionStorage.setItem(PREFIXO + chave, JSON.stringify(valor));
+  } catch {
+    // Sem armazenamento (aba anônima restrita): o filtro só não fica salvo.
+  }
+  ouvintes.forEach((ouvinte) => ouvinte());
 }
 
 /** Ao sair da conta: a próxima pessoa no aparelho não herda filtros (ex.: cliente). */
