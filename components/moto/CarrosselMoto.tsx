@@ -1,8 +1,7 @@
 "use client";
 
 import { useId, useRef, useState } from "react";
-import type { CalorParte } from "./MapaCalorMoto";
-import { COR_SITUACAO, type ParteDesenho } from "@/lib/moto";
+import { COR_SITUACAO, type CalorParte, type ParteDesenho } from "@/lib/moto";
 
 type Mancha = { cx: number; cy: number; rx: number; ry: number };
 

@@ -25,6 +25,9 @@ export function parteDo(tipo: string): ParteDesenho | null {
 
 export type Situacao = "ok" | "atencao" | "trocar" | "vencido";
 
+/** Calor de uma parte no mapa da moto: situação e quanto do intervalo já rodou (0 a 1+). */
+export type CalorParte = { situacao: Situacao; fracao: number };
+
 /** Quanto do intervalo já foi rodado (0 a 1+) e a situação correspondente. */
 export function desgaste(kmAtual: number, kmUltimaTroca: number, intervaloKm: number) {
   const rodado = Math.max(0, kmAtual - kmUltimaTroca);
@@ -56,8 +59,4 @@ export function formatarKm(km: number) {
 /** CG 160 (Fan, Start, Titan): a única moto com fotos por enquanto; as outras usam o desenho. */
 export function ehCg160(modelo: string | null | undefined) {
   return /\b(fan|cg\s*-?\s*160)\b/i.test(modelo ?? "");
-}
-
-export function ehScooter(modelo: string | null | undefined) {
-  return /\b(biz|pop|lead|nmax|pcx|neo|fluo|elite|burgman|scooter|cub)\b/i.test(modelo ?? "");
 }
