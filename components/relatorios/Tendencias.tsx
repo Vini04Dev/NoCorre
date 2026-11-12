@@ -1,5 +1,6 @@
 import { formatarMoeda } from "@/lib/formatar";
 import type { Tendencia } from "@/lib/relatorio";
+import { Valor } from "@/components/ui/Valor";
 
 type Previsao = { receita: number; despesa: number; saldo: number; diasRestantes: number } | null;
 
@@ -24,7 +25,8 @@ function Variacao({ tendencia }: { tendencia: Tendencia }) {
  * de mesmo tamanho. No mês atual, soma a previsão para o fim do mês.
  */
 export function Tendencias({ itens, previsao }: { itens: Tendencia[]; previsao: Previsao }) {
-  const formatar = (t: Tendencia, valor: number) => (t.dinheiro ? formatarMoeda(valor) : valor.toLocaleString("pt-BR"));
+  const formatar = (t: Tendencia, valor: number) =>
+    t.dinheiro ? <Valor texto={formatarMoeda(valor)} /> : valor.toLocaleString("pt-BR");
   return (
     <section className="flex flex-col gap-2.5">
       <h2 className="text-[11px] font-semibold tracking-[0.66px] text-cinza">TENDÊNCIAS</h2>
@@ -53,7 +55,9 @@ export function Tendencias({ itens, previsao }: { itens: Tendencia[]; previsao: 
             ].map(({ rotulo, valor, cor }) => (
               <div key={rotulo} className="flex flex-col-reverse">
                 <dt className="text-[10px] text-cinza">{rotulo}</dt>
-                <dd className={`text-sm font-extrabold ${cor}`}>{formatarMoeda(valor)}</dd>
+                <dd className={`text-sm font-extrabold ${cor}`}>
+                  <Valor texto={formatarMoeda(valor)} />
+                </dd>
               </div>
             ))}
           </dl>

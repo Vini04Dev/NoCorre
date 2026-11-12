@@ -11,7 +11,12 @@ import { traduzirErroAuth } from "@/lib/supabase/erros-auth";
  */
 const INTERVALO_MS = 15_000;
 
-type Props = { email: string; senha: string };
+type Props = {
+  email: string;
+  senha: string;
+  /** Prévia do Painel do sistema: só mostra a tela, sem tentar entrar nem reenviar. */
+  previa?: boolean;
+};
 
 /**
  * Depois do cadastro, fica tentando entrar com o email e a senha recém-criados.
@@ -19,12 +24,13 @@ type Props = { email: string; senha: string };
  * quando a pessoa clica no link (mesmo no celular), a próxima tentativa entra e
  * leva direto para a Home. Também tenta na hora em que a aba volta a ficar visível.
  */
-export function AguardandoConfirmacao({ email, senha }: Props) {
+export function AguardandoConfirmacao({ email, senha, previa = false }: Props) {
   const router = useRouter();
   const [erro, setErro] = useState<string>();
   const [reenvio, setReenvio] = useState<"pronto" | "enviando" | "enviado">("pronto");
 
   useEffect(() => {
+    if (previa) return;
     const supabase = criarClienteNavegador();
     let parado = false;
 
@@ -50,9 +56,10 @@ export function AguardandoConfirmacao({ email, senha }: Props) {
       window.clearInterval(intervalo);
       document.removeEventListener("visibilitychange", tentarEntrar);
     };
-  }, [email, senha, router]);
+  }, [email, senha, router, previa]);
 
   async function reenviar() {
+    if (previa) return;
     setReenvio("enviando");
     const { error } = await criarClienteNavegador().auth.resend({
       type: "signup",

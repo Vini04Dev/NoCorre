@@ -8,13 +8,28 @@ export function SeletoresLanding() {
   const { idioma, mudarIdioma, tema, alternarTema, textos } = useLanding();
   return (
     <div className="flex items-center gap-0.5 sm:gap-1">
-      <label className="relative">
+      <label className="relative flex items-center rounded-md text-l-texto transition hover:bg-l-tinta/10">
         <span className="sr-only">{textos.nav.idioma}</span>
+        {/* Ícone de idioma (A / 文), o mais reconhecido para "trocar língua". */}
+        <svg
+          aria-hidden
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="pointer-events-none absolute left-1.5"
+        >
+          <path d="m5 8 6 6M4 14l6-6 2-3M2 5h12M7 2h1M22 22l-5-10-5 10M14 18h6" />
+        </svg>
         <select
           value={idioma}
           onChange={(evento) => mudarIdioma(evento.target.value as Idioma)}
           aria-label={textos.nav.idioma}
-          className="cursor-pointer appearance-none rounded-md bg-transparent px-1.5 py-1.5 sm:px-2 text-[13px] font-semibold text-l-texto uppercase transition hover:bg-l-tinta/10"
+          className="cursor-pointer appearance-none rounded-md bg-transparent py-1.5 pr-1.5 pl-6 text-[13px] font-semibold uppercase sm:pr-2"
         >
           {IDIOMAS.map((codigo) => (
             // Só a sigla, para caber na barra do celular; o nome completo vai no title.

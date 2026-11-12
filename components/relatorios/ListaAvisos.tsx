@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { Aviso } from "@/lib/relatorio";
+import { Valor } from "@/components/ui/Valor";
 
 const ICONES: Record<Aviso["icone"], string> = {
   alta: "/icones/seta-extrato-receita.svg",
@@ -28,7 +29,8 @@ export function ListaAvisos({ avisos }: { avisos: Aviso[] }) {
             </span>
             <span className="flex min-w-0 flex-col">
               <span className="text-[11px] leading-[14px] font-semibold">{aviso.titulo}</span>
-              <span className="text-[10px] leading-3 text-cinza-escuro">{aviso.detalhe}</span>
+              {/* O detalhe dos avisos traz valores (ex.: "R$ 120,00 gastos"): borra junto com o olho. */}
+              <Valor className="text-[10px] leading-3 text-cinza-escuro" texto={aviso.detalhe} />
             </span>
           </li>
         ))}

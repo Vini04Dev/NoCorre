@@ -27,8 +27,8 @@ export function PainelInferior({ idTitulo, aoFechar, children, aoEnviar, central
   }, [aoFechar]);
 
   const classe = centralizado
-    ? "relative mx-auto flex max-h-[88dvh] w-full max-w-[400px] flex-col gap-3.5 overflow-y-auto rounded-[24px] bg-white px-5 pt-5 pb-6 shadow-2xl lg:max-w-[480px] lg:px-7 lg:pt-6 lg:pb-7"
-    : "relative mx-auto flex max-h-dvh w-full max-w-[430px] flex-col gap-3.5 overflow-y-auto rounded-t-[24px] bg-white px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+28px)] lg:max-h-[85dvh] lg:max-w-[480px] lg:rounded-[24px] lg:px-7 lg:pt-6 lg:pb-7 lg:shadow-2xl";
+    ? "painel-janela relative mx-auto flex max-h-[88dvh] w-full max-w-[400px] flex-col gap-3.5 overflow-y-auto rounded-[24px] bg-white px-5 pt-5 pb-6 shadow-2xl lg:max-w-[480px] lg:px-7 lg:pt-6 lg:pb-7"
+    : "painel-folha relative mx-auto flex max-h-dvh w-full max-w-[430px] flex-col gap-3.5 overflow-y-auto rounded-t-[24px] bg-white px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+28px)] lg:max-h-[85dvh] lg:max-w-[480px] lg:rounded-[24px] lg:px-7 lg:pt-6 lg:pb-7 lg:shadow-2xl";
   const conteudo = (
     <>
       {!centralizado && <span aria-hidden className="mx-auto h-1 w-10 rounded-full bg-cinza-claro lg:hidden" />}
@@ -38,7 +38,7 @@ export function PainelInferior({ idTitulo, aoFechar, children, aoEnviar, central
 
   return (
     <div
-      className={`fixed inset-0 z-40 flex flex-col bg-black/45 backdrop-blur-[3px] lg:items-center lg:justify-center lg:p-6 ${
+      className={`painel-fundo fixed inset-0 z-40 flex flex-col bg-black/45 backdrop-blur-[3px] lg:items-center lg:justify-center lg:p-6 ${
         centralizado ? "items-center justify-center p-5" : "justify-end"
       }`}
     >

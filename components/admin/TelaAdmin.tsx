@@ -16,11 +16,12 @@ const numero = (valor: number) => valor.toLocaleString("pt-BR");
 
 const CARTAO = "rounded-[14px] border border-black/8 bg-white p-4 shadow-cartao";
 
-function Indicador({ rotulo, valor, detalhe }: { rotulo: string; valor: number; detalhe: string }) {
+/** Card de número do painel: rótulo em cima, valor, detalhe embaixo. Todos os cards de número usam este. */
+function Indicador({ rotulo, valor, detalhe }: { rotulo: string; valor: number | string; detalhe: string }) {
   return (
     <div className={`${CARTAO} flex flex-col gap-1`}>
       <span className="text-[11px] font-semibold tracking-[0.66px] text-cinza">{rotulo}</span>
-      <span className="text-3xl font-extrabold">{numero(valor)}</span>
+      <span className="text-3xl font-extrabold">{typeof valor === "number" ? numero(valor) : valor}</span>
       <span className="text-xs text-cinza-escuro">{detalhe}</span>
     </div>
   );
@@ -80,26 +81,20 @@ function Saude({ metricas }: { metricas: MetricasAdmin }) {
   const percentual = retencao && retencao.base ? Math.round((retencao.voltaram / retencao.base) * 100) : null;
   const itens = [
     {
-      rotulo: "Voltaram na semana",
+      rotulo: "VOLTARAM NA SEMANA",
       valor: percentual === null ? "–" : `${percentual}%`,
       detalhe: retencao ? `${numero(retencao.voltaram)} de ${numero(retencao.base)} com conta há +7 dias` : "",
     },
-    { rotulo: "Nunca lançaram", valor: numero(metricas.sem_lancamento ?? 0), detalhe: "contas sem receita nem despesa" },
-    { rotulo: "Receitas pendentes", valor: numero(metricas.receitas_pendentes ?? 0), detalhe: "a receber, de todos" },
-    { rotulo: "Metas ativas", valor: numero(metricas.metas_ativas ?? 0), detalhe: "em andamento" },
+    { rotulo: "NUNCA LANÇARAM", valor: numero(metricas.sem_lancamento ?? 0), detalhe: "contas sem receita nem despesa" },
+    { rotulo: "RECEITAS PENDENTES", valor: numero(metricas.receitas_pendentes ?? 0), detalhe: "a receber, de todos" },
+    { rotulo: "METAS ATIVAS", valor: numero(metricas.metas_ativas ?? 0), detalhe: "em andamento" },
   ];
   return (
-    <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
       {itens.map((item) => (
-        <div key={item.rotulo} className={`${CARTAO} flex flex-col-reverse gap-0.5 p-3`}>
-          <dt className="text-[11px] text-cinza-escuro">
-            {item.rotulo}
-            <span className="block text-[10px]">{item.detalhe}</span>
-          </dt>
-          <dd className="text-xl font-extrabold">{item.valor}</dd>
-        </div>
+        <Indicador key={item.rotulo} rotulo={item.rotulo} valor={item.valor} detalhe={item.detalhe} />
       ))}
-    </dl>
+    </div>
   );
 }
 
@@ -196,7 +191,7 @@ export function TelaAdmin({ metricas, erro }: { metricas: MetricasAdmin | null; 
 
           {metricas.uso && <Saude metricas={metricas} />}
 
-          <div className="grid gap-3 lg:grid-cols-3 lg:gap-4">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-3 lg:grid-cols-3 lg:gap-4">
             <BarrasPorDia titulo="Cadastros por dia" dias={metricas.por_dia} campo="cadastros" />
             <BarrasPorDia titulo="Lançamentos por dia" dias={metricas.por_dia} campo="lancamentos" />
             {metricas.por_dia[0]?.usuarios !== undefined && (
@@ -205,13 +200,13 @@ export function TelaAdmin({ metricas, erro }: { metricas: MetricasAdmin | null; 
           </div>
 
           {metricas.categorias_receita && metricas.categorias_despesa && (
-            <div className="grid gap-3 lg:grid-cols-2 lg:gap-4">
+            <div className="grid grid-cols-[minmax(0,1fr)] gap-3 lg:grid-cols-2 lg:gap-4">
               <Ranking titulo="CATEGORIAS DE RECEITA MAIS USADAS" itens={metricas.categorias_receita} />
               <Ranking titulo="CATEGORIAS DE DESPESA MAIS USADAS" itens={metricas.categorias_despesa} />
             </div>
           )}
 
-          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:items-start lg:gap-4">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:items-start lg:gap-4">
             <div className="flex flex-col gap-5">
               <Secao titulo="REGISTROS NO BANCO">
                 <dl className={`${CARTAO} grid grid-cols-3 gap-y-3 text-center`}>
@@ -261,7 +256,11 @@ export function TelaAdmin({ metricas, erro }: { metricas: MetricasAdmin | null; 
               </p>
               {[
                 { href: "/?aviso=novidades", rotulo: "Aviso de atualização", quando: "abre a cada versão nova, ao entrar" },
+                { href: "/?aviso=pro", rotulo: "O Pro chegou!", quando: "uma vez, quando a conta vira Pro" },
                 { href: "/?aviso=primeiro-uso", rotulo: "Aviso de primeiro cliente", quando: "abre no Início enquanto não há cliente" },
+                { href: "/admin/previa/confirmacao", rotulo: "Confirme seu email", quando: "logo depois de criar a conta" },
+                { href: "/admin/previa/erro", rotulo: "Algo deu errado", quando: "quando uma tela falha ao carregar" },
+                { href: "/endereco-que-nao-existe", rotulo: "Página não encontrada", quando: "endereço errado ou antigo" },
               ].map(({ href, rotulo, quando }) => (
                 <Link
                   key={href}
