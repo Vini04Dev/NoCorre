@@ -256,6 +256,7 @@ export function TelaAdmin({ metricas, erro }: { metricas: MetricasAdmin | null; 
               </p>
               {[
                 { href: "/?aviso=novidades", rotulo: "Aviso de atualização", quando: "abre a cada versão nova, ao entrar" },
+                { href: "/?aviso=pro", rotulo: "O Pro chegou!", quando: "uma vez, quando a conta vira Pro" },
                 { href: "/?aviso=primeiro-uso", rotulo: "Aviso de primeiro cliente", quando: "abre no Início enquanto não há cliente" },
                 { href: "/admin/previa/confirmacao", rotulo: "Confirme seu email", quando: "logo depois de criar a conta" },
                 { href: "/admin/previa/erro", rotulo: "Algo deu errado", quando: "quando uma tela falha ao carregar" },
