@@ -18,11 +18,11 @@ import {
   formatarKm,
   parteDo,
   ROTULO_SITUACAO,
+  type CalorParte,
   type ParteDesenho,
   type Situacao,
 } from "@/lib/moto";
 import { CarrosselMoto } from "./CarrosselMoto";
-import type { CalorParte } from "./MapaCalorMoto";
 
 /**
  * Lugar da imagem quando o modelo da moto ainda não tem fotos no app (hoje só
