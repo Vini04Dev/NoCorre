@@ -272,6 +272,34 @@ Migration `20261111110000_carteiras`. Separa o dinheiro por onde ele está
   public.despesas drop column carteira_id; drop table public.carteiras;` e
   `supabase migration repair --status reverted 20261111110000`.
 
+## Contas fixas
+
+Migration `20261112090000_contas_fixas`. Despesas que se repetem todo mês no
+mesmo dia (plano de celular, internet, parcela). O Início avisa de 3 dias
+antes até o pagamento; nada é lançado sozinho.
+
+### contas_fixas
+
+| Coluna           | Tipo            | Regras                                                        |
+|------------------|-----------------|---------------------------------------------------------------|
+| `id`             | `uuid`          | PK; `unique (id, usuario_id)` para FKs compostas              |
+| `usuario_id`     | `uuid`          | FK `auth.users`, `on delete cascade`                          |
+| `descricao`      | `varchar(60)`   | not null                                                      |
+| `tipo`           | `varchar(50)`   | categoria da despesa lançada no pagamento                     |
+| `valor`          | `numeric(10,2)` | `> 0`                                                         |
+| `dia_vencimento` | `smallint`      | 1 a 31; em mês mais curto vence no último dia (regra do app)  |
+| `carteira_id`    | `uuid`          | opcional; FK composta, `on delete set null (carteira_id)`     |
+| `automatico`     | `boolean`       | débito automático: o aviso pergunta se o débito caiu          |
+| `ativa`          | `boolean`       | `false` pausa os avisos                                       |
+
+- `despesas.conta_fixa_id`: opcional, FK composta com `on delete set null
+  (conta_fixa_id)`. A conta do mês está paga quando há despesa ligada a ela
+  dentro do mês.
+- RLS: tudo só nas próprias linhas (não é recurso Pro).
+- **Para desfazer:** `alter table public.despesas drop column conta_fixa_id;
+  drop table public.contas_fixas;` e `supabase migration repair --status
+  reverted 20261112090000`.
+
 ## Administração
 
 O painel `/admin` do app abre só para o e-mail definido em `ADMIN_EMAIL`,
