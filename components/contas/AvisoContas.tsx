@@ -76,7 +76,7 @@ function IconeConta() {
 }
 
 const CLASSE_CARTAO =
-  "relative flex h-[104px] w-[156px] shrink-0 snap-start flex-col justify-between rounded-[14px] p-3 text-left text-white shadow-cartao transition-transform active:scale-[0.98]";
+  "flex w-full items-center gap-3 rounded-[14px] py-3 pr-3.5 pl-3 text-left text-white shadow-cartao transition-transform active:scale-[0.99]";
 
 /** Cartão de uma conta: tocar paga (abre a despesa preenchida) ou confirma o débito automático. */
 function CartaoConta({ conta, situacao, exemplo }: Item & { exemplo: boolean }) {
@@ -84,14 +84,14 @@ function CartaoConta({ conta, situacao, exemplo }: Item & { exemplo: boolean }) 
   const debito = situacao.tipo === "debito";
   const conteudo = (
     <>
-      <span className="absolute top-3 right-3 opacity-90">
+      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white/15">
         <IconeConta />
       </span>
-      <span className="flex min-w-0 flex-col pr-6">
+      <span className="flex min-w-0 flex-1 flex-col">
         <span className="truncate text-sm font-bold">{conta.descricao}</span>
-        <span className="truncate text-[10px] text-white/85">{textoSituacao(situacao, conta.dia_vencimento)}</span>
+        <span className="truncate text-[11px] text-white/80">{textoSituacao(situacao, conta.dia_vencimento)}</span>
       </span>
-      <span className="flex items-end justify-between gap-1">
+      <span className="flex shrink-0 flex-col items-end gap-1">
         <span className="text-[15px] font-extrabold">{formatarMoeda(conta.valor)}</span>
         <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold">
           {debito ? (confirmar.isPending ? "Lançando..." : "Já caiu") : "Pagar"}
@@ -128,8 +128,8 @@ function CartaoConta({ conta, situacao, exemplo }: Item & { exemplo: boolean }) 
 
 /**
  * Aviso no Início: contas fixas que vencem em até 3 dias, atrasadas ou com
- * débito automático para confirmar, em cartões que rolam de lado (como os de
- * carteira). Some quando a conta do mês é paga.
+ * débito automático para confirmar, uma embaixo da outra, com o degradê dos
+ * cartões de carteira. Some quando a conta do mês é paga.
  */
 export function AvisoContas() {
   const { data: contas } = useContasFixas();
@@ -157,11 +157,13 @@ export function AvisoContas() {
           Ver todas
         </Link>
       </h2>
-      <div className="-mx-[17px] flex snap-x scroll-px-[17px] gap-2.5 overflow-x-auto px-[17px] pt-1 pb-2 [scrollbar-width:none] lg:mx-0 lg:flex-wrap lg:px-0">
+      <ul className="flex flex-col gap-2">
         {itens.map((item) => (
-          <CartaoConta key={item.conta.id} {...item} exemplo={forcado} />
+          <li key={item.conta.id}>
+            <CartaoConta {...item} exemplo={forcado} />
+          </li>
         ))}
-      </div>
+      </ul>
     </section>
   );
 }
