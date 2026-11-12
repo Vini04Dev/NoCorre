@@ -13,7 +13,7 @@ import { useExcluirContaFixa, useSalvarContaFixa, type ContaFixa } from "@/hooks
 import { CATEGORIA_CONTAS } from "@/lib/categorias-padrao";
 
 /** Sugestões do dia a dia de quem roda, já com valor em branco para a pessoa completar. */
-const SUGESTOES = ["Plano de celular", "Internet", "Aluguel", "Parcela da moto", "Seguro da moto", "Streaming"];
+const SUGESTOES = ["Plano de celular", "Internet", "Aluguel", "Seguro da moto", "Streaming"];
 
 type Erros = { descricao?: string; valor?: string; dia?: string };
 
