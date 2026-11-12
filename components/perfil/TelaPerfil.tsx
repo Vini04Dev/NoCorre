@@ -131,11 +131,15 @@ export function TelaPerfil({ admin = false }: { admin?: boolean }) {
             <p className="text-[11px] text-cinza">
               Entregador desde {MESES[desde.getMonth()]}/{desde.getFullYear()}
             </p>
-            {perfil.tipo_sanguineo && (
-              <span className="rounded-[10px] bg-dourado-claro px-2.5 py-0.5 text-[9px] font-semibold tracking-[0.54px] text-marinho">
-                SANGUE {perfil.tipo_sanguineo}
-              </span>
-            )}
+            {/* Plano no lugar do tipo sanguíneo (que segue no Editar). Toque abre a página do Pro. */}
+            <Link
+              href="/pro"
+              className={`rounded-[10px] px-2.5 py-0.5 text-[9px] font-semibold tracking-[0.54px] ${
+                perfil.plano === "pro" ? "bg-dourado-claro text-marinho" : "bg-white/12 text-cinza-claro"
+              }`}
+            >
+              {perfil.plano === "pro" ? "PLANO PRO" : "PLANO GRÁTIS"}
+            </Link>
           </div>
           <Link
             href="/perfil/editar"

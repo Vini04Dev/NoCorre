@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
 import { Secao } from "@/components/ui/Secao";
 import { formatarBytes, type MetricasAdmin } from "@/lib/admin";
+import { AlternarMeuPlano } from "./AlternarMeuPlano";
 import { BotaoAtualizar } from "./BotaoAtualizar";
 import { TabelaCadastros } from "./TabelaCadastros";
 
@@ -151,6 +152,10 @@ export function TelaAdmin({ metricas, erro }: { metricas: MetricasAdmin | null; 
         tituloGrande
         acao={<BotaoAtualizar />}
       />
+
+      <Secao titulo="MINHA CONTA">
+        <AlternarMeuPlano />
+      </Secao>
 
       {(erro || !metricas) && (
         <p className="rounded-[12px] bg-negativo/10 px-4 py-3 text-[13px] text-negativo">
