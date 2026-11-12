@@ -72,18 +72,14 @@ function distancia(i: number, posicao: number) {
   return Math.min(d, TOTAL - d);
 }
 
-function Seta({ lado, aoClicar }: { lado: "esquerda" | "direita"; aoClicar: () => void }) {
+/** Ícone de linha de giro (360°): avisa que a moto gira, sem texto nem setas. */
+function IconeGirar() {
   return (
-    <button
-      type="button"
-      onClick={aoClicar}
-      aria-label={lado === "esquerda" ? "Girar a moto para a esquerda" : "Girar a moto para a direita"}
-      className="grid size-8 place-items-center rounded-full border border-cinza-claro text-cinza-escuro"
-    >
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-        <path d={lado === "esquerda" ? "M15 6l-6 6 6 6" : "M9 6l6 6-6 6"} />
-      </svg>
-    </button>
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M16.5 7.5C15.6 4.2 14 2 12 2 9.2 2 7 6.5 7 12s2.2 10 5 10c.3 0 .7-.1 1-.2" />
+      <path d="m15.2 13.7 3.8 1.9-1.9 3.8" />
+      <path d="M19 15.6c-1.8.9-4.3 1.4-7 1.4-5.5 0-10-2.2-10-5s4.5-5 10-5c4.8 0 8.9 1.7 9.8 4" />
+    </svg>
   );
 }
 
@@ -104,8 +100,14 @@ export function CarrosselMoto({ partes, descricao }: { partes: Partial<Record<Pa
     <div className="flex w-full flex-col items-center gap-1.5">
       <div
         role="img"
-        aria-label={`${descricao}. Foto: ${ANGULOS[atual].nome}. Arraste para girar.`}
-        className={`relative aspect-[950/466] w-full max-w-md touch-pan-y select-none ${arrastando ? "cursor-grabbing" : "cursor-grab"}`}
+        aria-label={`${descricao}. Foto: ${ANGULOS[atual].nome}. Arraste ou use as setas do teclado para girar.`}
+        // Sem os botões de seta na tela, o teclado continua girando a moto.
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowLeft") setPosicao((p) => Math.round(p) + 1);
+          if (e.key === "ArrowRight") setPosicao((p) => Math.round(p) - 1);
+        }}
+        className={`relative aspect-[950/466] w-full max-w-md touch-pan-y rounded-[10px] outline-offset-2 select-none ${arrastando ? "cursor-grabbing" : "cursor-grab"}`}
         onPointerDown={(e) => {
           e.currentTarget.setPointerCapture(e.pointerId);
           inicio.current = { x: e.clientX, posicao };
@@ -172,18 +174,9 @@ export function CarrosselMoto({ partes, descricao }: { partes: Partial<Record<Pa
         })}
       </div>
 
-      <div className="flex items-center gap-3">
-        <Seta lado="esquerda" aoClicar={() => setPosicao((p) => Math.round(p) + 1)} />
-        <span className="flex flex-col items-center">
-          <span className="text-[11px] font-semibold">{ANGULOS[atual].nome}</span>
-          <span className="flex gap-1" aria-hidden>
-            {ANGULOS.map((angulo, i) => (
-              <span key={angulo.nome} className={`size-1.5 rounded-full ${i === atual ? "bg-marinho" : "bg-cinza-claro"}`} />
-            ))}
-          </span>
-        </span>
-        <Seta lado="direita" aoClicar={() => setPosicao((p) => Math.round(p) - 1)} />
-      </div>
+      <span className="text-cinza" title="Arraste a moto para girar">
+        <IconeGirar />
+      </span>
     </div>
   );
 }
