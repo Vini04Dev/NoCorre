@@ -11,7 +11,7 @@ type Props = {
 
 /** Onde o calor de cada parte aparece no desenho (viewBox 375 × 255). */
 const MANCHAS: Record<ParteDesenho, { cx: number; cy: number; rx: number; ry: number }[]> = {
-  motor: [{ cx: 204, cy: 160, rx: 40, ry: 36 }],
+  motor: [{ cx: 210, cy: 162, rx: 40, ry: 38 }],
   corrente: [{ cx: 130, cy: 184, rx: 58, ry: 14 }],
   roda_traseira: [{ cx: 80, cy: 188, rx: 50, ry: 50 }],
   roda_dianteira: [{ cx: 298, cy: 188, rx: 52, ry: 52 }],
@@ -62,7 +62,11 @@ function Roda({ x, y, r, cor }: { x: number; y: number; r: number; cor?: string 
 export function MapaCalorMoto({ partes, descricao }: Props) {
   const id = useId();
   const filtro = `calor-${id.replace(/[^a-zA-Z0-9]/g, "")}`;
-  const corDa = (parte: ParteDesenho) => (partes[parte] ? COR_SITUACAO[partes[parte]!.situacao] : undefined);
+  // A peça só muda de cor quando pede atenção; em dia, fica só o brilho verde de fundo.
+  const corDa = (parte: ParteDesenho) => {
+    const calor = partes[parte];
+    return calor && calor.situacao !== "ok" ? COR_SITUACAO[calor.situacao] : undefined;
+  };
   const metal = (parte: ParteDesenho) => ({
     stroke: corDa(parte) ?? "currentColor",
     strokeOpacity: corDa(parte) ? 1 : 0.55,
@@ -121,15 +125,15 @@ export function MapaCalorMoto({ partes, descricao }: Props) {
       <rect x="14" y="110" width="12" height="7" rx="2" fill="#cc0000" transform="rotate(-24 20 113)" />
       <path d="M22 132 Q22 150 36 160" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
 
-      {/* Motor sob o tanque: cilindro com aletas e cárter (onde fica o óleo) */}
-      <path
-        d="M170 122 L234 118 L240 150 Q238 196 206 200 L178 196 Q164 168 170 122 Z"
-        fill={corDa("motor") ?? "currentColor"}
-        opacity={corDa("motor") ? 0.9 : 0.6}
-      />
-      {[130, 139, 148].map((y) => (
-        <line key={y} x1="180" y1={y} x2="230" y2={y - 2} stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+      {/* Motor sob o tanque: cárter (onde fica o óleo) e cilindro inclinado com aletas */}
+      <g fill={corDa("motor") ?? "currentColor"} opacity={corDa("motor") ? 0.95 : 0.7}>
+        <path d="M176 158 Q170 196 204 200 Q238 198 240 166 Q238 148 220 146 L188 148 Q178 150 176 158 Z" />
+        <path d="M188 118 L234 116 L230 150 L192 152 Z" />
+      </g>
+      {[124, 132, 140].map((y) => (
+        <line key={y} x1="186" y1={y} x2="236" y2={y - 1} stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
       ))}
+      <circle cx="210" cy="176" r="9" fill="none" stroke="var(--color-white)" strokeOpacity="0.4" strokeWidth="2.5" />
 
       {/* Calor: manchas desfocadas, mais fortes quanto mais perto da troca */}
       <g filter={`url(#${filtro})`}>
