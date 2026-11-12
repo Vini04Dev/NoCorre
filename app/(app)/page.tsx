@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies, headers } from "next/headers";
 import { Suspense } from "react";
 import { AvisoPrimeiroUso } from "@/components/home/AvisoPrimeiroUso";
+import { AvisoProChegou } from "@/components/pro/AvisoProChegou";
 import { CabecalhoHome } from "@/components/home/CabecalhoHome";
 import { CartaoModulo } from "@/components/home/CartaoModulo";
 import { ProximoEvento } from "@/components/home/ProximoEvento";
@@ -129,6 +130,7 @@ async function Home() {
       </main>
       <Suspense>
         <AvisoPrimeiroUso />
+        <AvisoProChegou />
       </Suspense>
     </>
   );
