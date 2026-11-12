@@ -69,7 +69,10 @@ async function Home() {
           </Secao>
         </div>
         <div className="flex flex-col gap-7">
-          <AvisoMoto />
+          {/* useSearchParams (?aviso=moto) precisa de Suspense em volta. */}
+          <Suspense>
+            <AvisoMoto />
+          </Suspense>
           <Secao titulo="MÓDULOS">
             <nav aria-label="Módulos" className="flex flex-col gap-4">
               <CartaoModulo
