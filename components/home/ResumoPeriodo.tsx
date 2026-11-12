@@ -1,10 +1,12 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Calendario } from "./Calendario";
 import { LinhaValor } from "@/components/ui/LinhaValor";
 import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
-import { useEstadoDaTela } from "@/hooks/useEstadoDaTela";
+import { gravarEstadoDaTela, useEstadoDaTela } from "@/hooks/useEstadoDaTela";
+import { FILTROS_VAZIOS, type FiltroRapido, type Filtros } from "@/lib/filtros";
 import { useMovimentacoes } from "@/hooks/useMovimentacoes";
 import { Valor } from "@/components/ui/Valor";
 import { formatarMoeda } from "@/lib/formatar";
@@ -28,6 +30,15 @@ export function ResumoPeriodo() {
   // "Hoje" é sempre a lista: um calendário de um quadrado só não diz nada.
   const permiteCalendario = periodo.tipo !== "dia";
   const mostrarCalendario = permiteCalendario && visao === "calendario";
+
+  // Tocar numa linha abre o Resumo no mesmo período, já com o filtro daquela linha.
+  const router = useRouter();
+  const abrirResumo = (rapido: FiltroRapido, filtros: Filtros = FILTROS_VAZIOS) => () => {
+    gravarEstadoDaTela("resumo:periodo", periodo);
+    gravarEstadoDaTela("resumo:rapido", rapido);
+    gravarEstadoDaTela("resumo:filtros", filtros);
+    router.push("/resumo");
+  };
 
   return (
     <section className="flex flex-col gap-[21px]">
@@ -76,15 +87,35 @@ export function ResumoPeriodo() {
             valor={moeda(totais.saldo)}
             icone="/icones/saldo.svg"
             corValor={totais.saldo < 0 ? "text-negativo" : "text-positivo"}
+            aoTocar={abrirResumo("todos")}
           />
-          <LinhaValor rotulo="Recebidos" valor={moeda(totais.recebidos)} icone="/icones/receita.svg" corValor="text-recebido" />
-          <LinhaValor rotulo="Pendentes" valor={moeda(totais.pendentes)} icone="/icones/pendente.svg" corValor="text-pendente" />
-          <LinhaValor rotulo="Despesas" valor={moeda(totais.despesas)} icone="/icones/despesa.svg" corValor="text-negativo" />
+          <LinhaValor
+            rotulo="Recebidos"
+            valor={moeda(totais.recebidos)}
+            icone="/icones/receita.svg"
+            corValor="text-recebido"
+            aoTocar={abrirResumo("receitas", { ...FILTROS_VAZIOS, situacoes: ["pago"] })}
+          />
+          <LinhaValor
+            rotulo="Pendentes"
+            valor={moeda(totais.pendentes)}
+            icone="/icones/pendente.svg"
+            corValor="text-pendente"
+            aoTocar={abrirResumo("pendentes")}
+          />
+          <LinhaValor
+            rotulo="Despesas"
+            valor={moeda(totais.despesas)}
+            icone="/icones/despesa.svg"
+            corValor="text-negativo"
+            aoTocar={abrirResumo("despesas")}
+          />
           <LinhaValor
             rotulo="Entregas"
             valor={data ? String(totais.entregas) : "–"}
             icone="/icones/moto.svg"
             corValor="text-positivo"
+            aoTocar={abrirResumo("receitas")}
           />
         </div>
       )}

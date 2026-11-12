@@ -18,7 +18,7 @@ export default async function LayoutApp({ children }: LayoutProps<"/">) {
   if (!(await estaLogado())) return children;
 
   return (
-    <div className="min-h-dvh lg:pl-64">
+    <div className="casca-app min-h-dvh lg:pl-64">
       <MenuLateral admin={await ehAdmin()} />
       <div className="mx-auto min-h-dvh max-w-[430px] pb-[calc(env(safe-area-inset-bottom)+96px)] lg:max-w-6xl lg:px-6 lg:pt-6 lg:pb-12">
         <FaixaStatus />
