@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { PainelContaFixa } from "./PainelContaFixa";
+import { PrevisaoMes } from "./PrevisaoMes";
 import { AvisoErro } from "@/components/ui/AvisoErro";
 import { Botao } from "@/components/ui/Botao";
 import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
@@ -96,6 +97,8 @@ export function TelaContasFixas() {
               </span>
             </div>
           </section>
+
+          <PrevisaoMes faltaPagar={faltaPagar} />
 
           <section className="flex flex-col gap-1.5">
             <h2 className="text-[11px] font-semibold tracking-[0.66px] text-cinza">TOQUE NA CONTA PARA EDITAR</h2>
