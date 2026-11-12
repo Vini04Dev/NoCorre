@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { formatarMoeda } from "@/lib/formatar";
 import { DIAS_MAPA, FAIXAS_HORARIO } from "@/lib/relatorio";
+import { Valor } from "@/components/ui/Valor";
 
 /** Degraus de dourado, do mais claro ao mais forte (escala de uma cor só). */
 const DEGRAUS = ["#f3f4f6", "#fff1cc", "#ffe08f", "#ffd36a", "#e0a92e", "#b07d12"];
@@ -34,7 +35,8 @@ export function MapaDoCorre({ celulas }: { celulas: number[][] }) {
         {destaque && maior > 0 && (
           <span aria-live="polite" className="truncate">
             {tocada ? "" : "Melhor: "}
-            {descrever(destaque)}
+            {DIAS_MAPA[destaque[0]]}, {FAIXAS_HORARIO[destaque[1]]} às {(destaque[1] + 1) * 3}h ·{" "}
+            <Valor texto={formatarMoeda(celulas[destaque[0]][destaque[1]])} />
           </span>
         )}
       </div>

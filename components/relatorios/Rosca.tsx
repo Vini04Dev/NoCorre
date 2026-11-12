@@ -1,4 +1,5 @@
 import type { Fatia } from "@/lib/relatorio";
+import { Valor } from "@/components/ui/Valor";
 
 /*
  * Paletas das roscas, nos tons do Figma (dourados para receita, vermelhos para
@@ -69,7 +70,7 @@ export function Rosca({ titulo, total, fatias, cores, vazio }: Props) {
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <span className="text-[10px] text-cinza-escuro">total</span>
-              <span className="text-[13px] font-extrabold">{totalArredondado}</span>
+              <Valor className="text-[13px] font-extrabold" texto={totalArredondado} />
             </div>
           </div>
           <ul className="flex w-full flex-col gap-1.5">
