@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { cookies, headers } from "next/headers";
 import { Suspense } from "react";
 import { AvisoPrimeiroUso } from "@/components/home/AvisoPrimeiroUso";
+import { AvisoProChegou } from "@/components/pro/AvisoProChegou";
 import { CabecalhoHome } from "@/components/home/CabecalhoHome";
 import { CartaoModulo } from "@/components/home/CartaoModulo";
+import { ProximoEvento } from "@/components/home/ProximoEvento";
 import { ResumoPeriodo } from "@/components/home/ResumoPeriodo";
 import { classeFontesLanding } from "@/components/landing/fontes";
 import { COOKIE_IDIOMA, COOKIE_TEMA, escolherIdioma, TEXTOS } from "@/components/landing/idiomas";
@@ -58,9 +60,12 @@ async function Home() {
     <>
       <CabecalhoHome nome={primeiroNome} />
       <main className="flex flex-col gap-7 px-[17px] pt-6 lg:grid lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:items-start lg:gap-8 lg:px-0 lg:pt-8">
-        <Secao titulo="MEU SALDO">
-          <ResumoPeriodo />
-        </Secao>
+        <div className="flex flex-col gap-7">
+          <ProximoEvento />
+          <Secao titulo="MEU SALDO">
+            <ResumoPeriodo />
+          </Secao>
+        </div>
         <div className="flex flex-col gap-7">
           <Secao titulo="MÓDULOS">
             <nav aria-label="Módulos" className="flex flex-col gap-4">
@@ -104,6 +109,7 @@ async function Home() {
       </main>
       <Suspense>
         <AvisoPrimeiroUso />
+        <AvisoProChegou />
       </Suspense>
     </>
   );
