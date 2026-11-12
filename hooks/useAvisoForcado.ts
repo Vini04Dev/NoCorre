@@ -4,9 +4,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 /** Avisos que só aparecem sob condição e podem ser abertos à mão para conferir. */
 export type Aviso =
+  | "vencimento"
   | "novidades"
   | "primeiro-uso"
-  | "vencimento"
   | "pro";
 
 /**
