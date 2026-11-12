@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { cookies, headers } from "next/headers";
 import { Suspense } from "react";
+import { AvisoContas } from "@/components/contas/AvisoContas";
 import { AvisoPrimeiroUso } from "@/components/home/AvisoPrimeiroUso";
 import { AvisoProChegou } from "@/components/pro/AvisoProChegou";
 import { CabecalhoHome } from "@/components/home/CabecalhoHome";
@@ -63,6 +64,10 @@ async function Home() {
       <main className="flex flex-col gap-7 px-[17px] pt-6 lg:grid lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:items-start lg:gap-8 lg:px-0 lg:pt-8">
         <div className="flex flex-col gap-7">
           <ProximoEvento />
+          {/* useSearchParams (?aviso=vencimento) precisa de Suspense em volta. */}
+          <Suspense>
+            <AvisoContas />
+          </Suspense>
           <Secao titulo="MEU SALDO">
             <ResumoPeriodo />
           </Secao>
@@ -93,6 +98,13 @@ async function Home() {
                   tamanhoIcone={36}
                 />
               )}
+              <CartaoModulo
+                href="/contas"
+                titulo="Contas fixas"
+                descricao="O que vence todo mês, com aviso antes do dia e pagamento em um toque."
+                icone="/icones/conta-fixa-modulo.svg"
+                tamanhoIcone={34}
+              />
               <CartaoModulo
                 href="/cadastro"
                 titulo="Cadastro"

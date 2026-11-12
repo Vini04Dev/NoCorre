@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 export type Aviso =
   | "novidades"
   | "primeiro-uso"
+  | "vencimento"
   | "pro";
 
 /**

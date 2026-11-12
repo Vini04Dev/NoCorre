@@ -14,6 +14,7 @@ import { useDescricoesDespesa } from "@/hooks/useDescricoesDespesa";
 import { normalizar } from "@/lib/sugestoes";
 import { useSalvarDespesa } from "@/hooks/useLancamentos";
 import { useContasEmAberto } from "@/hooks/useMetas";
+import type { ContaFixa } from "@/hooks/useContasFixas";
 import type { Despesa } from "@/hooks/useMovimentacoes";
 import { CATEGORIA_CONTAS, CATEGORIAS_PADRAO } from "@/lib/categorias-padrao";
 import { camposParaDataHora } from "@/lib/data";
@@ -26,23 +27,35 @@ type Props = {
   despesa?: Despesa;
   /** Conta das Metas já escolhida (botão "Lançar pagamento" da conta). */
   contaInicial?: string;
+  /** Conta fixa sendo paga: vem preenchida e a despesa fica ligada a ela. */
+  fixa?: ContaFixa;
 };
 
 /** Lança uma despesa nova ou, recebendo `despesa`, edita a existente. */
-export function FormularioDespesa({ despesa, contaInicial }: Props) {
+export function FormularioDespesa({ despesa, contaInicial, fixa }: Props) {
   const router = useRouter();
   const salvar = useSalvarDespesa();
   const { data: contas } = useContasEmAberto();
   const { data: usadas } = useDescricoesDespesa();
-  const destino = despesa ? `/resumo/despesa/${despesa.id}` : contaInicial ? `/metas/${contaInicial}` : "/";
+  const destino = despesa
+    ? `/resumo/despesa/${despesa.id}`
+    : contaInicial
+      ? `/metas/${contaInicial}`
+      : fixa
+        ? "/contas"
+        : "/";
 
-  const [descricao, setDescricao] = useState(despesa?.observacao ?? "");
-  const [categoria, setCategoria] = useState(despesa?.tipo ?? CATEGORIAS_PADRAO.despesa[0]);
-  const [valores, setValores] = useState<Valores>(() => valoresIniciais(despesa));
+  const [descricao, setDescricao] = useState(despesa?.observacao ?? fixa?.descricao ?? "");
+  const [categoria, setCategoria] = useState(despesa?.tipo ?? fixa?.tipo ?? CATEGORIAS_PADRAO.despesa[0]);
+  const [valores, setValores] = useState<Valores>(() =>
+    valoresIniciais(despesa ?? (fixa && { data_hora: new Date().toISOString(), quantidade: 1, valor_unitario: fixa.valor })),
+  );
   const [contaId, setContaId] = useState<string | null>(despesa?.meta_id ?? contaInicial ?? null);
   const [erros, setErros] = useState<Erros>({});
   // undefined = ninguém mexeu (não manda a coluna); null = carteira principal.
-  const [carteiraId, setCarteiraId] = useState<string | null | undefined>(despesa?.carteira_id);
+  const [carteiraId, setCarteiraId] = useState<string | null | undefined>(
+    despesa ? despesa.carteira_id : (fixa?.carteira_id ?? undefined),
+  );
 
   // Pagamento de conta não pede categoria: vai como "Contas", descrito pelo nome da conta.
   const conta = contas.find((item) => item.id === contaId);
@@ -70,6 +83,8 @@ export function FormularioDespesa({ despesa, contaInicial }: Props) {
           valor_unitario: valores.centavos / 100,
           meta_id: contaId,
           ...campoCarteira(carteiraId),
+          // Só manda a coluna pagando uma conta fixa: sem a migration, ela nem existe.
+          ...(fixa ? { conta_fixa_id: fixa.id } : {}),
         },
       },
       { onSuccess: () => router.push(destino) },
@@ -80,7 +95,7 @@ export function FormularioDespesa({ despesa, contaInicial }: Props) {
     <form onSubmit={enviar} noValidate className="flex min-h-dvh flex-col">
       <div className="flex flex-col gap-3 px-5 pt-[calc(env(safe-area-inset-top)+12px)]">
         <CabecalhoTela
-          titulo={despesa ? "Editar despesa" : contaInicial ? "Pagar conta" : "Nova despesa"}
+          titulo={despesa ? "Editar despesa" : contaInicial || fixa ? "Pagar conta" : "Nova despesa"}
           voltarPara={destino}
         />
         <AvisoErro mensagem={salvar.error?.message} />
@@ -105,7 +120,7 @@ export function FormularioDespesa({ despesa, contaInicial }: Props) {
 
       <div className="sticky bottom-0 mt-auto bg-fundo px-5 pt-2.5 pb-[calc(env(safe-area-inset-bottom)+26px)]">
         <Botao type="submit" disabled={salvar.isPending}>
-          {salvar.isPending ? "Salvando..." : despesa ? "Salvar alterações" : conta ? "Salvar pagamento" : "Salvar despesa"}
+          {salvar.isPending ? "Salvando..." : despesa ? "Salvar alterações" : conta || fixa ? "Salvar pagamento" : "Salvar despesa"}
         </Botao>
       </div>
     </form>
