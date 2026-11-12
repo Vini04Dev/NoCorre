@@ -20,6 +20,39 @@ export type Nota = {
 
 export const NOTAS: Nota[] = [
   {
+    versao: "0.0.2",
+    data: "2026-11-12",
+    titulo: "Agenda nova e Início mais rápido",
+    resumo: "Agenda por dia, semana e mês, atalhos no Início e o app mais leve de usar no celular.",
+    destaques: [
+      {
+        icone: "/icones/calendario.svg",
+        titulo: "Agenda por dia, semana e mês",
+        texto: "Linha do tempo do dia e da semana, mês com pontos coloridos e o próximo compromisso lembrado no Início.",
+      },
+      {
+        icone: "/icones/saldo-linha.svg",
+        titulo: "Atalhos no Início",
+        texto: "Toque no saldo, nos recebidos, pendentes, despesas ou entregas para abrir o Resumo já filtrado no mesmo período.",
+      },
+      {
+        icone: "/icones/dispositivos.svg",
+        titulo: "Melhor no celular",
+        texto: "O iPhone não dá mais zoom ao tocar num campo, o toque duplo não seleciona texto e botões e painéis respondem ao toque.",
+      },
+      {
+        icone: "/icones/olho.svg",
+        titulo: "Olho também nos Relatórios",
+        texto: "Com os valores escondidos no Início, os Relatórios também ficam escondidos.",
+      },
+      {
+        icone: "/icones/info.svg",
+        titulo: "Avisos mais claros",
+        texto: "Endereço errado ou tela que não carregou agora explicam o que houve e mostram como voltar.",
+      },
+    ],
+  },
+  {
     versao: "0.0.1",
     data: "2026-11-10",
     titulo: "Primeira versão",
