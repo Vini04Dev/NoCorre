@@ -15,7 +15,6 @@ import {
   COR_SITUACAO,
   desgaste,
   ehCg160,
-  ehScooter,
   formatarKm,
   parteDo,
   ROTULO_SITUACAO,
@@ -23,10 +22,30 @@ import {
   type Situacao,
 } from "@/lib/moto";
 import { CarrosselMoto } from "./CarrosselMoto";
-import { DesenhoMoto } from "./DesenhoMoto";
-import { type CalorParte, MapaCalorMoto } from "./MapaCalorMoto";
+import type { CalorParte } from "./MapaCalorMoto";
 
-const somenteNumeros = (texto: string) => texto.replace(/\D/g, "").slice(0, 7);
+/**
+ * Lugar da imagem quando o modelo da moto ainda não tem fotos no app (hoje só
+ * a CG 160 tem). A lista de manutenção continua funcionando igual.
+ */
+function EmBreve({ modelo }: { modelo: string | null | undefined }) {
+  return (
+    <div className="flex aspect-[950/466] w-full max-w-md flex-col items-center justify-center gap-1.5 rounded-[12px] border border-dashed border-cinza-claro px-6 text-center">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="text-cinza" aria-hidden>
+        <circle cx="5.5" cy="16.5" r="3.5" />
+        <circle cx="18.5" cy="16.5" r="3.5" />
+        <path d="M5.5 16.5 9 10h5l2.5 6.5M14 10l1.5-3H18M9 10 7.5 7H5" />
+      </svg>
+      <p className="text-sm font-bold">Em breve</p>
+      <p className="text-[11px] text-cinza-escuro">
+        {modelo ? `A imagem da ${modelo} ainda não está no app.` : "Cadastre o modelo da moto no Perfil."} As manutenções abaixo já
+        funcionam normalmente.
+      </p>
+    </div>
+  );
+}
+
+const somenteNumeros =(texto: string) => texto.replace(/\D/g, "").slice(0, 7);
 
 /** Primeira vez: só pede o odômetro; os itens padrão são criados contando a partir daí. */
 function Configurar() {
@@ -180,9 +199,6 @@ export function TelaMoto() {
     const parte = parteDo(item.componente.tipo);
     if (parte && item.fracao >= (calor[parte]?.fracao ?? -1)) calor[parte] = { situacao: item.situacao, fracao: item.fracao };
   }
-  const partes: Partial<Record<ParteDesenho, Situacao>> = Object.fromEntries(
-    Object.entries(calor).map(([parte, c]) => [parte, c.situacao]),
-  );
   const descricaoDesenho = calculados.map((i) => `${i.componente.nome}: ${ROTULO_SITUACAO[i.situacao]}`).join("; ");
   const urgentes = calculados.filter((i) => i.situacao === "trocar" || i.situacao === "vencido").length;
   const modelo = perfil?.veiculo ?? "Sua moto";
@@ -202,21 +218,21 @@ export function TelaMoto() {
             <span className="text-lg font-extrabold">{formatarKm(kmAtual)}</span>
           </button>
         </div>
-        {ehScooter(perfil?.veiculo) ? (
-          <DesenhoMoto partes={partes} scooter descricao={descricaoDesenho} />
-        ) : ehCg160(perfil?.veiculo) ? (
-          <CarrosselMoto partes={calor} descricao={descricaoDesenho} />
+        {ehCg160(perfil?.veiculo) ? (
+          <>
+            <CarrosselMoto partes={calor} descricao={descricaoDesenho} />
+            <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-[10px] text-cinza-escuro">
+              {(Object.keys(COR_SITUACAO) as Situacao[]).map((s) => (
+                <span key={s} className="flex items-center gap-1">
+                  <span className="size-2.5 rounded-full" style={{ background: COR_SITUACAO[s] }} />
+                  {ROTULO_SITUACAO[s]}
+                </span>
+              ))}
+            </div>
+          </>
         ) : (
-          <MapaCalorMoto partes={calor} descricao={descricaoDesenho} />
+          <EmBreve modelo={perfil?.veiculo} />
         )}
-        <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-[10px] text-cinza-escuro">
-          {(Object.keys(COR_SITUACAO) as Situacao[]).map((s) => (
-            <span key={s} className="flex items-center gap-1">
-              <span className="size-2.5 rounded-full" style={{ background: COR_SITUACAO[s] }} />
-              {ROTULO_SITUACAO[s]}
-            </span>
-          ))}
-        </div>
       </section>
 
       <Botao type="button" onClick={() => setPainel({ tipo: "km" })}>
