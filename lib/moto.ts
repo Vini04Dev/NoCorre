@@ -53,6 +53,11 @@ export function formatarKm(km: number) {
 }
 
 /** Moto pequena tipo cub/scooter (Biz, Pop, Lead, NMax...) muda o desenho. */
+/** CG 160 (Fan, Start, Titan): a única moto com fotos por enquanto; as outras usam o desenho. */
+export function ehCg160(modelo: string | null | undefined) {
+  return /\b(fan|cg\s*-?\s*160)\b/i.test(modelo ?? "");
+}
+
 export function ehScooter(modelo: string | null | undefined) {
   return /\b(biz|pop|lead|nmax|pcx|neo|fluo|elite|burgman|scooter|cub)\b/i.test(modelo ?? "");
 }
