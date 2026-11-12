@@ -55,8 +55,7 @@ export function formatarKm(km: number) {
   return `${Math.round(km).toLocaleString("pt-BR")} km`;
 }
 
-/** Moto pequena tipo cub/scooter (Biz, Pop, Lead, NMax...) muda o desenho. */
-/** CG 160 (Fan, Start, Titan): a única moto com fotos por enquanto; as outras usam o desenho. */
+/** CG 160 (Fan, Start, Titan): a única moto com fotos por enquanto; as outras mostram "Em breve". */
 export function ehCg160(modelo: string | null | undefined) {
   return /\b(fan|cg\s*-?\s*160)\b/i.test(modelo ?? "");
 }
