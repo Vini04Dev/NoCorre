@@ -16,14 +16,15 @@ const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "o
 const compacto = new Intl.NumberFormat("pt-BR", { notation: "compact", maximumFractionDigits: 1 });
 
 const CLASSE_ITEM = "flex w-full items-center gap-3 py-[7px] text-left";
-const CLASSE_ICONE = "grid size-7 shrink-0 place-items-center rounded-full";
+// Mesmo tamanho em todos os itens do Perfil: círculo de 40px com ícone de 20px.
+const CLASSE_ICONE = "grid size-10 shrink-0 place-items-center rounded-full";
 
 function ItemConfiguracao({ href, icone, rotulo }: { href: string; icone: string; rotulo: string }) {
   return (
     <li className="border-b border-cinza-claro">
       <Link href={href} className={CLASSE_ITEM}>
         <span className={`${CLASSE_ICONE} bg-dourado-claro`}>
-          <Image src={icone} alt="" width={16} height={16} />
+          <Image src={icone} alt="" width={20} height={20} />
         </span>
         <span className="flex-1 text-xs font-semibold">{rotulo}</span>
         <span aria-hidden className="text-lg font-semibold text-cinza">
@@ -45,7 +46,9 @@ function MetasEmAndamento() {
         href="/metas/nova"
         className="flex items-center gap-3 rounded-[12px] border border-dashed border-cinza bg-white px-4 py-3"
       >
-        <Image src="/icones/metas.svg" alt="" width={28} height={28} className="rounded-full bg-marinho p-1" />
+        <span className={`${CLASSE_ICONE} bg-marinho`}>
+          <Image src="/icones/metas.svg" alt="" width={20} height={20} />
+        </span>
         <p className="text-xs">
           <strong className="block">Nenhuma meta ativa</strong>
           <span className="text-cinza-escuro">Crie metas de receita, entregas, limite de despesa ou contas a pagar.</span>
@@ -59,7 +62,7 @@ function MetasEmAndamento() {
       {ativas.map((meta) => (
         <li key={meta.id} className="border-b border-cinza-claro last:border-b-0">
           <Link href={`/metas/${meta.id}`} className={CLASSE_ITEM}>
-            <CirculoProgresso percentual={meta.percentual} traco={corDaMeta(meta).traco} tamanho={36} espessura={4} />
+            <CirculoProgresso percentual={meta.percentual} traco={corDaMeta(meta).traco} tamanho={40} espessura={4} />
             <span className="flex min-w-0 flex-1 flex-col">
               <span className="truncate text-xs font-semibold">{meta.nome}</span>
               <span className="text-[10px] text-cinza-escuro">{textoProgresso(meta)}</span>
@@ -163,8 +166,8 @@ export function TelaPerfil({ admin = false }: { admin?: boolean }) {
           href="/perfil/veiculo"
           className="flex items-center gap-3 rounded-[12px] border border-cinza-claro bg-white px-3.5 py-2"
         >
-          <span className="grid size-10 shrink-0 place-items-center rounded-full bg-dourado-claro">
-            <Image src="/icones/perfil-moto.svg" alt="" width={22} height={22} />
+          <span className={`${CLASSE_ICONE} bg-dourado-claro`}>
+            <Image src="/icones/perfil-moto.svg" alt="" width={20} height={20} />
           </span>
           <span className="flex min-w-0 flex-1 flex-col">
             <span className="truncate text-xs font-semibold">{veiculo || "Adicionar veículo"}</span>
@@ -232,7 +235,7 @@ export function TelaPerfil({ admin = false }: { admin?: boolean }) {
             <form action={sair} onSubmit={limparEstadoDasTelas}>
               <button type="submit" className={CLASSE_ITEM}>
                 <span className={`${CLASSE_ICONE} bg-cinza-claro`}>
-                  <Image src="/icones/perfil-sair.svg" alt="" width={16} height={16} />
+                  <Image src="/icones/perfil-sair.svg" alt="" width={20} height={20} />
                 </span>
                 <span className="flex-1 text-xs font-semibold text-cinza-escuro">Sair da conta</span>
               </button>

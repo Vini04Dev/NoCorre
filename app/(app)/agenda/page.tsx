@@ -1,5 +1,8 @@
-import { EmConstrucao } from "@/components/ui/EmConstrucao";
+import type { Metadata } from "next";
+import { TelaAgenda } from "@/components/agenda/TelaAgenda";
+
+export const metadata: Metadata = { title: "Agenda | No Corre!" };
 
 export default function Pagina() {
-  return <EmConstrucao titulo="Agenda" voltarPara="/" />;
+  return <TelaAgenda />;
 }
