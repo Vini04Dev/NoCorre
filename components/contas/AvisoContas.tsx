@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useAvisoForcado } from "@/hooks/useAvisoForcado";
 import { useConfirmarDebito, useContasFixas, useContasPagasNoMes, type ContaFixa } from "@/hooks/useContasFixas";
@@ -11,6 +10,21 @@ type Item = { conta: ContaFixa; situacao: SituacaoConta };
 
 /** Exemplo para a prévia do Painel do sistema. */
 const EXEMPLO: Item[] = [
+  {
+    conta: {
+      id: "exemplo-3",
+      usuario_id: "",
+      descricao: "Internet",
+      tipo: "Contas",
+      valor: 99.9,
+      dia_vencimento: 10,
+      carteira_id: null,
+      automatico: false,
+      ativa: true,
+      created_at: "",
+    },
+    situacao: { tipo: "atrasada", dias: -2 },
+  },
   {
     conta: {
       id: "exemplo-1",
@@ -43,52 +57,79 @@ const EXEMPLO: Item[] = [
   },
 ];
 
-const BORDA: Partial<Record<SituacaoConta["tipo"], string>> = {
-  vence: "var(--color-pendente)",
-  debito: "var(--color-pendente)",
-  atrasada: "var(--color-negativo)",
-};
+/**
+ * Mesmo degradê escurecido dos cartões de carteira, na cor da situação:
+ * marinho para o que vence ou cai no débito, vermelho para o atrasado.
+ */
+function fundoDa(situacao: SituacaoConta) {
+  const cor = situacao.tipo === "atrasada" ? "var(--color-negativo)" : "var(--color-marinho)";
+  return `linear-gradient(135deg, color-mix(in srgb, ${cor} 88%, #000) 0%, color-mix(in srgb, ${cor} 55%, #000) 100%)`;
+}
 
-function Linha({ conta, situacao, exemplo }: Item & { exemplo: boolean }) {
-  const confirmar = useConfirmarDebito();
+/** Ícone de linha de conta (recibo), na cor do texto do cartão. */
+function IconeConta() {
   return (
-    <li
-      className="flex items-center gap-3 rounded-[10px] border border-l-4 border-black/8 bg-white py-2.5 pr-3 pl-3 shadow-cartao"
-      style={{ borderLeftColor: BORDA[situacao.tipo] }}
-    >
-      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-dourado-claro">
-        <Image src="/icones/conta-fixa.svg" alt="" width={18} height={18} />
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2zM9 7h6M9 11h6M9 15h4" />
+    </svg>
+  );
+}
+
+const CLASSE_CARTAO =
+  "relative flex h-[104px] w-[156px] shrink-0 snap-start flex-col justify-between rounded-[14px] p-3 text-left text-white shadow-cartao transition-transform active:scale-[0.98]";
+
+/** Cartão de uma conta: tocar paga (abre a despesa preenchida) ou confirma o débito automático. */
+function CartaoConta({ conta, situacao, exemplo }: Item & { exemplo: boolean }) {
+  const confirmar = useConfirmarDebito();
+  const debito = situacao.tipo === "debito";
+  const conteudo = (
+    <>
+      <span className="absolute top-3 right-3 opacity-90">
+        <IconeConta />
       </span>
-      <span className="flex min-w-0 flex-1 flex-col">
+      <span className="flex min-w-0 flex-col pr-6">
         <span className="truncate text-sm font-bold">{conta.descricao}</span>
-        <span className="text-xs text-cinza-escuro">
-          {textoSituacao(situacao, conta.dia_vencimento)} · {formatarMoeda(conta.valor)}
+        <span className="truncate text-[10px] text-white/85">{textoSituacao(situacao, conta.dia_vencimento)}</span>
+      </span>
+      <span className="flex items-end justify-between gap-1">
+        <span className="text-[15px] font-extrabold">{formatarMoeda(conta.valor)}</span>
+        <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold">
+          {debito ? (confirmar.isPending ? "Lançando..." : "Já caiu") : "Pagar"}
         </span>
       </span>
-      {situacao.tipo === "debito" ? (
-        <button
-          type="button"
-          onClick={() => !exemplo && confirmar.mutate(conta)}
-          disabled={confirmar.isPending}
-          className="shrink-0 rounded-[8px] bg-marinho px-3 py-1.5 text-[11px] font-bold text-white disabled:opacity-50"
-        >
-          Já caiu
-        </button>
-      ) : (
-        <Link
-          href={exemplo ? ROTA_CONTAS :`/novo/despesa?fixa=${conta.id}`}
-          className="shrink-0 rounded-[8px] bg-marinho px-3 py-1.5 text-[11px] font-bold text-white"
-        >
-          Pagar
-        </Link>
-      )}
-    </li>
+    </>
+  );
+
+  if (debito) {
+    return (
+      <button
+        type="button"
+        onClick={() => !exemplo && confirmar.mutate(conta)}
+        disabled={confirmar.isPending}
+        aria-label={`${conta.descricao}: confirmar que o débito automático caiu`}
+        className={`${CLASSE_CARTAO} disabled:opacity-70`}
+        style={{ background: fundoDa(situacao) }}
+      >
+        {conteudo}
+      </button>
+    );
+  }
+  return (
+    <Link
+      href={exemplo ? ROTA_CONTAS : `/novo/despesa?fixa=${conta.id}`}
+      aria-label={`Pagar ${conta.descricao}`}
+      className={CLASSE_CARTAO}
+      style={{ background: fundoDa(situacao) }}
+    >
+      {conteudo}
+    </Link>
   );
 }
 
 /**
  * Aviso no Início: contas fixas que vencem em até 3 dias, atrasadas ou com
- * débito automático para confirmar. Some quando a conta do mês é paga.
+ * débito automático para confirmar, em cartões que rolam de lado (como os de
+ * carteira). Some quando a conta do mês é paga.
  */
 export function AvisoContas() {
   const { data: contas } = useContasFixas();
@@ -112,15 +153,15 @@ export function AvisoContas() {
     <section aria-label="Contas a vencer" className="flex flex-col gap-1.5">
       <h2 className="flex items-center justify-between text-[11px] font-semibold tracking-[0.66px] text-cinza">
         CONTAS A VENCER
-        <Link href={ROTA_CONTAS}className="font-bold tracking-normal text-dourado">
+        <Link href={ROTA_CONTAS} className="font-bold tracking-normal text-dourado">
           Ver todas
         </Link>
       </h2>
-      <ul className="flex flex-col gap-2">
+      <div className="-mx-[17px] flex snap-x scroll-px-[17px] gap-2.5 overflow-x-auto px-[17px] pt-1 pb-2 [scrollbar-width:none] lg:mx-0 lg:flex-wrap lg:px-0">
         {itens.map((item) => (
-          <Linha key={item.conta.id} {...item} exemplo={forcado} />
+          <CartaoConta key={item.conta.id} {...item} exemplo={forcado} />
         ))}
-      </ul>
+      </div>
     </section>
   );
 }
