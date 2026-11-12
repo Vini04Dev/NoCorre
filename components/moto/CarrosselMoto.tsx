@@ -127,6 +127,12 @@ export function CarrosselMoto({ partes, descricao }: { partes: Partial<Record<Pa
           setPosicao((p) => Math.round(p));
         }}
       >
+        {/* Tema escuro: luz suave atrás da moto, que é preta e sumiria no cartão escuro. */}
+        <div
+          aria-hidden
+          className="absolute inset-0 hidden [html[data-tema-escuro]_&]:block"
+          style={{ background: "radial-gradient(ellipse 55% 62% at 50% 56%, rgba(255,255,255,0.17), transparent 72%)" }}
+        />
         {ANGULOS.map((angulo, i) => {
           const opacidade = Math.max(0, 1 - distancia(i, posicao));
           return (
