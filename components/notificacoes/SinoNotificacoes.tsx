@@ -39,7 +39,7 @@ export function SinoNotificacoes() {
       >
         <Icone d={ICONES.sino} tamanho={20} />
         {total > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-negativo px-1 text-[10px] font-bold text-white ring-2 ring-marinho">
+          <span className="absolute -top-0.5 -right-0.5 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-negativo px-1 text-[10px] font-bold text-white">
             {total > 9 ? "9+" : total}
           </span>
         )}
