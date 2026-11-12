@@ -136,7 +136,7 @@ export function TelaPerfil({ admin = false }: { admin?: boolean }) {
             <Link
               href="/pro"
               className={`rounded-[10px] px-2.5 py-0.5 text-[9px] font-semibold tracking-[0.54px] ${
-                perfil.plano === "pro" ? "bg-dourado-claro text-marinho" : "bg-white/12 text-cinza-claro"
+                perfil.plano === "pro" ? "bg-black text-dourado" : "bg-dourado text-black"
               }`}
             >
               {perfil.plano === "pro" ? "PLANO PRO" : "PLANO GRÁTIS"}
