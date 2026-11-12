@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Botao } from "@/components/ui/Botao";
 import { PainelInferior } from "@/components/ui/PainelInferior";
 import { useAvisoForcado } from "@/hooks/useAvisoForcado";
@@ -12,12 +12,28 @@ import { RECURSOS_PRO } from "@/lib/pro";
 
 const CHAVE_VISTO = "nocorre:pro-boas-vindas";
 
+const ouvintes = new Set<() => void>();
+
 function jaViu() {
   try {
     return localStorage.getItem(CHAVE_VISTO) === "1";
   } catch {
     return true;
   }
+}
+
+function marcarVisto() {
+  try {
+    localStorage.setItem(CHAVE_VISTO, "1");
+  } catch {
+    // Sem armazenamento: o aviso volta na próxima abertura, sem prejuízo.
+  }
+  ouvintes.forEach((ouvinte) => ouvinte());
+}
+
+function inscrever(ouvinte: () => void) {
+  ouvintes.add(ouvinte);
+  return () => ouvintes.delete(ouvinte);
 }
 
 /**
@@ -29,22 +45,15 @@ export function AvisoProChegou() {
   const { ehPro } = usePlano();
   const [novidadesPendentes] = useNovidadesPendentes();
   const [forcado, limparForcado] = useAvisoForcado("pro");
-  // Só no navegador: no servidor não há localStorage e nada é exibido.
-  const [visto, setVisto] = useState(() => typeof window === "undefined" || jaViu());
+  // No servidor (e na hidratação) conta como visto: o aviso só entra depois, sem divergir do HTML.
+  const visto = useSyncExternalStore(inscrever, jaViu, () => true);
 
   const normal = ehPro && !visto && !novidadesPendentes;
   if (!normal && !forcado) return null;
 
   function fechar() {
     limparForcado();
-    if (!forcado) {
-      setVisto(true);
-      try {
-        localStorage.setItem(CHAVE_VISTO, "1");
-      } catch {
-        // Sem armazenamento: o aviso volta na próxima abertura, sem prejuízo.
-      }
-    }
+    if (!forcado) marcarVisto();
   }
 
   return (
