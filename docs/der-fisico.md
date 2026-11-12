@@ -244,6 +244,10 @@ celular x computador pelo user agent das sessões, mas o painel não mostra:
 login e renovação de sessão passam pelo servidor do app, então o user agent
 gravado é o do servidor, não o do aparelho da pessoa.
 
+A migration `20261111090000_ultimo_uso_cadastros` faz os últimos cadastros
+trazerem `ultimo_uso` (última sessão renovada, ou o último login se não houver
+sessão), o mesmo dado do detalhe da pessoa.
+
 Número de requisições à API não está no banco (só na Management API do
 Supabase, que exige token de acesso à conta) e por isso ficou de fora.
 

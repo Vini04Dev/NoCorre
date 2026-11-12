@@ -27,7 +27,14 @@ export type MetricasAdmin = {
   por_dia: { dia: string; cadastros: number; lancamentos: number; usuarios?: number }[];
   armazenamento: { banco_bytes: number; fotos: { arquivos: number; bytes: number } };
   /** `id` veio na migration 20261110120000; sem ele, a linha não abre o detalhe. */
-  ultimos_cadastros: { id?: string; nome: string; criado_em: string; ultimo_acesso: string | null }[];
+  ultimos_cadastros: {
+    id?: string;
+    nome: string;
+    criado_em: string;
+    ultimo_acesso: string | null;
+    /** Último uso real (sessão renovada); veio na migration 20261111090000. */
+    ultimo_uso?: string | null;
+  }[];
 };
 
 export function formatarBytes(bytes: number) {

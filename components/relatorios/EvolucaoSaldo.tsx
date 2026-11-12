@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { formatarMoeda } from "@/lib/formatar";
 import type { Mes } from "@/lib/relatorio";
+import { Valor } from "@/components/ui/Valor";
 
 const LARGURA = 300;
 const ALTURA = 110;
@@ -30,7 +31,7 @@ export function EvolucaoSaldo({ meses }: { meses: Mes[] }) {
         <h2 className="tracking-[0.66px] text-cinza">SALDO ACUMULADO</h2>
         {atual && (
           <span aria-live="polite" className={atual.acumulado < 0 ? "text-negativo" : ""}>
-            até {atual.rotulo}: {formatarMoeda(atual.acumulado)}
+            até {atual.rotulo}: <Valor texto={formatarMoeda(atual.acumulado)} />
           </span>
         )}
       </div>

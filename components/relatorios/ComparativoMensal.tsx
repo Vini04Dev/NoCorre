@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { formatarMoeda } from "@/lib/formatar";
 import type { Mes } from "@/lib/relatorio";
+import { Valor } from "@/components/ui/Valor";
 
 const ALTURA = 96;
 
@@ -21,8 +22,8 @@ export function ComparativoMensal({ meses }: { meses: Mes[] }) {
         <h2 className="tracking-[0.66px] text-cinza">ÚLTIMOS 6 MESES</h2>
         {mes && maior > 0 && (
           <span aria-live="polite" className="truncate">
-            {mes.rotulo}: <span className="text-recebido">{formatarMoeda(mes.receita)}</span> ·{" "}
-            <span className="text-negativo">{formatarMoeda(mes.despesa)}</span>
+            {mes.rotulo}: <Valor className="text-recebido" texto={formatarMoeda(mes.receita)} /> ·{" "}
+            <Valor className="text-negativo" texto={formatarMoeda(mes.despesa)} />
           </span>
         )}
       </div>
