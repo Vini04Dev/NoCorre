@@ -11,13 +11,15 @@ type Props = {
   aoEnviar?: (evento: React.FormEvent<HTMLFormElement>) => void;
   /** Janela no meio da tela também no celular (avisos), em vez de subir do rodapé. */
   centralizado?: boolean;
+  /** No computador, gaveta presa na lateral direita em vez de janela no meio (notificações). */
+  lateral?: boolean;
 };
 
 /**
  * Painel que sobe do rodapé sobre o fundo escurecido. Tocar fora ou apertar Esc fecha.
  * No computador vira uma janela centralizada.
  */
-export function PainelInferior({ idTitulo, aoFechar, children, aoEnviar, centralizado = false }: Props) {
+export function PainelInferior({ idTitulo, aoFechar, children, aoEnviar, centralizado = false, lateral = false }: Props) {
   useEffect(() => {
     function aoTeclar(evento: KeyboardEvent) {
       if (evento.key === "Escape") aoFechar();
@@ -28,7 +30,11 @@ export function PainelInferior({ idTitulo, aoFechar, children, aoEnviar, central
 
   const classe = centralizado
     ? "painel-janela relative mx-auto flex max-h-[88dvh] w-full max-w-[400px] flex-col gap-3.5 overflow-y-auto rounded-[24px] bg-white px-5 pt-5 pb-6 shadow-2xl lg:max-w-[480px] lg:px-7 lg:pt-6 lg:pb-7"
-    : "painel-folha relative mx-auto flex max-h-dvh w-full max-w-[430px] flex-col gap-3.5 overflow-y-auto rounded-t-[24px] bg-white px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+28px)] lg:max-h-[85dvh] lg:max-w-[480px] lg:rounded-[24px] lg:px-7 lg:pt-6 lg:pb-7 lg:shadow-2xl";
+    : `painel-folha relative mx-auto flex max-h-dvh w-full max-w-[430px] flex-col gap-3.5 overflow-y-auto rounded-t-[24px] bg-white px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+28px)] lg:px-7 lg:pt-6 lg:pb-7 lg:shadow-2xl ${
+        lateral
+          ? "lg:mx-0 lg:h-dvh lg:max-h-dvh lg:w-[400px] lg:max-w-[400px] lg:rounded-none lg:rounded-l-[24px]"
+          : "lg:max-h-[85dvh] lg:max-w-[480px] lg:rounded-[24px]"
+      }`;
   const conteudo = (
     <>
       {!centralizado && <span aria-hidden className="mx-auto h-1 w-10 rounded-full bg-cinza-claro lg:hidden" />}
@@ -38,7 +44,9 @@ export function PainelInferior({ idTitulo, aoFechar, children, aoEnviar, central
 
   return (
     <div
-      className={`painel-fundo fixed inset-0 z-40 flex flex-col bg-black/45 backdrop-blur-[3px] lg:items-center lg:justify-center lg:p-6 ${
+      className={`painel-fundo fixed inset-0 z-40 flex flex-col bg-black/45 backdrop-blur-[3px] ${
+        lateral ? "lg:flex-row lg:items-stretch lg:justify-end" : "lg:items-center lg:justify-center lg:p-6"
+      } ${
         centralizado ? "items-center justify-center p-5" : "justify-end"
       }`}
     >

@@ -1,10 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 import { BotaoOlho } from "./BotaoOlho";
+import { SinoNotificacoes } from "@/components/notificacoes/SinoNotificacoes";
 
 /**
- * Faixa do Início: saudação à esquerda e o olho (esconder valores) à direita,
- * com o mesmo degradê da esquerda para a direita no celular e no computador.
+ * Faixa do Início: saudação à esquerda; à direita o sininho de notificações e
+ * o olho (esconder valores). Mesmo degradê da esquerda para a direita no
+ * celular e no computador.
  */
 export function CabecalhoHome({ nome }: { nome?: string }) {
   const saudacao = nome ? `Olá, ${nome}!` : "Olá!";
@@ -21,7 +24,13 @@ export function CabecalhoHome({ nome }: { nome?: string }) {
         </h1>
         <p className="mt-0.5 text-[13px] font-medium text-cinza-claro lg:text-base">Bora pro corre!?</p>
       </div>
-      <BotaoOlho className="shrink-0" />
+      <div className="flex shrink-0 items-center gap-2">
+        {/* useSearchParams (prévia ?aviso=vencimento) precisa de Suspense em volta. */}
+        <Suspense>
+          <SinoNotificacoes />
+        </Suspense>
+        <BotaoOlho className="shrink-0" />
+      </div>
     </header>
   );
 }
