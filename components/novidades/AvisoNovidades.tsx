@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useId, useState } from "react";
 import { Botao } from "@/components/ui/Botao";
 import { IconeCirculo } from "@/components/ui/IconeCirculo";
@@ -18,9 +19,11 @@ import { NOTAS } from "@/lib/novidades";
 export function AvisoNovidades() {
   const [pendentes, marcarVistas] = useNovidadesPendentes();
   const [forcado, limparForcado] = useAvisoForcado("novidades");
+  // Prévia de outro aviso aberta pelo Painel do sistema: fica só ela na tela.
+  const outraPrevia = (useSearchParams().get("aviso") ?? "novidades") !== "novidades";
   const [ciente, setCiente] = useState(false);
   const idCiente = useId();
-  if (!pendentes && !forcado) return null;
+  if ((!pendentes || outraPrevia) && !forcado) return null;
 
   const nota = NOTAS[0];
 

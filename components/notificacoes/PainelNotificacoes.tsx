@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { CartaoConta } from "@/components/contas/CartaoConta";
 import { CartaoAviso } from "./CartaoAviso";
 import { CartaoEvento } from "./CartaoEvento";
@@ -27,28 +26,6 @@ export function Icone({ d, tamanho = 16 }: { d: string; tamanho?: number }) {
   );
 }
 
-/** Linha simples para o que não tem cartão próprio (entregas pendentes, metas). */
-function Linha({ href, icone, titulo, detalhe, aoAbrir }: { href: string; icone: string; titulo: string; detalhe: string; aoAbrir: () => void }) {
-  return (
-    <Link
-      href={href}
-      onClick={aoAbrir}
-      className="flex items-center gap-2.5 rounded-[12px] border border-black/8 bg-white py-2 pr-3 pl-2.5 shadow-cartao"
-    >
-      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-cinza-fundo text-cinza-escuro">
-        <Icone d={icone} />
-      </span>
-      <span className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate text-[13px] font-bold">{titulo}</span>
-        <span className="truncate text-[11px] text-cinza-escuro">{detalhe}</span>
-      </span>
-      <span aria-hidden className="text-lg text-cinza">
-        ›
-      </span>
-    </Link>
-  );
-}
-
 function Item({ notificacao: n, aoAbrir }: { notificacao: Notificacao; aoAbrir: () => void }) {
   switch (n.tipo) {
     case "conta":
@@ -57,11 +34,13 @@ function Item({ notificacao: n, aoAbrir }: { notificacao: Notificacao; aoAbrir: 
       return <CartaoEvento evento={n.evento} agora={n.agora} aoAbrir={aoAbrir} />;
     case "pendentes":
       return (
-        <Linha
+        <CartaoAviso
           href="/resumo"
+          cor="var(--color-pendente)"
           icone={ICONES.relogio}
           titulo={`${n.quantidade} ${n.quantidade > 1 ? "entregas ainda não pagas" : "entrega ainda não paga"}`}
-          detalhe={`Há mais de ${DIAS_PENDENTE} dias · ${formatarMoeda(n.valor)} a receber`}
+          situacao={`Há mais de ${DIAS_PENDENTE} dias`}
+          valor={formatarMoeda(n.valor)}
           aoAbrir={aoAbrir}
         />
       );
@@ -78,7 +57,16 @@ function Item({ notificacao: n, aoAbrir }: { notificacao: Notificacao; aoAbrir: 
         />
       );
     case "meta":
-      return <Linha href={`/metas/${n.meta.id}`} icone={ICONES.alvo} titulo={n.meta.nome} detalhe={n.texto} aoAbrir={aoAbrir} />;
+      return (
+        <CartaoAviso
+          href={`/metas/${n.meta.id}`}
+          cor={n.meta.situacao === "passou_limite" ? "var(--color-negativo)" : "var(--color-pendente)"}
+          icone={ICONES.alvo}
+          titulo={n.meta.nome}
+          situacao={n.texto}
+          aoAbrir={aoAbrir}
+        />
+      );
   }
 }
 
