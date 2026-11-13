@@ -263,11 +263,10 @@ export function TelaAdmin({ metricas, erro }: { metricas: MetricasAdmin | null; 
                 { href: "/?aviso=novidades", rotulo: "Aviso de atualização", quando: "abre a cada versão nova, ao entrar" },
                 { href: "/?aviso=pro", rotulo: "O Pro chegou!", quando: "uma vez, quando a conta vira Pro" },
                 { href: "/?aviso=primeiro-uso", rotulo: "Aviso de primeiro cliente", quando: "abre no Início enquanto não há cliente" },
-                { href: "/?aviso=vencimento", rotulo: "Notificações", quando: "sininho do Início com contas, compromisso e entregas a receber" },
+                { href: "/?aviso=vencimento", rotulo: "Notificações", quando: "sininho do Início com contas, compromisso, entregas a receber e moto" },
                 { href: "/admin/previa/confirmacao", rotulo: "Confirme seu email", quando: "logo depois de criar a conta" },
                 { href: "/admin/previa/erro", rotulo: "Algo deu errado", quando: "quando uma tela falha ao carregar" },
                 { href: "/endereco-que-nao-existe", rotulo: "Página não encontrada", quando: "endereço errado ou antigo" },
-                { href: "/?aviso=moto", rotulo: "Saúde da moto no Início", quando: "Pro, quando uma peça passa de 90% do intervalo" },
               ].map(({ href, rotulo, quando }) => (
                 <Link
                   key={href}

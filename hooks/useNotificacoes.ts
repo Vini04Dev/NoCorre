@@ -5,9 +5,12 @@ import { useAvisoForcado } from "./useAvisoForcado";
 import { useContasFixas, useContasPagasNoMes, type ContaFixa } from "./useContasFixas";
 import { useEventos, type Evento } from "./useEventos";
 import { useMetas } from "./useMetas";
+import { useComponentes, useQuilometragem } from "./useMoto";
 import { usePendentes } from "./useMovimentacoes";
+import { usePlano } from "./usePlano";
 import { pedeAtencao, situacaoDaConta, type SituacaoConta } from "@/lib/contas-fixas";
 import { hojeLocal, type MetaComProgresso } from "@/lib/metas";
+import { desgaste, type Situacao } from "@/lib/moto";
 
 /** Entrega pendente há mais que isso vira notificação ("ainda não te pagaram"). */
 export const DIAS_PENDENTE = 7;
@@ -23,7 +26,9 @@ export type Notificacao =
   | { tipo: "conta"; id: string; urgente: boolean; conta: ContaFixa; situacao: SituacaoConta }
   | { tipo: "evento"; id: string; urgente: boolean; evento: Evento; agora: Date }
   | { tipo: "pendentes"; id: string; urgente: false; quantidade: number; valor: number }
-  | { tipo: "meta"; id: string; urgente: false; meta: MetaComProgresso; texto: string };
+  | { tipo: "meta"; id: string; urgente: false; meta: MetaComProgresso; texto: string }
+  /** Peça da moto (Pro) perto da troca ou passada; urgente quando já passou. */
+  | { tipo: "moto"; id: string; urgente: boolean; nome: string; situacao: Situacao; faltam: number };
 
 const HORA = 3_600_000;
 
@@ -60,6 +65,7 @@ function exemplo(agora: Date): Notificacao[] {
       },
     },
     { tipo: "conta", id: "ex-2", urgente: false, conta: conta("ex-2", "Plano de celular", 49.9, 20, false), situacao: { tipo: "vence", dias: 2 } },
+    { tipo: "moto", id: "ex-moto", urgente: true, nome: "Óleo do motor", situacao: "vencido", faltam: -120 },
     { tipo: "pendentes", id: "ex-pendentes", urgente: false, quantidade: 3, valor: 114 },
   ];
 }
@@ -89,6 +95,9 @@ export function useNotificacoes() {
   const eventos = useEventos(agora, new Date(agora.getTime() + 24 * HORA));
   const pendentes = usePendentes();
   const metas = useMetas();
+  const { ehPro } = usePlano();
+  const km = useQuilometragem(ehPro);
+  const componentes = useComponentes(ehPro);
   const [forcado] = useAvisoForcado("vencimento");
 
   if (forcado) return exemplo(agora);
@@ -125,6 +134,17 @@ export function useNotificacoes() {
   for (const meta of metas.data ?? []) {
     const texto = textoDaMeta(meta);
     if (texto) lista.push({ tipo: "meta", id: `meta-${meta.id}`, urgente: false, meta, texto });
+  }
+
+  // Saúde da moto (Pro): a partir de 90% do intervalo ("trocar logo"); passou da troca é urgente.
+  const kmAtual = km.data?.atual;
+  if (ehPro && kmAtual != null) {
+    for (const c of componentes.data ?? []) {
+      if (!c.ativo) continue;
+      const { situacao, faltam } = desgaste(kmAtual, c.km_ultima_troca, c.intervalo_km);
+      if (situacao !== "trocar" && situacao !== "vencido") continue;
+      lista.push({ tipo: "moto", id: `moto-${c.id}`, urgente: situacao === "vencido", nome: c.nome, situacao, faltam });
+    }
   }
 
   // Urgentes primeiro; dentro de cada grupo, a ordem dos módulos.
