@@ -44,7 +44,7 @@ export function Tendencias({ itens, previsao }: { itens: Tendencia[]; previsao: 
       {previsao && (
         <div className={`${CARTAO} flex flex-col gap-2 bg-marinho text-white`}>
           <div className="flex items-baseline justify-between">
-            <span className="text-xs font-bold">Previsão até o fim do mês</span>
+            <span className="text-xs font-bold">Ritmo do corre até o fim do mês</span>
             <span className="text-[11px] text-cinza">no ritmo atual · faltam {previsao.diasRestantes} dias</span>
           </div>
           <dl className="grid grid-cols-3 text-center">

@@ -131,7 +131,7 @@ export function useDespesa(id: string) {
 }
 
 export type LinhaHistorico = Pick<Receita, "data_hora" | "valor_total" | "status_pagamento" | "quantidade" | "cliente_id">;
-export type LinhaHistoricoDespesa = Pick<Despesa, "data_hora" | "valor_total">;
+export type LinhaHistoricoDespesa = Pick<Despesa, "data_hora" | "valor_total" | "do_corre">;
 
 /**
  * Busca todas as linhas, de 1000 em 1000: a API do Supabase devolve no máximo
@@ -172,7 +172,7 @@ export function useHistoricoMeses(meses = 6) {
         buscarTudo<LinhaHistoricoDespesa>((de, ate) =>
           supabase
             .from("despesas")
-            .select("data_hora, valor_total")
+            .select("data_hora, valor_total, do_corre")
             .gte("data_hora", inicio.toISOString())
             .lt("data_hora", fim.toISOString())
             .order("data_hora")

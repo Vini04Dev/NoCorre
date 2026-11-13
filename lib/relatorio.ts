@@ -242,8 +242,8 @@ export function tendencias(
   });
   return [
     linha("receita", "Receita", true, true),
-    linha("despesa", "Despesas", false, true),
-    linha("saldo", "Saldo", true, true),
+    linha("despesa", "Despesas do corre", false, true),
+    linha("saldo", "Saldo do corre", true, true),
     linha("entregas", "Entregas", true, false),
     linha("ticket", "Média por entrega", true, true),
   ];

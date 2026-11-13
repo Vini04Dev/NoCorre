@@ -48,6 +48,9 @@ export function TelaRelatorios() {
   const dados = relatorio.data;
   const receitas = dados ? doCliente(dados.atual.receitas) : [];
   const despesas = dados?.atual.despesas ?? [];
+  // Tendências, comparativo e acumulado falam do corre, como o saldo do Início;
+  // a rosca de categorias mostra todas as despesas (para onde vai o dinheiro).
+  const doCorre = <T extends { do_corre?: boolean }>(lista: T[]) => lista.filter((d) => d.do_corre !== false);
   const categoriasReceita = porCategoria(receitas.filter((r) => r.status_pagamento === "pago"));
   const categoriasDespesa = porCategoria(despesas);
   const ranking = rankingClientes(receitas);
@@ -55,13 +58,13 @@ export function TelaRelatorios() {
   const meses = historico.data
     ? porMes(
         clienteId ? historico.data.receitas.filter((r) => r.cliente_id === clienteId) : historico.data.receitas,
-        historico.data.despesas,
+        doCorre(historico.data.despesas),
         historico.data.inicio,
         6,
       )
     : [];
   const listaTendencias = dados
-    ? tendencias({ receitas, despesas }, { receitas: doCliente(dados.anterior.receitas), despesas: dados.anterior.despesas })
+    ? tendencias({ receitas, despesas: doCorre(despesas) }, { receitas: doCliente(dados.anterior.receitas), despesas: doCorre(dados.anterior.despesas) })
     : [];
   // A previsão só faz sentido olhando o mês que ainda está correndo.
   const previsao =
