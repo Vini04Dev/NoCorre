@@ -91,7 +91,7 @@ export default function Pagina() {
       <Cartao titulo="Código aberto" icone="/icones/codigo.svg">
         O código do No Corre! é aberto e está no GitHub. Contribuições, relatos de erro e sugestões são bem-vindos.
         <a href={REPOSITORIO} target="_blank" rel="noreferrer" className="mt-2 block font-bold text-dourado">
-          Ver o código no GitHub ↗
+          Ver o código no GitHub
         </a>
       </Cartao>
 
