@@ -9,7 +9,7 @@ import { CampoMoeda } from "@/components/ui/CampoMoeda";
 import { CampoTexto } from "@/components/ui/CampoTexto";
 import { ConfirmarExclusao } from "@/components/ui/ConfirmarExclusao";
 import { PainelInferior } from "@/components/ui/PainelInferior";
-import { useExcluirContaFixa, useSalvarContaFixa, type ContaFixa } from "@/hooks/useContasFixas";
+import { useContagemPagamentos, useExcluirContaFixa, useSalvarContaFixa, type ContaFixa } from "@/hooks/useContasFixas";
 import { CATEGORIA_CONTAS } from "@/lib/categorias-padrao";
 
 /** Sugestões do dia a dia de quem roda, já com valor em branco para a pessoa completar. */
@@ -34,7 +34,11 @@ export function PainelContaFixa({ conta, aoFechar }: { conta?: ContaFixa; aoFech
   const [ativa, setAtiva] = useState(conta?.ativa ?? true);
   const [parcelada, setParcelada] = useState(Boolean(conta?.parcelas_total));
   const [parcelas, setParcelas] = useState(conta?.parcelas_total ? String(conta.parcelas_total) : "");
-  const [antes, setAntes] = useState(conta ? String(conta.parcelas_antes ?? 0) : "0");
+  // A pessoa informa quantas já pagou no total (inclusive as lançadas no app);
+  // o banco guarda só as de antes do app, para não contar o mesmo pagamento duas vezes.
+  const { data: contagem } = useContagemPagamentos();
+  const lancadas = conta ? (contagem?.get(conta.id) ?? 0) : 0;
+  const [pagasTexto, setPagasTexto] = useState(conta ? String((conta.parcelas_antes ?? 0) + lancadas) : "0");
   const [erros, setErros] = useState<Erros>({});
   const [confirmando, setConfirmando] = useState(false);
 
@@ -46,10 +50,11 @@ export function PainelContaFixa({ conta, aoFechar }: { conta?: ContaFixa; aoFech
     if (centavos <= 0) novos.valor = "Informe o valor da conta.";
     if (!Number.isInteger(numeroDia) || numeroDia < 1 || numeroDia > 31) novos.dia = "Use um dia de 1 a 31.";
     const total = Number(parcelas);
-    const pagas = Number(antes || 0);
+    const pagas = Number(pagasTexto || 0);
     if (parcelada) {
       if (!Number.isInteger(total) || total < 2 || total > 120) novos.parcelas = "De 2 a 120 parcelas.";
       else if (pagas >= total) novos.antes = "Tem que ser menos que o total.";
+      else if (pagas < lancadas) novos.antes = `O app já tem ${lancadas} pagamento${lancadas > 1 ? "s" : ""} lançado${lancadas > 1 ? "s" : ""}.`;
     }
     setErros(novos);
     if (Object.keys(novos).length) return;
@@ -65,7 +70,7 @@ export function PainelContaFixa({ conta, aoFechar }: { conta?: ContaFixa; aoFech
           automatico,
           ativa,
           parcelas_total: parcelada ? total : null,
-          parcelas_antes: parcelada ? pagas : 0,
+          parcelas_antes: parcelada ? Math.max(0, pagas - lancadas) : 0,
         },
       },
       { onSuccess: aoFechar },
@@ -146,13 +151,14 @@ export function PainelContaFixa({ conta, aoFechar }: { conta?: ContaFixa; aoFech
             erro={erros.parcelas}
           />
           <CampoTexto
-            rotulo="Já paguei antes"
+            rotulo="Parcelas já pagas"
             inputMode="numeric"
-            value={antes}
-            onChange={(e) => setAntes(e.target.value.replace(/\D/g, "").slice(0, 3))}
+            value={pagasTexto}
+            onChange={(e) => setPagasTexto(e.target.value.replace(/\D/g, "").slice(0, 3))}
             placeholder="0"
             erro={erros.antes}
           />
+          <p className="col-span-2 -mt-1 text-[11px] text-cinza-escuro">Conte todas, inclusive a deste mês se já pagou.</p>
         </div>
       )}
       <CampoCategoria tipo="despesa" valor={categoria} aoMudar={setCategoria} />
