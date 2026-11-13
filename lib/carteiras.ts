@@ -38,3 +38,19 @@ export type TipoCarteira = (typeof TIPOS_CARTEIRA)[number]["valor"];
 export function iconeDoTipo(tipo: string | null | undefined) {
   return (TIPOS_CARTEIRA.find((t) => t.valor === tipo) ?? TIPOS_CARTEIRA[TIPOS_CARTEIRA.length - 1]).icone;
 }
+
+type CarteiraBase = { id: string; padrao: boolean; created_at: string };
+
+/**
+ * Carteira principal, com a mesma regra do banco (saldos_carteiras): a marcada
+ * como principal, ou a mais antiga se nenhuma estiver marcada. Lançamento sem
+ * carteira conta nela.
+ */
+export function principalEntre<T extends CarteiraBase>(carteiras: T[]): T | undefined {
+  return [...carteiras].sort((a, b) => Number(b.padrao) - Number(a.padrao) || a.created_at.localeCompare(b.created_at))[0];
+}
+
+/** O lançamento é desta carteira? Sem carteira (null) conta na principal. */
+export function ehDaCarteira(carteiraDoLancamento: string | null, carteiraId: string, principalId: string | null) {
+  return carteiraDoLancamento === carteiraId || (carteiraDoLancamento === null && carteiraId === principalId);
+}

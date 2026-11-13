@@ -3,9 +3,12 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Calendario } from "./Calendario";
+import { ResumoCarteira } from "./ResumoCarteira";
+import { SeletorCarteira } from "./SeletorCarteira";
 import { ForaDoCorre } from "@/components/ui/ForaDoCorre";
 import { LinhaValor } from "@/components/ui/LinhaValor";
 import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
+import { useCarteiraEmFoco } from "@/hooks/useCarteiraEmFoco";
 import { gravarEstadoDaTela, useEstadoDaTela } from "@/hooks/useEstadoDaTela";
 import { FILTROS_VAZIOS, type FiltroRapido, type Filtros } from "@/lib/filtros";
 import { useMovimentacoes } from "@/hooks/useMovimentacoes";
@@ -24,13 +27,15 @@ export function ResumoPeriodo() {
   const [periodo, setPeriodo] = useEstadoDaTela<FiltroPeriodo>("home:periodo", { tipo: "semana" });
   const [visao, setVisao] = useEstadoDaTela<Visao>("home:visao", "lista");
   const { data, isError } = useMovimentacoes(periodo);
+  const emFoco = useCarteiraEmFoco();
   const totais = calcularTotais(data?.receitas ?? [], data?.despesas ?? []);
   const entradas = (data?.entradas ?? []).reduce((soma, e) => soma + e.valor, 0);
   // Enquanto carrega, mostra "–" em vez de um R$ 0,00 que pareceria verdadeiro.
   const moeda = (valor: number) => (!data ? "–" : <Valor texto={formatarMoeda(valor)} />);
 
   // "Hoje" é sempre a lista: um calendário de um quadrado só não diz nada.
-  const permiteCalendario = periodo.tipo !== "dia";
+  // Com uma carteira escolhida também: o calendário é do corre inteiro.
+  const permiteCalendario = periodo.tipo !== "dia" && !emFoco.carteira;
   const mostrarCalendario = permiteCalendario && visao === "calendario";
 
   // Tocar numa linha abre o Resumo no mesmo período, já com o filtro daquela linha.
@@ -44,8 +49,13 @@ export function ResumoPeriodo() {
 
   return (
     <section className="flex flex-col gap-[21px]">
+      {emFoco.disponivel && (
+        <div className="-mb-3 flex">
+          <SeletorCarteira ativas={emFoco.ativas} valor={emFoco.carteira?.id ?? null} aoMudar={emFoco.escolher} />
+        </div>
+      )}
       <div className="flex items-start gap-2">
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <SeletorPeriodoAmplo valor={periodo} aoMudar={setPeriodo} />
         </div>
         {permiteCalendario && (
@@ -66,7 +76,14 @@ export function ResumoPeriodo() {
       </div>
       {isError && <p className="text-center text-xs text-negativo">Não foi possível carregar os totais.</p>}
 
-      {mostrarCalendario ? (
+      {emFoco.carteira ? (
+        <ResumoCarteira
+          carteira={emFoco.carteira}
+          principalId={emFoco.principalId}
+          {...intervaloDoPeriodo(periodo)}
+          dados={data}
+        />
+      ) : mostrarCalendario ? (
         <div className="flex flex-col gap-2">
           <dl className="grid grid-cols-3 rounded-[10px] border border-black/8 bg-white px-3 py-2 text-center shadow-cartao">
             {[

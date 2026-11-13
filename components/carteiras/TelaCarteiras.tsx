@@ -15,6 +15,7 @@ import {
 import { useEstadoDaTela } from "@/hooks/useEstadoDaTela";
 import { useMovimentacoes, type Movimentacao } from "@/hooks/useMovimentacoes";
 import { usePlano } from "@/hooks/usePlano";
+import { ehDaCarteira, principalEntre } from "@/lib/carteiras";
 import { formatarMoeda } from "@/lib/formatar";
 import { CartaoCarteira, IconeTipoCarteira, fundoCarteira } from "./CartaoCarteira";
 import { PainelCarteira } from "./PainelCarteira";
@@ -139,6 +140,7 @@ export function TelaCarteiras() {
             aoEditar={() => setPainel({ tipo: "carteira", carteira: escolhida })}
             aoTransferir={() => setPainel({ tipo: "transferencia", origem: escolhida.id })}
             nomeDe={(id) => carteiras.find((c) => c.id === id)?.nome ?? "–"}
+            principalId={principalEntre(carteiras)?.id ?? null}
           />
         </>
       )}
@@ -183,6 +185,7 @@ function DetalheCarteira({
   aoEditar,
   aoTransferir,
   nomeDe,
+  principalId,
 }: {
   carteira: Carteira;
   saldo: number;
@@ -190,6 +193,7 @@ function DetalheCarteira({
   aoEditar: () => void;
   aoTransferir: () => void;
   nomeDe: (id: string) => string;
+  principalId: string | null;
 }) {
   const hoje = new Date();
   const [mes, setMes] = useState({ ano: hoje.getFullYear(), mes: hoje.getMonth() });
@@ -201,11 +205,12 @@ function DetalheCarteira({
   const { data: transferencias = [] } = useTransferenciasDoPeriodo(inicio, fim);
 
   // Lançamento sem carteira conta na principal (mesma regra do saldo no banco).
-  const daCarteira = (id: string | null) => id === carteira.id || (id === null && carteira.padrao);
+  const daCarteira = (id: string | null) => ehDaCarteira(id, carteira.id, principalId);
   const movimentacoes: Movimentacao[] = data
     ? [
         ...data.receitas.filter((r) => daCarteira(r.carteira_id)).map((dados) => ({ tipo: "receita" as const, dados })),
         ...data.despesas.filter((d) => daCarteira(d.carteira_id)).map((dados) => ({ tipo: "despesa" as const, dados })),
+        ...data.entradas.filter((e) => daCarteira(e.carteira_id)).map((dados) => ({ tipo: "entrada" as const, dados })),
       ].sort((a, b) => b.dados.data_hora.localeCompare(a.dados.data_hora))
     : [];
   const minhasTransferencias = transferencias.filter(

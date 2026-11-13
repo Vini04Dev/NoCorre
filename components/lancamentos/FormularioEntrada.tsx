@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CampoCarteira, campoCarteira } from "@/components/carteiras/CampoCarteira";
+import { useCarteiraEmFoco } from "@/hooks/useCarteiraEmFoco";
 import { AvisoErro } from "@/components/ui/AvisoErro";
 import { Botao } from "@/components/ui/Botao";
 import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
@@ -35,6 +36,9 @@ export function FormularioEntrada({ entrada }: { entrada?: Entrada }) {
   const [data, setData] = useState(inicio.data);
   // undefined = ninguém mexeu (não manda a coluna); null = carteira principal.
   const [carteiraId, setCarteiraId] = useState<string | null | undefined>(entrada ? entrada.carteira_id : undefined);
+  // Lançamento novo sem escolha: a carteira em foco no Início (à vista no campo Carteira).
+  const { carteira: emFoco } = useCarteiraEmFoco();
+  const carteiraEfetiva = carteiraId !== undefined ? carteiraId : emFoco?.id;
   const [erros, setErros] = useState<Erros>({});
   const [confirmando, setConfirmando] = useState(false);
   const destino = entrada ? "/resumo" : "/";
@@ -54,7 +58,7 @@ export function FormularioEntrada({ entrada }: { entrada?: Entrada }) {
           descricao: descricao.trim() || tipo,
           valor: centavos / 100,
           data_hora: camposParaDataHora(data, inicio.hora),
-          ...campoCarteira(carteiraId),
+          ...campoCarteira(carteiraEfetiva),
         },
       },
       { onSuccess: () => router.push(destino) },
@@ -100,7 +104,7 @@ export function FormularioEntrada({ entrada }: { entrada?: Entrada }) {
           <CampoMoeda rotulo="Valor" centavos={centavos} aoMudar={setCentavos} erro={erros.valor} />
           <CampoTexto rotulo="Data" type="date" value={data} onChange={(e) => setData(e.target.value)} erro={erros.data} />
         </div>
-        <CampoCarteira valor={carteiraId ?? null} aoMudar={setCarteiraId} />
+        <CampoCarteira valor={carteiraEfetiva ?? null} aoMudar={setCarteiraId} />
       </div>
 
       <div className="sticky bottom-0 mt-auto flex flex-col gap-2 bg-fundo px-5 pt-2.5 pb-[calc(env(safe-area-inset-bottom)+26px)]">

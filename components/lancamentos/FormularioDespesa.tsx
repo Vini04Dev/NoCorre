@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CampoCarteira, campoCarteira } from "@/components/carteiras/CampoCarteira";
+import { useCarteiraEmFoco } from "@/hooks/useCarteiraEmFoco";
 import { CampoCategoria } from "./CampoCategoria";
 import { CampoConta } from "./CampoConta";
 import { CamposValor, validarValores, valoresIniciais, type Valores } from "./CamposValor";
@@ -63,8 +64,11 @@ export function FormularioDespesa({ despesa, contaInicial, fixa }: Props) {
   const [erros, setErros] = useState<Erros>({});
   // undefined = ninguém mexeu (não manda a coluna); null = carteira principal.
   const [carteiraId, setCarteiraId] = useState<string | null | undefined>(
-    despesa ? despesa.carteira_id : (fixa?.carteira_id ?? undefined),
+    despesa ? despesa.carteira_id : fixa ? fixa.carteira_id : undefined,
   );
+  // Lançamento novo sem escolha: a carteira em foco no Início (à vista no campo Carteira).
+  const { carteira: emFoco } = useCarteiraEmFoco();
+  const carteiraEfetiva = carteiraId !== undefined ? carteiraId : emFoco?.id;
 
   // Pagamento de conta não pede categoria: vai como "Contas", descrito pelo nome da conta.
   const conta = contas.find((item) => item.id === contaId);
@@ -93,7 +97,7 @@ export function FormularioDespesa({ despesa, contaInicial, fixa }: Props) {
           valor_unitario: valores.centavos / 100,
           meta_id: contaId,
           do_corre: doCorre,
-          ...campoCarteira(carteiraId),
+          ...campoCarteira(carteiraEfetiva),
           // Só manda a coluna pagando uma conta fixa: sem a migration, ela nem existe.
           ...(fixa ? { conta_fixa_id: fixa.id } : {}),
         },
@@ -142,7 +146,7 @@ export function FormularioDespesa({ despesa, contaInicial, fixa }: Props) {
           </span>
         </label>
         <CamposValor valores={valores} aoMudar={setValores} corTotal="text-negativo" erros={erros} />
-        <CampoCarteira valor={carteiraId ?? null} aoMudar={setCarteiraId} />
+        <CampoCarteira valor={carteiraEfetiva ?? null} aoMudar={setCarteiraId} />
       </div>
 
       <div className="sticky bottom-0 mt-auto bg-fundo px-5 pt-2.5 pb-[calc(env(safe-area-inset-bottom)+26px)]">
