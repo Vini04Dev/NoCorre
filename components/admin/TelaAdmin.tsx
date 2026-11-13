@@ -262,6 +262,7 @@ export function TelaAdmin({ metricas, erro }: { metricas: MetricasAdmin | null; 
                 { href: "/admin/previa/confirmacao", rotulo: "Confirme seu email", quando: "logo depois de criar a conta" },
                 { href: "/admin/previa/erro", rotulo: "Algo deu errado", quando: "quando uma tela falha ao carregar" },
                 { href: "/endereco-que-nao-existe", rotulo: "Página não encontrada", quando: "endereço errado ou antigo" },
+                { href: "/?aviso=moto", rotulo: "Saúde da moto no Início", quando: "Pro, quando uma peça passa de 90% do intervalo" },
               ].map(({ href, rotulo, quando }) => (
                 <Link
                   key={href}

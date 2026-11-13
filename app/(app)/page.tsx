@@ -11,6 +11,7 @@ import { classeFontesLanding } from "@/components/landing/fontes";
 import { COOKIE_IDIOMA, COOKIE_TEMA, escolherIdioma, TEXTOS } from "@/components/landing/idiomas";
 import { TelaApresentacao } from "@/components/landing/TelaApresentacao";
 import { Secao } from "@/components/ui/Secao";
+import { AvisoMoto } from "@/components/moto/AvisoMoto";
 import { ehAdmin } from "@/lib/admin-servidor";
 import { estaLogado } from "@/lib/sessao";
 import { criarClienteServidor } from "@/lib/supabase/servidor";
@@ -71,6 +72,10 @@ async function Home() {
           </Secao>
         </div>
         <div className="flex flex-col gap-7">
+          {/* useSearchParams (?aviso=moto) precisa de Suspense em volta. */}
+          <Suspense>
+            <AvisoMoto />
+          </Suspense>
           <Secao titulo="MÓDULOS">
             <nav aria-label="Módulos" className="flex flex-col gap-4">
               <CartaoModulo
@@ -103,6 +108,15 @@ async function Home() {
                 icone="/icones/cadastro.svg"
                 tamanhoIcone={41}
               />
+              {perfil?.plano === "pro" && (
+                <CartaoModulo
+                  href="/moto"
+                  titulo="Saúde da moto"
+                  descricao="Quilometragem, troca de óleo, pneus, relação e freios no tempo certo."
+                  icone="/icones/moto-modulo.svg"
+                  tamanhoIcone={38}
+                />
+              )}
               <p className="text-center text-xs text-cinza-escuro">Mais módulos em breve.</p>
             </nav>
           </Secao>
