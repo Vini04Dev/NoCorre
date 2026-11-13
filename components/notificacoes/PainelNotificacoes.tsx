@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { CartaoConta } from "@/components/contas/CartaoConta";
+import { CartaoAviso } from "./CartaoAviso";
 import { CartaoEvento } from "./CartaoEvento";
 import { PainelInferior } from "@/components/ui/PainelInferior";
 import { DIAS_PENDENTE, type Notificacao } from "@/hooks/useNotificacoes";
 import { formatarMoeda } from "@/lib/formatar";
+import { COR_SITUACAO, formatarKm } from "@/lib/moto";
 
 /** Ícones de linha (24 × 24), na cor do texto em volta. */
 export const ICONES = {
@@ -14,6 +16,7 @@ export const ICONES = {
   alvo: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2z",
   certo: "M20 6 9 17l-5-5",
   fechar: "M18 6 6 18M6 6l12 12",
+  moto: "M5.5 20a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM18.5 20a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM5.5 16.5 9 10h5l2.5 6.5M14 10l1.5-3H18M9 10 7.5 7H5",
 };
 
 export function Icone({ d, tamanho = 16 }: { d: string; tamanho?: number }) {
@@ -62,6 +65,18 @@ function Item({ notificacao: n, aoAbrir }: { notificacao: Notificacao; aoAbrir: 
           aoAbrir={aoAbrir}
         />
       );
+    case "moto":
+      return (
+        <CartaoAviso
+          href="/moto"
+          cor={COR_SITUACAO[n.situacao]}
+          icone={ICONES.moto}
+          titulo={n.nome}
+          situacao={n.faltam >= 0 ? `Trocar logo · faltam ${formatarKm(n.faltam)}` : `Passou ${formatarKm(-n.faltam)} da troca`}
+          rotulo={`Saúde da moto: ${n.nome}`}
+          aoAbrir={aoAbrir}
+        />
+      );
     case "meta":
       return <Linha href={`/metas/${n.meta.id}`} icone={ICONES.alvo} titulo={n.meta.nome} detalhe={n.texto} aoAbrir={aoAbrir} />;
   }
@@ -96,7 +111,7 @@ export function PainelNotificacoes({ itens, aoFechar }: { itens: Notificacao[]; 
             <Icone d={ICONES.certo} tamanho={20} />
           </span>
           <p className="text-sm font-bold">Tudo em dia</p>
-          <p className="text-xs text-cinza-escuro">Contas, compromissos e entregas a receber aparecem aqui quando pedirem atenção.</p>
+          <p className="text-xs text-cinza-escuro">Contas, compromissos, entregas a receber e a saúde da moto aparecem aqui quando pedirem atenção.</p>
         </div>
       ) : (
         grupos.map((grupo) => (

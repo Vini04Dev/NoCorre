@@ -15,10 +15,12 @@ function resumo(urgentes: Notificacao[]) {
   const hoje = contas.filter((t) => t === "vence").length;
   const debitos = contas.filter((t) => t === "debito").length;
   const evento = urgentes.find((n) => n.tipo === "evento");
+  const pecas = urgentes.filter((n) => n.tipo === "moto").length;
   const partes = [
     atrasadas && plural(atrasadas, "conta atrasada", "contas atrasadas"),
     hoje && plural(hoje, "conta vence hoje", "contas vencem hoje"),
     debitos && plural(debitos, "débito para confirmar", "débitos para confirmar"),
+    pecas && plural(pecas, "peça da moto passou da troca", "peças da moto passaram da troca"),
     evento &&
       (new Date(evento.evento.data_hora_inicial) <= evento.agora
         ? "compromisso agora"
