@@ -10,8 +10,15 @@ const MENSAGENS: Record<string, string> = {
   email_address_invalid: "Esse email não é válido.",
   over_email_send_rate_limit: "Muitas tentativas. Espere alguns minutos e tente de novo.",
   over_request_rate_limit: "Muitas tentativas. Espere alguns minutos e tente de novo.",
+  email_provider_disabled: "O login por email está temporariamente desativado.",
+  signup_disabled: "Novos cadastros estão temporariamente desativados.",
 };
 
 export function traduzirErroAuth(erro: AuthError) {
-  return (erro.code && MENSAGENS[erro.code]) || "Não foi possível continuar. Tente de novo.";
+  const conhecida = erro.code && MENSAGENS[erro.code];
+  if (conhecida) return conhecida;
+  // Erro não previsto: registra no log (Vercel → Logs) e mostra o código na tela,
+  // para quem for ajudar saber o que aconteceu.
+  console.error("Erro do Supabase Auth:", erro.code ?? "sem código", erro.status, erro.message);
+  return `Não foi possível continuar (${erro.code ?? erro.status ?? "erro"}). Tente de novo.`;
 }
