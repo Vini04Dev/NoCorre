@@ -17,7 +17,7 @@ function corDa(situacao: SituacaoConta) {
 function estiloDo(situacao: SituacaoConta) {
   const cor = corDa(situacao);
   return {
-    background: `linear-gradient(135deg, color-mix(in srgb, ${cor} 13%, var(--color-white)) 0%, color-mix(in srgb, ${cor} 4%, var(--color-white)) 100%)`,
+    background: `linear-gradient(135deg, color-mix(in srgb, ${cor} 13%, var(--t-superficie, #ffffff)) 0%, color-mix(in srgb, ${cor} 4%, var(--t-superficie, #ffffff)) 100%)`,
     borderColor: `color-mix(in srgb, ${cor} 22%, transparent)`,
   };
 }
@@ -32,7 +32,7 @@ function IconeConta() {
 }
 
 const CLASSE_CARTAO =
-  "flex w-full items-center gap-2.5 rounded-[12px] border py-2 pr-3 pl-2.5 text-left shadow-cartao transition-transform active:scale-[0.99]";
+  "superficie-tema flex w-full items-center gap-2.5 rounded-[12px] border py-2 pr-3 pl-2.5 text-left shadow-cartao transition-transform active:scale-[0.99]";
 
 /**
  * Conta fixa que pede atenção, nas notificações: tocar paga (abre a despesa

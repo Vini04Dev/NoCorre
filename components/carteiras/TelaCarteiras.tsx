@@ -241,6 +241,15 @@ function DetalheCarteira({
         </p>
       </div>
 
+      {saldo < 0 && (
+        <p className="rounded-[10px] bg-negativo/10 px-3 py-2 text-xs text-negativo">
+          {carteira.tipo === "Dinheiro"
+            ? "Dinheiro vivo não fica negativo: deve faltar lançar alguma receita ou o saldo inicial está diferente. "
+            : "Saldo negativo: confira se falta lançar alguma receita ou transferência. "}
+          Use “Editar ou acertar saldo” para corrigir.
+        </p>
+      )}
+
       <div className={`grid gap-2 ${podeTransferir ? "grid-cols-2" : "grid-cols-1"}`}>
         <button
           type="button"
@@ -281,6 +290,7 @@ function DetalheCarteira({
         </div>
       </div>
 
+      {minhasTransferencias.length > 0 && <h3 className="-mb-1.5 text-[11px] font-semibold tracking-[0.44px] text-cinza">TRANSFERÊNCIAS DO MÊS</h3>}
       {minhasTransferencias.length > 0 && (
         <ul className="rounded-[12px] border border-black/8 bg-white px-3.5 py-1 shadow-cartao">
           {minhasTransferencias.map((t) => {

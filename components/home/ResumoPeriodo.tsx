@@ -136,6 +136,16 @@ export function ResumoPeriodo() {
             corValor="text-positivo"
             aoTocar={abrirResumo("receitas")}
           />
+          {/* Repasse semanal (iFood) ainda não caiu: o negativo assusta sem motivo. */}
+          {data && totais.saldo < 0 && totais.pendentes > 0 && (
+            <p className="text-[11px] leading-snug text-cinza-escuro">
+              Quando os pendentes forem pagos, o saldo vai para{" "}
+              <span className={`font-semibold ${totais.saldo + totais.pendentes < 0 ? "text-negativo" : "text-positivo"}`}>
+                <Valor texto={formatarMoeda(totais.saldo + totais.pendentes)} />
+              </span>
+              .
+            </p>
+          )}
           {data && <ForaDoCorre pessoais={totais.pessoais} entradas={entradas} />}
         </div>
       )}

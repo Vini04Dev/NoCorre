@@ -181,7 +181,7 @@ body {
     --color-white: var(--t-superficie);
   }
 
-  /* Superfícies de cor fixa. */
+  /* Superfícies de cor fixa. Cartões com só um toque de cor (.superficie-tema) seguem o tema. */
   .casca-app :is([class*="bg-marinho"], [class*="from-marinho"]) {
     --color-marinho: #2b2d42;
     --color-white: #ffffff;
@@ -199,7 +199,7 @@ body {
       [class*="from-dourado"],
       [class*="bg-positivo"],
       [class*="bg-negativo"],
-      [style*="background"]
+      [style*="background"]:not(.superficie-tema)
     ) {
     --color-marinho: #2b2d42;
     --color-white: #ffffff;

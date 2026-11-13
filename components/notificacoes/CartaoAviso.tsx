@@ -19,20 +19,22 @@ type Props = {
  * conta, com só um toque da cor no fundo para avisar sem gritar.
  */
 export function CartaoAviso({ href, cor, icone, titulo, situacao, valor, acao = "Ver", rotulo, aoAbrir }: Props) {
+  // Cor fixa (moto, evento) puxada para a cor do texto do tema: legível no claro e no escuro.
+  const legivel = `color-mix(in srgb, ${cor} 70%, currentColor)`;
   return (
     <Link
       href={href}
       onClick={aoAbrir}
       aria-label={rotulo}
-      className="flex w-full items-center gap-2.5 rounded-[12px] border py-2 pr-3 pl-2.5 text-left shadow-cartao transition-transform active:scale-[0.99]"
+      className="superficie-tema flex w-full items-center gap-2.5 rounded-[12px] border py-2 pr-3 pl-2.5 text-left shadow-cartao transition-transform active:scale-[0.99]"
       style={{
-        background: `linear-gradient(135deg, color-mix(in srgb, ${cor} 13%, var(--color-white)) 0%, color-mix(in srgb, ${cor} 4%, var(--color-white)) 100%)`,
+        background: `linear-gradient(135deg, color-mix(in srgb, ${cor} 13%, var(--t-superficie, #ffffff)) 0%, color-mix(in srgb, ${cor} 4%, var(--t-superficie, #ffffff)) 100%)`,
         borderColor: `color-mix(in srgb, ${cor} 22%, transparent)`,
       }}
     >
       <span
         className="grid size-8 shrink-0 place-items-center rounded-full"
-        style={{ color: cor, background: `color-mix(in srgb, ${cor} 16%, transparent)` }}
+        style={{ color: legivel, background: `color-mix(in srgb, ${cor} 16%, transparent)` }}
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <path d={icone} />
@@ -40,7 +42,7 @@ export function CartaoAviso({ href, cor, icone, titulo, situacao, valor, acao = 
       </span>
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="truncate text-[13px] font-bold">{titulo}</span>
-        <span className="truncate text-[11px] font-semibold" style={{ color: cor }}>
+        <span className="truncate text-[11px] font-semibold" style={{ color: legivel }}>
           {situacao}
         </span>
       </span>
