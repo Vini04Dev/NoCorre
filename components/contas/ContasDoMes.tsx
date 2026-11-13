@@ -4,8 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { PainelContaFixa } from "./PainelContaFixa";
 import { AvisoErro } from "@/components/ui/AvisoErro";
-import { useConfirmarDebito, useContasFixas, useContasPagasNoMes, type ContaFixa } from "@/hooks/useContasFixas";
-import { pedeAtencao, situacaoDaConta, textoSituacao, type SituacaoConta } from "@/lib/contas-fixas";
+import { useConfirmarDebito, useContagemPagamentos, useContasFixas, useContasPagasNoMes, type ContaFixa } from "@/hooks/useContasFixas";
+import { pedeAtencao, progressoParcelas, situacaoDaConta, textoSituacao, type SituacaoConta } from "@/lib/contas-fixas";
 import { formatarMoeda } from "@/lib/formatar";
 
 const COR_SITUACAO: Record<SituacaoConta["tipo"], string> = {
@@ -56,12 +56,15 @@ function AcaoDoMes({ conta, situacao }: { conta: ContaFixa; situacao: SituacaoCo
 export function ContasDoMes({ painel, setPainel }: { painel: PainelConta; setPainel: (painel: PainelConta) => void }) {
   const contas = useContasFixas();
   const pagas = useContasPagasNoMes();
+  const contagem = useContagemPagamentos();
 
   const lista = (contas.data ?? []).map((conta) => ({
     conta,
     situacao: situacaoDaConta(conta, pagas.data?.has(conta.id) ?? false),
+    parcelas: progressoParcelas(conta, contagem.data?.get(conta.id) ?? 0),
   }));
-  const ativas = lista.filter((item) => item.conta.ativa);
+  // Parcelada quitada não entra nos totais do mês (e não tem mais o que pagar).
+  const ativas = lista.filter((item) => item.conta.ativa && !item.parcelas?.quitada);
   const totalMes = ativas.reduce((soma, item) => soma + item.conta.valor, 0);
   const faltaPagar = ativas.filter((item) => item.situacao.tipo !== "paga").reduce((soma, item) => soma + item.conta.valor, 0);
 
@@ -78,7 +81,7 @@ export function ContasDoMes({ painel, setPainel }: { painel: PainelConta; setPai
           </span>
           <p className="text-sm font-bold">Nenhuma conta fixa ainda</p>
           <p className="text-xs text-cinza-escuro">
-            Cadastre o que vence todo mês sem data para acabar (plano de celular, internet, assinatura). O Início avisa
+            Cadastre o que vence todo mês, com ou sem fim: plano de celular, internet, a parcela do celular ou da moto. O Início avisa
             uns dias antes e o pagamento vira despesa com um toque.
           </p>
           <button type="button" onClick={() => setPainel({})} className="text-[13px] font-black text-dourado">
@@ -103,11 +106,11 @@ export function ContasDoMes({ painel, setPainel }: { painel: PainelConta; setPai
           <section className="flex flex-col gap-1.5">
             <h2 className="text-[11px] font-semibold tracking-[0.66px] text-cinza">TOQUE NA CONTA PARA EDITAR</h2>
             <ul className="flex flex-col gap-2">
-              {lista.map(({ conta, situacao }) => (
+              {lista.map(({ conta, situacao, parcelas }) => (
                 <li
                   key={conta.id}
                   className={`flex items-center gap-3 rounded-[12px] border border-black/8 bg-white py-2.5 pr-3 pl-3.5 shadow-cartao ${
-                    conta.ativa ? "" : "opacity-60"
+                    conta.ativa && !parcelas?.quitada ? "" : "opacity-60"
                   }`}
                 >
                   <button type="button" onClick={() => setPainel({ conta })} className="flex min-w-0 flex-1 flex-col text-left">
@@ -115,19 +118,28 @@ export function ContasDoMes({ painel, setPainel }: { painel: PainelConta; setPai
                     <span className="text-[11px] text-cinza-escuro">
                       {formatarMoeda(conta.valor)} · dia {conta.dia_vencimento}
                       {conta.automatico ? " · débito automático" : ""}
+                      {parcelas && !parcelas.quitada && ` · parcela ${Math.min(parcelas.pagas + (situacao.tipo === "paga" ? 0 : 1), parcelas.total)} de ${parcelas.total}`}
                     </span>
-                    <span className={`text-[11px] font-semibold ${conta.ativa ? COR_SITUACAO[situacao.tipo] : "text-cinza-escuro"}`}>
-                      {conta.ativa ? textoSituacao(situacao, conta.dia_vencimento) : "Avisos pausados"}
+                    <span
+                      className={`text-[11px] font-semibold ${
+                        parcelas?.quitada ? "text-positivo" : conta.ativa ? COR_SITUACAO[situacao.tipo] : "text-cinza-escuro"
+                      }`}
+                    >
+                      {parcelas?.quitada
+                        ? `Quitada · ${parcelas.total} de ${parcelas.total} pagas`
+                        : conta.ativa
+                          ? `${textoSituacao(situacao, conta.dia_vencimento)}${parcelas ? ` · faltam ${formatarMoeda(parcelas.faltam * conta.valor)}` : ""}`
+                          : "Avisos pausados"}
                     </span>
                   </button>
-                  <AcaoDoMes conta={conta} situacao={situacao} />
+                  {!parcelas?.quitada && <AcaoDoMes conta={conta} situacao={situacao} />}
                 </li>
               ))}
             </ul>
           </section>
 
           <p className="px-4 text-center text-[11px] text-cinza-escuro">
-            Conta fixa se repete todo mês. Para algo com total e fim (um notebook em 10 vezes), use uma meta de conta.
+            Conta mensal se repete sem fim. Parcelada (um notebook em 12x) se encerra sozinha depois da última parcela.
           </p>
         </>
       )}

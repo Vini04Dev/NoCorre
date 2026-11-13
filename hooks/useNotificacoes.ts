@@ -2,13 +2,13 @@
 
 import { useState, useSyncExternalStore } from "react";
 import { useAvisoForcado } from "./useAvisoForcado";
-import { useContasFixas, useContasPagasNoMes, type ContaFixa } from "./useContasFixas";
+import { useContagemPagamentos, useContasFixas, useContasPagasNoMes, type ContaFixa } from "./useContasFixas";
 import { useEventos, type Evento } from "./useEventos";
 import { useMetas } from "./useMetas";
 import { useComponentes, useQuilometragem } from "./useMoto";
 import { usePendentes } from "./useMovimentacoes";
 import { usePlano } from "./usePlano";
-import { pedeAtencao, situacaoDaConta, type SituacaoConta } from "@/lib/contas-fixas";
+import { pedeAtencao, progressoParcelas, situacaoDaConta, type SituacaoConta } from "@/lib/contas-fixas";
 import { hojeLocal, type MetaComProgresso } from "@/lib/metas";
 import { desgaste, type Situacao } from "@/lib/moto";
 
@@ -45,6 +45,8 @@ function exemplo(agora: Date): Notificacao[] {
     automatico,
     ativa: true,
     created_at: "",
+    parcelas_total: null,
+    parcelas_antes: 0,
   });
   const inicio = new Date(agora.getTime() + HORA);
   return [
@@ -92,6 +94,7 @@ export function useNotificacoes() {
   const [agora] = useState(() => new Date(Math.floor(Date.now() / 60_000) * 60_000));
   const contas = useContasFixas();
   const pagas = useContasPagasNoMes();
+  const contagem = useContagemPagamentos();
   const eventos = useEventos(agora, new Date(agora.getTime() + 24 * HORA));
   const pendentes = usePendentes();
   const metas = useMetas();
@@ -106,6 +109,7 @@ export function useNotificacoes() {
 
   for (const conta of contas.data ?? []) {
     if (!conta.ativa || !pagas.data) continue;
+    if (progressoParcelas(conta, contagem.data?.get(conta.id) ?? 0)?.quitada) continue;
     const situacao = situacaoDaConta(conta, pagas.data.has(conta.id));
     if (!pedeAtencao(situacao)) continue;
     const urgente = situacao.tipo === "atrasada" || situacao.tipo === "debito" || (situacao.tipo === "vence" && situacao.dias === 0);

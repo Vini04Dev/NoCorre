@@ -1,7 +1,8 @@
 "use client";
 
 import { Valor } from "@/components/ui/Valor";
-import { useContasFixas, useContasPagasNoMes } from "@/hooks/useContasFixas";
+import { useContagemPagamentos, useContasFixas, useContasPagasNoMes } from "@/hooks/useContasFixas";
+import { progressoParcelas } from "@/lib/contas-fixas";
 import { useMovimentacoes } from "@/hooks/useMovimentacoes";
 import { formatarMoeda } from "@/lib/formatar";
 import { calcularTotais } from "@/lib/totais";
@@ -16,16 +17,20 @@ export function PrevisaoMes() {
   const { data } = useMovimentacoes({ tipo: "mes" });
   const contas = useContasFixas();
   const pagas = useContasPagasNoMes();
+  const contagem = useContagemPagamentos();
   if (!data || !contas.data || !pagas.data) return null;
 
-  const { saldo, pendentes } = calcularTotais(data.receitas, data.despesas);
+  const { saldo, pessoais, pendentes } = calcularTotais(data.receitas, data.despesas);
+  const entradas = data.entradas.reduce((soma, e) => soma + e.valor, 0);
   const faltaPagar = contas.data
-    .filter((conta) => conta.ativa && !pagas.data.has(conta.id))
+    .filter((conta) => conta.ativa && !pagas.data.has(conta.id) && !progressoParcelas(conta, contagem.data?.get(conta.id) ?? 0)?.quitada)
     .reduce((soma, conta) => soma + conta.valor, 0);
-  const sobra = saldo + pendentes - faltaPagar;
+  const sobra = saldo - pessoais + entradas + pendentes - faltaPagar;
 
   const linhas = [
-    { rotulo: "Saldo do mês até agora", valor: saldo, sinal: "" },
+    { rotulo: "Saldo do corre no mês", valor: saldo, sinal: "" },
+    ...(pessoais > 0 ? [{ rotulo: "Gastos pessoais", valor: pessoais, sinal: "− " }] : []),
+    ...(entradas > 0 ? [{ rotulo: "Outras entradas", valor: entradas, sinal: "+ " }] : []),
     { rotulo: "A receber (pendentes)", valor: pendentes, sinal: "+ " },
     ...(contas.data.length ? [{ rotulo: "Contas fixas que faltam", valor: faltaPagar, sinal: "− " }] : []),
   ];

@@ -15,9 +15,13 @@ import { CATEGORIA_CONTAS } from "@/lib/categorias-padrao";
 /** Sugestões do dia a dia de quem roda, já com valor em branco para a pessoa completar. */
 const SUGESTOES = ["Plano de celular", "Internet", "Aluguel", "Seguro da moto", "Streaming"];
 
-type Erros = { descricao?: string; valor?: string; dia?: string };
+type Erros = { descricao?: string; valor?: string; dia?: string; parcelas?: string; antes?: string };
 
-/** Nova conta fixa ou edição. Excluir não apaga as despesas já pagas. */
+/**
+ * Nova conta fixa ou edição. Mensal (sem fim) ou parcelada ("12x, já paguei 4"):
+ * a parcelada se encerra sozinha depois da última. Excluir não apaga as
+ * despesas já pagas.
+ */
 export function PainelContaFixa({ conta, aoFechar }: { conta?: ContaFixa; aoFechar: () => void }) {
   const salvar = useSalvarContaFixa();
   const excluir = useExcluirContaFixa();
@@ -28,6 +32,9 @@ export function PainelContaFixa({ conta, aoFechar }: { conta?: ContaFixa; aoFech
   const [carteiraId, setCarteiraId] = useState<string | null>(conta?.carteira_id ?? null);
   const [automatico, setAutomatico] = useState(conta?.automatico ?? false);
   const [ativa, setAtiva] = useState(conta?.ativa ?? true);
+  const [parcelada, setParcelada] = useState(Boolean(conta?.parcelas_total));
+  const [parcelas, setParcelas] = useState(conta?.parcelas_total ? String(conta.parcelas_total) : "");
+  const [antes, setAntes] = useState(conta ? String(conta.parcelas_antes ?? 0) : "0");
   const [erros, setErros] = useState<Erros>({});
   const [confirmando, setConfirmando] = useState(false);
 
@@ -38,6 +45,12 @@ export function PainelContaFixa({ conta, aoFechar }: { conta?: ContaFixa; aoFech
     if (!descricao.trim()) novos.descricao = "Diga que conta é essa.";
     if (centavos <= 0) novos.valor = "Informe o valor da conta.";
     if (!Number.isInteger(numeroDia) || numeroDia < 1 || numeroDia > 31) novos.dia = "Use um dia de 1 a 31.";
+    const total = Number(parcelas);
+    const pagas = Number(antes || 0);
+    if (parcelada) {
+      if (!Number.isInteger(total) || total < 2 || total > 120) novos.parcelas = "De 2 a 120 parcelas.";
+      else if (pagas >= total) novos.antes = "Tem que ser menos que o total.";
+    }
     setErros(novos);
     if (Object.keys(novos).length) return;
     salvar.mutate(
@@ -51,6 +64,8 @@ export function PainelContaFixa({ conta, aoFechar }: { conta?: ContaFixa; aoFech
           carteira_id: carteiraId,
           automatico,
           ativa,
+          parcelas_total: parcelada ? total : null,
+          parcelas_antes: parcelada ? pagas : 0,
         },
       },
       { onSuccess: aoFechar },
@@ -98,7 +113,7 @@ export function PainelContaFixa({ conta, aoFechar }: { conta?: ContaFixa; aoFech
         </div>
       )}
       <div className="grid grid-cols-[1fr_96px] gap-3">
-        <CampoMoeda rotulo="Valor por mês" centavos={centavos} aoMudar={setCentavos} erro={erros.valor} />
+        <CampoMoeda rotulo={parcelada ? "Valor da parcela" : "Valor por mês"} centavos={centavos} aoMudar={setCentavos} erro={erros.valor} />
         <CampoTexto
           rotulo="Vence dia"
           inputMode="numeric"
@@ -108,6 +123,38 @@ export function PainelContaFixa({ conta, aoFechar }: { conta?: ContaFixa; aoFech
           erro={erros.dia}
         />
       </div>
+      <label className="flex items-start gap-2.5 text-xs">
+        <input
+          type="checkbox"
+          checked={parcelada}
+          onChange={(e) => setParcelada(e.target.checked)}
+          className="mt-0.5 size-4 shrink-0 accent-marinho"
+        />
+        <span>
+          <span className="font-semibold">Parcelada</span>
+          <span className="block text-[11px] text-cinza-escuro">Tem fim, como um celular em 12x ou uma peça no carnê.</span>
+        </span>
+      </label>
+      {parcelada && (
+        <div className="grid grid-cols-2 gap-3">
+          <CampoTexto
+            rotulo="Total de parcelas"
+            inputMode="numeric"
+            value={parcelas}
+            onChange={(e) => setParcelas(e.target.value.replace(/\D/g, "").slice(0, 3))}
+            placeholder="12"
+            erro={erros.parcelas}
+          />
+          <CampoTexto
+            rotulo="Já paguei antes"
+            inputMode="numeric"
+            value={antes}
+            onChange={(e) => setAntes(e.target.value.replace(/\D/g, "").slice(0, 3))}
+            placeholder="0"
+            erro={erros.antes}
+          />
+        </div>
+      )}
       <CampoCategoria tipo="despesa" valor={categoria} aoMudar={setCategoria} />
       <CampoCarteira valor={carteiraId} aoMudar={setCarteiraId} />
       <label className="flex items-start gap-2.5 text-xs">

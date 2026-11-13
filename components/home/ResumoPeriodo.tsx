@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Calendario } from "./Calendario";
+import { ForaDoCorre } from "@/components/ui/ForaDoCorre";
 import { LinhaValor } from "@/components/ui/LinhaValor";
 import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
 import { gravarEstadoDaTela, useEstadoDaTela } from "@/hooks/useEstadoDaTela";
@@ -24,6 +25,7 @@ export function ResumoPeriodo() {
   const [visao, setVisao] = useEstadoDaTela<Visao>("home:visao", "lista");
   const { data, isError } = useMovimentacoes(periodo);
   const totais = calcularTotais(data?.receitas ?? [], data?.despesas ?? []);
+  const entradas = (data?.entradas ?? []).reduce((soma, e) => soma + e.valor, 0);
   // Enquanto carrega, mostra "–" em vez de um R$ 0,00 que pareceria verdadeiro.
   const moeda = (valor: number) => (!data ? "–" : <Valor texto={formatarMoeda(valor)} />);
 
@@ -117,6 +119,7 @@ export function ResumoPeriodo() {
             corValor="text-positivo"
             aoTocar={abrirResumo("receitas")}
           />
+          {data && <ForaDoCorre pessoais={totais.pessoais} entradas={entradas} />}
         </div>
       )}
     </section>

@@ -51,7 +51,7 @@ export function TelaResumo({ dia }: { dia?: string }) {
     rapido === "pendentes"
       ? (pendentes.data ?? []).map((dados) => ({ tipo: "receita" as const, dados }))
       : movimentacoes.data
-        ? montarExtrato(movimentacoes.data.receitas, movimentacoes.data.despesas, rapido, filtros)
+        ? montarExtrato(movimentacoes.data.receitas, movimentacoes.data.despesas, rapido, filtros, movimentacoes.data.entradas)
         : [];
   const aReceber = (pendentes.data ?? []).reduce((soma, r) => soma + Math.round((r.valor_total ?? 0) * 100), 0);
   const filtrosAtivos = quantidadeFiltrosAtivos(filtros);
@@ -77,7 +77,11 @@ export function TelaResumo({ dia }: { dia?: string }) {
       </header>
 
       <SeletorPeriodoAmplo valor={periodo} aoMudar={setPeriodo} />
-      <CartaoSaldo nomePeriodo={nomeDoPeriodo(periodo)} totais={totais} />
+      <CartaoSaldo
+        nomePeriodo={nomeDoPeriodo(periodo)}
+        totais={totais}
+        entradas={(movimentacoes.data?.entradas ?? []).reduce((soma, e) => soma + e.valor, 0)}
+      />
 
       <div role="radiogroup" aria-label="Mostrar" className="-mx-[17px] flex gap-2 overflow-x-auto px-[17px] lg:mx-0 lg:flex-wrap lg:px-0">
         {RAPIDOS.map(({ valor, rotulo }) => {

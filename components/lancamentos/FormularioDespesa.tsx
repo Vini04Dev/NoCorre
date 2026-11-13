@@ -10,13 +10,14 @@ import { AvisoErro } from "@/components/ui/AvisoErro";
 import { Botao } from "@/components/ui/Botao";
 import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
 import { CampoSugestoes } from "@/components/ui/CampoSugestoes";
+import { useCategorias } from "@/hooks/useCategorias";
 import { useDescricoesDespesa } from "@/hooks/useDescricoesDespesa";
 import { normalizar } from "@/lib/sugestoes";
 import { useSalvarDespesa } from "@/hooks/useLancamentos";
 import { useContasEmAberto } from "@/hooks/useMetas";
 import type { ContaFixa } from "@/hooks/useContasFixas";
 import type { Despesa } from "@/hooks/useMovimentacoes";
-import { CATEGORIA_CONTAS, CATEGORIAS_PADRAO } from "@/lib/categorias-padrao";
+import { CATEGORIA_CONTAS, CATEGORIAS_PADRAO, doCorrePadrao } from "@/lib/categorias-padrao";
 import { camposParaDataHora } from "@/lib/data";
 import { ROTA_CONTAS } from "@/lib/contas-fixas";
 import { formatarMoeda } from "@/lib/formatar";
@@ -38,6 +39,7 @@ export function FormularioDespesa({ despesa, contaInicial, fixa }: Props) {
   const salvar = useSalvarDespesa();
   const { data: contas } = useContasEmAberto();
   const { data: usadas } = useDescricoesDespesa();
+  const { data: criadas } = useCategorias();
   const destino = despesa
     ? `/resumo/despesa/${despesa.id}`
     : contaInicial
@@ -47,7 +49,13 @@ export function FormularioDespesa({ despesa, contaInicial, fixa }: Props) {
         : "/";
 
   const [descricao, setDescricao] = useState(despesa?.observacao ?? fixa?.descricao ?? "");
-  const [categoria, setCategoria] = useState(despesa?.tipo ?? fixa?.tipo ?? CATEGORIAS_PADRAO.despesa[0]);
+  const [categoria, setCategoriaBruta] = useState(despesa?.tipo ?? fixa?.tipo ?? CATEGORIAS_PADRAO.despesa[0]);
+  // null = segue o padrão da categoria; true/false = a pessoa escolheu.
+  const [doCorreEscolhido, setDoCorreEscolhido] = useState<boolean | null>(despesa ? (despesa.do_corre ?? true) : null);
+  function setCategoria(nova: string) {
+    setCategoriaBruta(nova);
+    setDoCorreEscolhido(null);
+  }
   const [valores, setValores] = useState<Valores>(() =>
     valoresIniciais(despesa ?? (fixa && { data_hora: new Date().toISOString(), quantidade: 1, valor_unitario: fixa.valor })),
   );
@@ -60,6 +68,7 @@ export function FormularioDespesa({ despesa, contaInicial, fixa }: Props) {
 
   // Pagamento de conta não pede categoria: vai como "Contas", descrito pelo nome da conta.
   const conta = contas.find((item) => item.id === contaId);
+  const doCorre = doCorreEscolhido ?? doCorrePadrao(conta ? CATEGORIA_CONTAS : categoria, criadas ?? []);
 
   function enviar(evento: React.FormEvent) {
     evento.preventDefault();
@@ -83,6 +92,7 @@ export function FormularioDespesa({ despesa, contaInicial, fixa }: Props) {
           quantidade: Number(valores.quantidade),
           valor_unitario: valores.centavos / 100,
           meta_id: contaId,
+          do_corre: doCorre,
           ...campoCarteira(carteiraId),
           // Só manda a coluna pagando uma conta fixa: sem a migration, ela nem existe.
           ...(fixa ? { conta_fixa_id: fixa.id } : {}),
@@ -115,6 +125,22 @@ export function FormularioDespesa({ despesa, contaInicial, fixa }: Props) {
           placeholder={conta ? conta.nome : "Ex.: Gasolina"}
         />
         {!conta && <CampoCategoria tipo="despesa" valor={categoria} aoMudar={setCategoria} erro={erros.categoria} />}
+        <label className="flex items-start gap-2.5 rounded-[10px] bg-cinza-fundo px-3 py-2.5 text-xs">
+          <input
+            type="checkbox"
+            checked={doCorre}
+            onChange={(e) => setDoCorreEscolhido(e.target.checked)}
+            className="mt-0.5 size-4 shrink-0 accent-marinho"
+          />
+          <span>
+            <span className="font-semibold">Gasto do corre</span>
+            <span className="block text-[11px] text-cinza-escuro">
+              {doCorre
+                ? "Custo do trabalho (gasolina, peças, diária): desconta do saldo do corre no Início."
+                : "Gasto pessoal (mercado, contas, parcelas): não mexe no saldo do corre, mas sai da carteira."}
+            </span>
+          </span>
+        </label>
         <CamposValor valores={valores} aoMudar={setValores} corTotal="text-negativo" erros={erros} />
         <CampoCarteira valor={carteiraId ?? null} aoMudar={setCarteiraId} />
       </div>

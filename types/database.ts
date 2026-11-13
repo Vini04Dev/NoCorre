@@ -53,6 +53,7 @@ export type Database = {
       categorias: {
         Row: {
           created_at: string
+          do_corre: boolean
           id: string
           nome: string
           tipo: Database["public"]["Enums"]["tipo_categoria"]
@@ -60,6 +61,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          do_corre?: boolean
           id?: string
           nome: string
           tipo: Database["public"]["Enums"]["tipo_categoria"]
@@ -67,6 +69,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          do_corre?: boolean
           id?: string
           nome?: string
           tipo?: Database["public"]["Enums"]["tipo_categoria"]
@@ -116,6 +119,8 @@ export type Database = {
           descricao: string
           dia_vencimento: number
           id: string
+          parcelas_antes: number
+          parcelas_total: number | null
           tipo: string
           usuario_id: string
           valor: number
@@ -128,6 +133,8 @@ export type Database = {
           descricao: string
           dia_vencimento: number
           id?: string
+          parcelas_antes?: number
+          parcelas_total?: number | null
           tipo: string
           usuario_id?: string
           valor: number
@@ -140,6 +147,8 @@ export type Database = {
           descricao?: string
           dia_vencimento?: number
           id?: string
+          parcelas_antes?: number
+          parcelas_total?: number | null
           tipo?: string
           usuario_id?: string
           valor?: number
@@ -150,6 +159,7 @@ export type Database = {
         Row: {
           carteira_id: string | null
           conta_fixa_id: string | null
+          do_corre: boolean
           created_at: string
           data_hora: string
           id: string
@@ -164,6 +174,7 @@ export type Database = {
         Insert: {
           carteira_id?: string | null
           conta_fixa_id?: string | null
+          do_corre?: boolean
           created_at?: string
           data_hora?: string
           id?: string
@@ -178,6 +189,7 @@ export type Database = {
         Update: {
           carteira_id?: string | null
           conta_fixa_id?: string | null
+          do_corre?: boolean
           created_at?: string
           data_hora?: string
           id?: string
@@ -198,6 +210,39 @@ export type Database = {
             referencedColumns: ["id", "usuario_id"]
           },
         ]
+      }
+      entradas: {
+        Row: {
+          carteira_id: string | null
+          created_at: string
+          data_hora: string
+          descricao: string
+          id: string
+          tipo: string
+          usuario_id: string
+          valor: number
+        }
+        Insert: {
+          carteira_id?: string | null
+          created_at?: string
+          data_hora?: string
+          descricao: string
+          id?: string
+          tipo: string
+          usuario_id?: string
+          valor: number
+        }
+        Update: {
+          carteira_id?: string | null
+          created_at?: string
+          data_hora?: string
+          descricao?: string
+          id?: string
+          tipo?: string
+          usuario_id?: string
+          valor?: number
+        }
+        Relationships: []
       }
       eventos: {
         Row: {

@@ -300,6 +300,46 @@ antes até o pagamento; nada é lançado sozinho.
   drop table public.contas_fixas;` e `supabase migration repair --status
   reverted 20261112090000`.
 
+## Do corre, parcelas e entradas
+
+Migration `20261113090000_corre_pessoal_parcelas_entradas`. Só acrescenta; o
+código antigo continua funcionando.
+
+- **`despesas.do_corre`** (`boolean`, padrão `true`): custo do trabalho (entra
+  no saldo do corre do Início) ou gasto pessoal. O app preenche pelo padrão da
+  categoria e a pessoa pode trocar. Na migration, despesas antigas ligadas a
+  conta/meta ou de categorias claramente pessoais viram pessoais.
+- **`categorias.do_corre`** (`boolean`, padrão `false`): padrão das despesas da
+  categoria criada pela pessoa. As categorias padrão ficam no código
+  (`lib/categorias-padrao.ts`).
+- **`contas_fixas.parcelas_total`** (`smallint`, 2 a 120, opcional) e
+  **`parcelas_antes`** (`smallint`, padrão 0, menor que o total): conta
+  parcelada. Pagas = `parcelas_antes` + despesas ligadas; quitada some dos
+  avisos e dos totais.
+- **`entradas`**: dinheiro que não é do corre (salário, bolsa, benefício,
+  ajuda). Não conta como receita, entrega nem saldo do corre; soma na carteira.
+
+### entradas
+
+| Coluna        | Tipo            | Regras                                                        |
+|---------------|-----------------|---------------------------------------------------------------|
+| `id`          | `uuid`          | PK                                                            |
+| `usuario_id`  | `uuid`          | FK `auth.users`, `on delete cascade`, default `auth.uid()`    |
+| `descricao`   | `varchar(60)`   | not null                                                      |
+| `tipo`        | `varchar(50)`   | livre; sugestões no app (Salário, Bolsa, Benefício...)        |
+| `valor`       | `numeric(10,2)` | `> 0`                                                         |
+| `data_hora`   | `timestamptz`   | default `now()`                                               |
+| `carteira_id` | `uuid`          | opcional; FK composta; sem carteira conta na principal        |
+
+- RLS: tudo só nas próprias linhas (não é recurso Pro).
+- `saldos_carteiras()` passa a somar as entradas.
+- **Para desfazer:** `drop table public.entradas;`, `alter table
+  public.despesas drop column do_corre;`, `alter table public.categorias drop
+  column do_corre;`, `alter table public.contas_fixas drop column
+  parcelas_total, drop column parcelas_antes;`, recriar `saldos_carteiras()`
+  como na migration `20261111110000_carteiras` e `supabase migration repair
+  --status reverted 20261113090000`.
+
 ## Administração
 
 O painel `/admin` do app abre só para o e-mail definido em `ADMIN_EMAIL`,

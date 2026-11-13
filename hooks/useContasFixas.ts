@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CHAVES_LANCAMENTOS } from "./useMovimentacoes";
+import { doCorrePadrao } from "@/lib/categorias-padrao";
 import { limitesDoMes } from "@/lib/contas-fixas";
 import { criarClienteNavegador } from "@/lib/supabase/cliente";
 import { traduzirErroBanco } from "@/lib/supabase/erros-banco";
@@ -62,6 +63,33 @@ export function useContasPagasNoMes() {
   });
 }
 
+/**
+ * Quantos pagamentos cada conta já teve no app (todas as datas), para as
+ * parcelas: "parcela 5 de 12". A chave começa com "movimentacoes": lançar ou
+ * excluir uma despesa recalcula.
+ */
+export function useContagemPagamentos() {
+  return useQuery({
+    queryKey: ["movimentacoes", "contas-fixas-contagem"],
+    queryFn: async () => {
+      const { data, error } = await criarClienteNavegador()
+        .from("despesas")
+        .select("conta_fixa_id")
+        .not("conta_fixa_id", "is", null);
+      if (error) {
+        if (tabelaAusente(error)) return new Map<string, number>();
+        throw new Error(traduzirErroBanco(error));
+      }
+      const contagem = new Map<string, number>();
+      for (const linha of data) {
+        const id = linha.conta_fixa_id as string;
+        contagem.set(id, (contagem.get(id) ?? 0) + 1);
+      }
+      return contagem;
+    },
+  });
+}
+
 export function useSalvarContaFixa() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -101,6 +129,7 @@ export function useConfirmarDebito() {
           quantidade: 1,
           valor_unitario: conta.valor,
           conta_fixa_id: conta.id,
+          do_corre: doCorrePadrao(conta.tipo),
           ...(conta.carteira_id ? { carteira_id: conta.carteira_id } : {}),
         });
       if (error) throw new Error(traduzirErroBanco(error));

@@ -8,18 +8,21 @@ import type { Tables } from "@/types/database";
 
 export type Receita = Tables<"receitas"> & { clientes: { nome: string } | null };
 export type Despesa = Tables<"despesas">;
+/** Dinheiro que entra mas não é do corre (bolsa, salário, ajuda). */
+export type Entrada = Tables<"entradas">;
 
 /** Receita ou despesa numa lista só, para o extrato. */
 export type Movimentacao =
   | { tipo: "receita"; dados: Receita }
-  | { tipo: "despesa"; dados: Despesa };
+  | { tipo: "despesa"; dados: Despesa }
+  | { tipo: "entrada"; dados: Entrada };
 
 // O cliente vem junto pela FK composta (cliente_id, usuario_id), sem segunda consulta.
 const SELECT_RECEITA = "*, clientes(nome)";
 
 async function buscarIntervalo(inicio: Date, fim: Date) {
   const supabase = criarClienteNavegador();
-  const [receitas, despesas] = await Promise.all([
+  const [receitas, despesas, entradas] = await Promise.all([
     supabase
       .from("receitas")
       .select(SELECT_RECEITA)
@@ -32,10 +35,19 @@ async function buscarIntervalo(inicio: Date, fim: Date) {
       .gte("data_hora", inicio.toISOString())
       .lt("data_hora", fim.toISOString())
       .order("data_hora", { ascending: false }),
+    supabase
+      .from("entradas")
+      .select("*")
+      .gte("data_hora", inicio.toISOString())
+      .lt("data_hora", fim.toISOString())
+      .order("data_hora", { ascending: false }),
   ]);
   if (receitas.error) throw new Error(traduzirErroBanco(receitas.error));
   if (despesas.error) throw new Error(traduzirErroBanco(despesas.error));
-  return { receitas: receitas.data as Receita[], despesas: despesas.data };
+  // Sem a migration das entradas a tabela não existe: segue sem elas.
+  const semTabela = entradas.error && ["42P01", "PGRST205"].includes(entradas.error.code);
+  if (entradas.error && !semTabela) throw new Error(traduzirErroBanco(entradas.error));
+  return { receitas: receitas.data as Receita[], despesas: despesas.data, entradas: (entradas.data ?? []) as Entrada[] };
 }
 
 /** Chaves de cache que qualquer mudança em lançamentos precisa recarregar (o progresso das metas também). */

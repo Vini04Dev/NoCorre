@@ -74,3 +74,14 @@ export function limitesDoMes(data = new Date()) {
   const fim = new Date(data.getFullYear(), data.getMonth() + 1, 1);
   return { inicio: inicio.toISOString(), fim: fim.toISOString() };
 }
+
+/**
+ * Andamento de uma conta parcelada: parcelas pagas antes de cadastrar no app
+ * mais os pagamentos lançados nele. Conta sem parcelas (mensal) devolve null.
+ * Quitada some dos avisos e dos totais do mês.
+ */
+export function progressoParcelas(conta: { parcelas_total: number | null; parcelas_antes: number }, lancadas: number) {
+  if (!conta.parcelas_total) return null;
+  const pagas = Math.min(conta.parcelas_antes + lancadas, conta.parcelas_total);
+  return { pagas, total: conta.parcelas_total, faltam: conta.parcelas_total - pagas, quitada: pagas >= conta.parcelas_total };
+}

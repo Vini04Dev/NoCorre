@@ -28,7 +28,11 @@ function ConteudoOpcao({ icone, fundo, titulo, descricao }: { icone: string; fun
   );
 }
 
-/** Painel do botão (+): escolhe entre lançar Receita ou Despesa. */
+/**
+ * Painel do botão (+): Receita ou Despesa em destaque. Dinheiro que não é do
+ * corre (salário, bolsa) fica num link discreto abaixo, para não virar uma
+ * terceira escolha para quem só faz entregas.
+ */
 export function PainelLancamento({ aoFechar }: { aoFechar: () => void }) {
   const router = useRouter();
   const { data: clientes } = useClientes();
@@ -72,8 +76,20 @@ export function PainelLancamento({ aoFechar }: { aoFechar: () => void }) {
           icone="/icones/seta-despesa.svg"
           fundo="bg-negativo/12"
           titulo="Despesa"
-          descricao="Combustível, peças, alimentação, diária da central"
+          descricao="Combustível, peças, diária, mercado, contas"
         />
+      </Link>
+      <Link
+        href="/novo/entrada"
+        onClick={aoFechar}
+        className="-mt-1 flex items-center justify-between rounded-[10px] px-3.5 py-2 text-xs text-cinza-escuro"
+      >
+        <span>
+          <span className="font-semibold text-marinho">Outra entrada</span> · salário, bolsa, ajuda (fora do corre)
+        </span>
+        <span aria-hidden className="text-base">
+          ›
+        </span>
       </Link>
       <p className="text-center text-[11px] text-cinza-escuro">
         Para cadastrar clientes e categorias, use o módulo Cadastro na tela inicial.

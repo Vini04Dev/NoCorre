@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Alternador } from "@/components/ui/Alternador";
@@ -13,6 +14,7 @@ import { useCategorias } from "@/hooks/useCategorias";
 import { useClientes } from "@/hooks/useClientes";
 import { useSalvarMeta, type DadosMeta } from "@/hooks/useMetas";
 import { CATEGORIAS_PADRAO } from "@/lib/categorias-padrao";
+import { ROTA_CONTAS } from "@/lib/contas-fixas";
 import { datasDoAtalho, proximoPeriodo, type Meta, type Parametro } from "@/lib/metas";
 
 const PARAMETROS: { valor: Parametro; rotulo: string }[] = [
@@ -21,6 +23,13 @@ const PARAMETROS: { valor: Parametro; rotulo: string }[] = [
   { valor: "despesa", rotulo: "Limite de despesa" },
   { valor: "conta", rotulo: "Conta a pagar" },
 ];
+
+/**
+ * Meta é objetivo (receita, entregas, limite de gasto). Conta a pagar, com ou
+ * sem parcelas, mora em Contas do mês; a opção só aparece para editar as
+ * metas de conta que já existiam.
+ */
+const PARAMETROS_NOVOS = PARAMETROS.filter((p) => p.valor !== "conta");
 
 const ATALHOS = [
   { valor: "semana", rotulo: "Esta semana" },
@@ -151,10 +160,18 @@ export function FormularioMeta({ meta, repetir }: Props) {
 
         <SeletorChips
           rotulo="O que vou medir"
-          opcoes={PARAMETROS}
+          opcoes={base?.parametro === "conta" ? PARAMETROS : PARAMETROS_NOVOS}
           valor={parametro}
           aoMudar={(valor) => valor && escolherParametro(valor as Parametro)}
         />
+        {base?.parametro !== "conta" && (
+          <p className="-mt-1 text-[11px] text-cinza-escuro">
+            Tem uma conta para pagar, mensal ou parcelada?{" "}
+            <Link href={ROTA_CONTAS} className="font-bold text-dourado">
+              Cadastre em Contas do mês
+            </Link>
+          </p>
+        )}
 
         <CampoTexto
           rotulo={parametro === "conta" ? "Nome da conta" : "Nome da meta"}
