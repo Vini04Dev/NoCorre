@@ -89,6 +89,15 @@ async function Home() {
                 icone="/icones/metas.svg"
                 tamanhoIcone={39}
               />
+              {perfil?.plano === "pro" && (
+                <CartaoModulo
+                  href="/carteiras"
+                  titulo="Carteiras"
+                  descricao="Separe o dinheiro do banco, da mão e do salário, cada um com seu saldo."
+                  icone="/icones/carteira-modulo.svg"
+                  tamanhoIcone={36}
+                />
+              )}
               <CartaoModulo
                 href="/cadastro"
                 titulo="Cadastro"

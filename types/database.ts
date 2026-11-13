@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      carteiras: {
+        Row: {
+          arquivada: boolean
+          cor: Database["public"]["Enums"]["cor_evento"]
+          created_at: string
+          id: string
+          nome: string
+          padrao: boolean
+          saldo_inicial: number
+          tipo: string | null
+          usuario_id: string
+        }
+        Insert: {
+          arquivada?: boolean
+          cor?: Database["public"]["Enums"]["cor_evento"]
+          created_at?: string
+          id?: string
+          nome: string
+          padrao?: boolean
+          saldo_inicial?: number
+          tipo?: string | null
+          usuario_id?: string
+        }
+        Update: {
+          arquivada?: boolean
+          cor?: Database["public"]["Enums"]["cor_evento"]
+          created_at?: string
+          id?: string
+          nome?: string
+          padrao?: boolean
+          saldo_inicial?: number
+          tipo?: string | null
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       categorias: {
         Row: {
           created_at: string
@@ -73,6 +109,7 @@ export type Database = {
       }
       despesas: {
         Row: {
+          carteira_id: string | null
           created_at: string
           data_hora: string
           id: string
@@ -85,6 +122,7 @@ export type Database = {
           valor_unitario: number
         }
         Insert: {
+          carteira_id?: string | null
           created_at?: string
           data_hora?: string
           id?: string
@@ -97,6 +135,7 @@ export type Database = {
           valor_unitario: number
         }
         Update: {
+          carteira_id?: string | null
           created_at?: string
           data_hora?: string
           id?: string
@@ -302,6 +341,7 @@ export type Database = {
       }
       receitas: {
         Row: {
+          carteira_id: string | null
           cliente_id: string
           created_at: string
           data_hora: string
@@ -316,6 +356,7 @@ export type Database = {
           valor_unitario: number
         }
         Insert: {
+          carteira_id?: string | null
           cliente_id: string
           created_at?: string
           data_hora?: string
@@ -332,6 +373,7 @@ export type Database = {
           valor_unitario: number
         }
         Update: {
+          carteira_id?: string | null
           cliente_id?: string
           created_at?: string
           data_hora?: string
@@ -357,6 +399,39 @@ export type Database = {
           },
         ]
       }
+      transferencias: {
+        Row: {
+          created_at: string
+          data_hora: string
+          destino_id: string
+          id: string
+          observacao: string | null
+          origem_id: string
+          usuario_id: string
+          valor: number
+        }
+        Insert: {
+          created_at?: string
+          data_hora?: string
+          destino_id: string
+          id?: string
+          observacao?: string | null
+          origem_id: string
+          usuario_id?: string
+          valor: number
+        }
+        Update: {
+          created_at?: string
+          data_hora?: string
+          destino_id?: string
+          id?: string
+          observacao?: string | null
+          origem_id?: string
+          usuario_id?: string
+          valor?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -364,6 +439,7 @@ export type Database = {
     Functions: {
       eh_pro: { Args: never; Returns: boolean }
       excluir_minha_conta: { Args: never; Returns: undefined }
+      saldos_carteiras: { Args: never; Returns: { carteira_id: string; saldo: number }[] }
       metricas_admin: { Args: never; Returns: Json }
       metricas_usuario_admin: { Args: { p_usuario: string }; Returns: Json }
     }

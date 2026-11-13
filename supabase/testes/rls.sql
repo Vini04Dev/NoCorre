@@ -195,6 +195,42 @@ begin
   reset role;
   log := log || '15 metricas_admin restrita ok; ';
 
+  -- carteiras (Pro): só Pro cria, cada um só vê as suas, lançamento não usa carteira alheia
+  reset role;
+  perform set_config('request.jwt.claims', json_build_object('sub', ana, 'role', 'authenticated')::text, true);
+  set local role authenticated;
+  ok := false;
+  begin
+    insert into public.carteiras (nome) values ('Banco');
+  exception when insufficient_privilege then ok := true;
+  end;
+  if not ok then raise exception 'FALHA 16a: conta grátis criou carteira'; end if;
+  reset role;
+  update public.perfis set plano = 'pro' where id = ana;
+  set local role authenticated;
+  insert into public.carteiras (nome, saldo_inicial, padrao) values ('Banco', 100, true) returning id into conta;
+  select count(*) into n from public.saldos_carteiras();
+  if n <> 1 then raise exception 'FALHA 16b: saldos_carteiras'; end if;
+  ok := false;
+  begin
+    update public.perfis set plano = 'gratis' where id = ana;
+  exception when insufficient_privilege then ok := true;
+  end;
+  if not ok then raise exception 'FALHA 16c: usuária alterou o próprio plano'; end if;
+  reset role;
+  perform set_config('request.jwt.claims', json_build_object('sub', bia, 'role', 'authenticated')::text, true);
+  set local role authenticated;
+  select count(*) into n from public.carteiras;
+  if n <> 0 then raise exception 'FALHA 16d: viu carteira alheia'; end if;
+  ok := false;
+  begin
+    insert into public.despesas (tipo, valor_unitario, carteira_id) values ('X', 1, conta);
+  exception when foreign_key_violation then ok := true;
+  end;
+  if not ok then raise exception 'FALHA 16e: usou carteira alheia'; end if;
+  reset role;
+  log := log || '16 carteiras ok; ';
+
   -- exclusão da conta apaga tudo em cascata
   reset role;
   delete from auth.users where id = ana;

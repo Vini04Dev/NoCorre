@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { CampoCarteira, campoCarteira } from "@/components/carteiras/CampoCarteira";
 import { CampoCategoria } from "./CampoCategoria";
 import { CampoConta } from "./CampoConta";
 import { CamposValor, validarValores, valoresIniciais, type Valores } from "./CamposValor";
@@ -40,6 +41,8 @@ export function FormularioDespesa({ despesa, contaInicial }: Props) {
   const [valores, setValores] = useState<Valores>(() => valoresIniciais(despesa));
   const [contaId, setContaId] = useState<string | null>(despesa?.meta_id ?? contaInicial ?? null);
   const [erros, setErros] = useState<Erros>({});
+  // undefined = ninguém mexeu (não manda a coluna); null = carteira principal.
+  const [carteiraId, setCarteiraId] = useState<string | null | undefined>(despesa?.carteira_id);
 
   // Pagamento de conta não pede categoria: vai como "Contas", descrito pelo nome da conta.
   const conta = contas.find((item) => item.id === contaId);
@@ -66,6 +69,7 @@ export function FormularioDespesa({ despesa, contaInicial }: Props) {
           quantidade: Number(valores.quantidade),
           valor_unitario: valores.centavos / 100,
           meta_id: contaId,
+          ...campoCarteira(carteiraId),
         },
       },
       { onSuccess: () => router.push(destino) },
@@ -96,6 +100,7 @@ export function FormularioDespesa({ despesa, contaInicial }: Props) {
         />
         {!conta && <CampoCategoria tipo="despesa" valor={categoria} aoMudar={setCategoria} erro={erros.categoria} />}
         <CamposValor valores={valores} aoMudar={setValores} corTotal="text-negativo" erros={erros} />
+        <CampoCarteira valor={carteiraId ?? null} aoMudar={setCarteiraId} />
       </div>
 
       <div className="sticky bottom-0 mt-auto bg-fundo px-5 pt-2.5 pb-[calc(env(safe-area-inset-bottom)+26px)]">
