@@ -27,7 +27,7 @@ const MODULOS: Item[] = [
 ];
 
 /** Módulos que só aparecem para quem é Pro. */
-const MODULOS_PRO: Item[] = [{ href: "/carteiras", rotulo: "Carteiras", icone: "/icones/carteira-linha.svg" }];
+const MODULOS_PRO: Item[] = [{ href: "/carteiras", rotulo: "Carteiras", icone: "/icones/carteira-modulo.svg" }];
 
 const PERFIL: Item = { href: "/perfil", rotulo: "Perfil", icone: "/icones/perfil.svg", iconeAtivo: "/icones/perfil-ativo.svg" };
 
