@@ -20,6 +20,24 @@ export type Nota = {
 
 export const NOTAS: Nota[] = [
   {
+    versao: "0.0.3",
+    data: "2026-11-12",
+    titulo: "Página de apresentação revisada",
+    resumo: "Respostas das dúvidas frequentes mais claras e botões do GitHub sem o ícone que falhava no iPhone.",
+    destaques: [
+      {
+        icone: "/icones/info.svg",
+        titulo: "Dúvidas frequentes mais claras",
+        texto: "As respostas da página de apresentação ficaram mais diretas e explicam melhor como o app funciona, em português, inglês e espanhol.",
+      },
+      {
+        icone: "/icones/codigo.svg",
+        titulo: "Botão do GitHub corrigido",
+        texto: "O botão “Ver no GitHub” e o link do código em Sobre o No Corre! perderam a seta, que aparecia quebrada no iPhone.",
+      },
+    ],
+  },
+  {
     versao: "0.0.2",
     data: "2026-11-12",
     titulo: "Agenda nova e Início mais rápido",

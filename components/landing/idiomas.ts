@@ -134,7 +134,7 @@ const pt = {
     selo: "Código aberto",
     titulo: "Open source, à vista de todo mundo.",
     texto: "O código do No Corre! é aberto e está no GitHub. Qualquer pessoa pode ver como o app é feito.",
-    botao: "Ver no GitHub ↗",
+    botao: "Ver no GitHub",
     terminal: "Comandos para rodar o No Corre! no seu computador",
   },
   perguntas: {
@@ -144,24 +144,24 @@ const pt = {
       {
         pergunta: "O No Corre! é pago?",
         resposta:
-          "Não. Todas as funções atuais são gratuitas. Um plano Pro com recursos extras está nos planos, mas o essencial continua grátis.",
+          "Não. Todos os recursos disponíveis hoje são gratuitos. Está previsto um plano Pro com funções adicionais, mas o controle de receitas, despesas, metas e relatórios continua gratuito.",
       },
       {
         pergunta: "Preciso baixar na loja de aplicativos?",
-        resposta: "Não. Abra o site no celular e use “Adicionar à tela de início”. Ele abre em tela cheia, como um app.",
+        resposta: "Não é necessário. O No Corre! é um aplicativo web instalável: abra o site no navegador do celular e toque em “Adicionar à tela de início”. Ele passa a abrir em tela cheia, com ícone próprio, como qualquer aplicativo.",
       },
       {
         pergunta: "Meus dados ficam seguros?",
-        resposta: "Cada conta só enxerga os próprios dados, com regras de acesso no próprio banco. Sua senha é guardada criptografada.",
+        resposta: "Sim. Cada conta acessa apenas os próprios registros, e essa regra é aplicada no banco de dados, não só na tela. A conexão é protegida (HTTPS) e a senha é armazenada de forma criptografada.",
       },
       {
         pergunta: "Serve para quem faz entrega e mototáxi?",
         resposta:
-          "Serve. Você escolhe o tipo de cada receita: entrega, corrida ou gorjeta, e de qual cliente veio. A diária da central entra como despesa.",
+          "Sim. Cada receita é registrada com um tipo (entrega, corrida ou gorjeta) e ligada a quem pagou: aplicativo, central, estabelecimento ou pessoa. Custos como a diária da central entram como despesa, para o saldo mostrar o que de fato sobra.",
       },
       {
         pergunta: "O app está em português?",
-        resposta: "Sim. Por enquanto o app é só em português; esta página também está em inglês e espanhol.",
+        resposta: "Sim. O aplicativo está em português do Brasil. Esta página também está disponível em inglês e espanhol.",
       },
     ],
   },
@@ -304,7 +304,7 @@ const en: Textos = {
     selo: "Open source",
     titulo: "Open source, in plain sight.",
     texto: "No Corre!'s code is open and lives on GitHub. Anyone can see how the app is built.",
-    botao: "View on GitHub ↗",
+    botao: "View on GitHub",
     terminal: "Commands to run No Corre! on your computer",
   },
   perguntas: {
@@ -313,23 +313,23 @@ const en: Textos = {
     itens: [
       {
         pergunta: "Is No Corre! paid?",
-        resposta: "No. Every current feature is free. A Pro plan with extras is planned, but the essentials stay free.",
+        resposta: "No. Every feature available today is free. A Pro plan with additional features is planned, but tracking revenue, expenses, goals and reports remains free.",
       },
       {
         pergunta: "Do I need to download it from an app store?",
-        resposta: "No. Open the site on your phone and tap “Add to Home Screen”. It opens full screen, like an app.",
+        resposta: "No. No Corre! is an installable web app: open the site in your phone’s browser and tap “Add to Home Screen”. From then on it opens full screen with its own icon, like any other app.",
       },
       {
         pergunta: "Is my data safe?",
-        resposta: "Each account only sees its own data, enforced by access rules in the database itself. Your password is stored encrypted.",
+        resposta: "Yes. Each account can only access its own records, and this rule is enforced in the database, not just on screen. The connection is secured (HTTPS) and your password is stored encrypted.",
       },
       {
         pergunta: "Does it work for both deliveries and moto taxi?",
-        resposta: "Yes. You pick the type of each revenue entry (delivery, ride or tip) and which client it came from. The hub's daily fee is an expense.",
+        resposta: "Yes. Each revenue entry has a type (delivery, ride or tip) and is linked to who paid: an app, a dispatch hub, a business or a person. Costs such as the hub’s daily fee are recorded as expenses, so the balance shows what is actually left.",
       },
       {
         pergunta: "Is the app in English?",
-        resposta: "Not yet. For now the app itself is in Portuguese; only this page is available in English and Spanish.",
+        resposta: "Not yet. The app itself is in Brazilian Portuguese; this page is also available in English and Spanish.",
       },
     ],
   },
@@ -470,7 +470,7 @@ const es: Textos = {
     selo: "Código abierto",
     titulo: "Open source, a la vista de todos.",
     texto: "El código de No Corre! es abierto y está en GitHub. Cualquiera puede ver cómo está hecha la app.",
-    botao: "Ver en GitHub ↗",
+    botao: "Ver en GitHub",
     terminal: "Comandos para ejecutar No Corre! en tu computadora",
   },
   perguntas: {
@@ -479,23 +479,23 @@ const es: Textos = {
     itens: [
       {
         pergunta: "¿No Corre! es pago?",
-        resposta: "No. Todas las funciones actuales son gratis. Hay un plan Pro con extras en camino, pero lo esencial sigue siendo gratis.",
+        resposta: "No. Todas las funciones disponibles hoy son gratuitas. Está previsto un plan Pro con funciones adicionales, pero el control de ingresos, gastos, metas e informes sigue siendo gratuito.",
       },
       {
         pergunta: "¿Tengo que descargarla de una tienda de apps?",
-        resposta: "No. Abre el sitio en el celular y usa “Agregar a la pantalla de inicio”. Se abre en pantalla completa, como una app.",
+        resposta: "No es necesario. No Corre! es una aplicación web instalable: abre el sitio en el navegador del celular y toca “Agregar a la pantalla de inicio”. A partir de ahí se abre en pantalla completa, con su propio ícono, como cualquier app.",
       },
       {
         pergunta: "¿Mis datos están seguros?",
-        resposta: "Cada cuenta solo ve sus propios datos, con reglas de acceso en la propia base de datos. Tu contraseña se guarda cifrada.",
+        resposta: "Sí. Cada cuenta accede solo a sus propios registros, y esta regla se aplica en la base de datos, no solo en la pantalla. La conexión está protegida (HTTPS) y la contraseña se guarda cifrada.",
       },
       {
         pergunta: "¿Sirve para quien hace entregas y mototaxi?",
-        resposta: "Sí. Eliges el tipo de cada ingreso (entrega, viaje o propina) y de qué cliente vino. La cuota diaria de la central es un gasto.",
+        resposta: "Sí. Cada ingreso se registra con un tipo (entrega, viaje o propina) y se vincula a quien pagó: una app, una central, un comercio o una persona. Costos como la cuota diaria de la central se registran como gasto, para que el saldo muestre lo que realmente queda.",
       },
       {
         pergunta: "¿La app está en español?",
-        resposta: "Todavía no. Por ahora la app está en portugués; solo esta página está en inglés y español.",
+        resposta: "Todavía no. La app está en portugués de Brasil; esta página también está disponible en inglés y español.",
       },
     ],
   },
