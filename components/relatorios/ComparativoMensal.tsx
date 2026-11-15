@@ -66,7 +66,7 @@ export function ComparativoMensal({ meses }: { meses: Mes[] }) {
                 <span className="size-2.5 rounded-[2px] bg-positivo" /> Receita paga
               </span>
               <span className="flex items-center gap-1">
-                <span className="size-2.5 rounded-[2px] bg-negativo" /> Despesas
+                <span className="size-2.5 rounded-[2px] bg-negativo" /> Despesas do corre
               </span>
             </div>
           </>

@@ -1,12 +1,13 @@
 {
   "name": "nocorre-app",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "testar": "node --test testes/*.test.mjs",
     "db:tipos": "supabase gen types --remote --schema public > types/database.ts",
     "db:testar": "supabase db query --remote -f supabase/testes/rls.sql"
   },

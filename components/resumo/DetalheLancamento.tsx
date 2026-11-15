@@ -155,6 +155,12 @@ function Conteudo({ titulo, receita, despesa }: { titulo: string; receita?: Rece
             Excluir
           </Botao>
         </div>
+        {/* Quem lançou salário de outro emprego como entrega consegue corrigir sem perder o valor. */}
+        {receita && (
+          <Link href={`/novo/entrada?de=${receita.id}`} className="text-center text-xs text-cinza-escuro">
+            Não é do corre (salário, bolsa, ajuda)? <span className="font-bold text-dourado">Mover para outra entrada</span>
+          </Link>
+        )}
       </div>
 
       {confirmando && (

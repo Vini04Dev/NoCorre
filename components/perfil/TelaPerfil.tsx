@@ -9,6 +9,7 @@ import { CirculoProgresso } from "@/components/metas/CirculoProgresso";
 import { Secao } from "@/components/ui/Secao";
 import { useMetas } from "@/hooks/useMetas";
 import { useEstatisticasPerfil, usePerfil } from "@/hooks/usePerfil";
+import { IconeTingido } from "@/components/ui/Icones";
 import { Valor } from "@/components/ui/Valor";
 import { corDaMeta, textoProgresso } from "@/lib/metas";
 
@@ -131,11 +132,25 @@ export function TelaPerfil({ admin = false }: { admin?: boolean }) {
             <p className="text-[11px] text-cinza">
               Entregador desde {MESES[desde.getMonth()]}/{desde.getFullYear()}
             </p>
-            {perfil.tipo_sanguineo && (
-              <span className="rounded-[10px] bg-dourado-claro px-2.5 py-0.5 text-[9px] font-semibold tracking-[0.54px] text-marinho">
-                SANGUE {perfil.tipo_sanguineo}
-              </span>
-            )}
+            {/* Plano no lugar do tipo sanguíneo (que segue no Editar). Toque abre a página do Pro. */}
+            <Link
+              href="/pro"
+              className={`flex items-center gap-1 rounded-[10px] py-0.5 pr-2.5 pl-2 text-[9px] font-semibold tracking-[0.54px] ${
+                perfil.plano === "pro" ? "bg-black text-dourado" : "bg-dourado text-black"
+              }`}
+            >
+              {/* Coroa (a mesma do Pro no app) ou pessoa (conta comum), na cor do texto do selo. */}
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path
+                  d={
+                    perfil.plano === "pro"
+                      ? "M3 8.5 7 12l5-6 5 6 4-3.5-1.5 9.5h-15L3 8.5ZM5 21h14"
+                      : "M3.2 19.5c1.4-2.2 4.3-3.7 8.8-3.7s7.4 1.5 8.8 3.7M15.6 8.1a3.6 3.6 0 1 1-7.2 0 3.6 3.6 0 0 1 7.2 0Z"
+                  }
+                />
+              </svg>
+              {perfil.plano === "pro" ? "PLANO PRO" : "PLANO GRÁTIS"}
+            </Link>
           </div>
           <Link
             href="/perfil/editar"
@@ -181,10 +196,54 @@ export function TelaPerfil({ admin = false }: { admin?: boolean }) {
         </Link>
       </Secao>
 
+      {perfil.plano === "pro" && (
+        <Link
+          href="/moto"
+          className="-mt-2 flex items-center gap-3 rounded-[12px] border border-cinza-claro bg-white px-3.5 py-2"
+        >
+          <span className="grid size-10 shrink-0 place-items-center rounded-full bg-dourado-claro">
+            <Image src="/icones/saude-moto.svg" alt="" width={20} height={20} />
+          </span>
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="flex items-center gap-1.5 text-xs font-semibold">
+              Saúde da moto
+              <span className="rounded-md bg-marinho px-1.5 py-0.5 text-[9px] font-bold tracking-[0.6px] text-dourado-claro">
+                PRO
+              </span>
+            </span>
+            <span className="text-[10px] text-cinza">Trocas, quilometragem e avisos</span>
+          </span>
+          <span aria-hidden className="text-lg font-semibold text-cinza">
+            ›
+          </span>
+        </Link>
+      )}
+
+      <Secao titulo="PLANO">
+        <Link
+          href="/pro"
+          className="flex items-center gap-3 rounded-[12px] border border-cinza-claro bg-white px-3.5 py-2"
+        >
+          <span className="grid size-10 shrink-0 place-items-center rounded-full bg-marinho">
+            <IconeTingido src="/icones/pro-dourado.svg" tamanho={20} cor="bg-dourado-claro" />
+          </span>
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="text-xs font-semibold">{perfil.plano === "pro" ? "No Corre! Pro" : "Plano grátis"}</span>
+            <span className="text-[10px] text-cinza">
+              {perfil.plano === "pro" ? "Carteiras, saúde da moto e temas liberados" : "Conheça o No Corre! Pro"}
+            </span>
+          </span>
+          <span aria-hidden className="text-lg font-semibold text-cinza">
+            ›
+          </span>
+        </Link>
+      </Secao>
+
       <Secao titulo="CONFIGURAÇÕES">
         <ul className="rounded-[12px] border border-cinza-claro bg-white px-3.5 py-1">
           <ItemConfiguracao href="/perfil/editar" icone="/icones/perfil-dados.svg" rotulo="Dados pessoais" />
           <ItemConfiguracao href="/perfil/sobre" icone="/icones/perfil-sobre.svg" rotulo="Sobre o No Corre!" />
+          <ItemConfiguracao href="/perfil/tema" icone="/icones/tema.svg" rotulo="Tema do app" />
           <ItemConfiguracao href="/perfil/novidades" icone="/icones/novidades.svg" rotulo="Notas de atualização" />
           <ItemConfiguracao href="/perfil/seguranca" icone="/icones/perfil-seguranca.svg" rotulo="Senha e segurança" />
           {admin && <ItemConfiguracao href="/admin" icone="/icones/relatorios.svg" rotulo="Painel do sistema" />}

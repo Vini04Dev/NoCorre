@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CampoTipoGasto } from "@/components/lancamentos/CampoTipoGasto";
 import { Alternador } from "@/components/ui/Alternador";
 import { AvisoErro } from "@/components/ui/AvisoErro";
 import { Botao } from "@/components/ui/Botao";
@@ -27,6 +28,7 @@ export function PainelCategoria({ categoria, aoFechar }: Props) {
   const excluir = useExcluirCategoria();
   const [nome, setNome] = useState(categoria?.nome ?? "");
   const [tipo, setTipo] = useState<TipoCategoria>(categoria?.tipo ?? "receita");
+  const [doCorre, setDoCorre] = useState(categoria?.do_corre ?? false);
   const [erroNome, setErroNome] = useState<string>();
   const [confirmando, setConfirmando] = useState(false);
 
@@ -45,7 +47,7 @@ export function PainelCategoria({ categoria, aoFechar }: Props) {
       setErroNome("Essa categoria já existe entre as padrão.");
       return;
     }
-    salvar.mutate({ id: categoria?.id, nome: nomeLimpo, tipo }, { onSuccess: aoFechar });
+    salvar.mutate({ id: categoria?.id, nome: nomeLimpo, tipo, do_corre: tipo === "despesa" && doCorre }, { onSuccess: aoFechar });
   }
 
   return (
@@ -75,6 +77,7 @@ export function PainelCategoria({ categoria, aoFechar }: Props) {
           autoFocus
         />
         <Alternador rotulo="Usar em" opcoes={OPCOES_TIPO} valor={tipo} aoMudar={setTipo} />
+        {tipo === "despesa" && <CampoTipoGasto rotulo="Gastos desta categoria são" doCorre={doCorre} aoMudar={setDoCorre} />}
         <div className="mt-1 grid grid-cols-2 gap-2.5">
           <Botao variante="contorno" onClick={aoFechar}>
             Cancelar

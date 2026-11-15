@@ -5,24 +5,36 @@
  * Tokens do design (Figma, Page 1). Viram classes do Tailwind:
  * bg-marinho, text-positivo, border-cinza-claro etc.
  */
-@theme inline {
-  --color-marinho: #2b2d42;
+/*
+ * Fora do "inline": as classes usam var(--color-...), e os temas do app (recurso
+ * Pro) trocam essas variáveis. Os valores abaixo são os do tema Clássico e
+ * precisam bater com lib/tema-app.ts (o teste de contraste confere).
+ * Cinzas, verde e amarelo foram ajustados para o contraste mínimo da WCAG (AA).
+ */
+@theme {
   --color-dourado-claro: #ffd36a;
   --color-dourado: #e0a92e;
   --color-dourado-icone: #c89e3b;
-
-  --color-cinza-escuro: #9196a2;
-  --color-cinza: #b0b6bf;
+  /* Dourado como texto: mais escuro, para passar no contraste sobre o branco. */
+  --color-dourado-texto: #916408;
+  --color-marinho: #2b2d42;
+  --color-fundo: #f9fafb;
+  --color-cinza: #6c7180;
+  --color-cinza-escuro: #5c6170;
   --color-cinza-claro: #dfe1e6;
   --color-cinza-fundo: #f3f4f6;
-  --color-fundo: #f9fafb;
   --color-painel: #e8e8e8;
   --color-texto-segmento: #1f2937;
-
-  --color-positivo: #4caf00;
+  --color-positivo: #3a8500;
   --color-recebido: #347701;
-  --color-pendente: #c5a800;
+  --color-pendente: #857000;
   --color-negativo: #cc0000;
+  --shadow-cartao: 0px 4px 4px 0px rgba(0, 0, 0, 0.1);
+}
+
+@theme inline {
+
+
 
   --font-sans: var(--font-poppins);
   --font-inter: var(--font-inter);
@@ -39,7 +51,6 @@
   --color-l-suave: var(--l-suave);
   --color-l-destaque: var(--l-destaque);
 
-  --shadow-cartao: 0px 4px 4px 0px rgba(0, 0, 0, 0.1);
   --shadow-segmento: 0px 4px 4px 0px rgba(0, 0, 0, 0.13);
   --shadow-segmento-ativo: 0px 4px 4px 0px rgba(0, 0, 0, 0.09);
   --shadow-cabecalho: 0px 4px 4px 0px rgba(0, 0, 0, 0.35);
@@ -47,7 +58,8 @@
 }
 
 body {
-  background: var(--color-fundo);
+  /* --t-fundo: fundo do tema do app (lib/tema-app.ts); sem tema, o fundo padrão. */
+  background: var(--t-fundo, var(--color-fundo));
   color: var(--color-marinho);
   /* Toque duplo não dá zoom nem atrasa o clique (o pinça continua funcionando). */
   touch-action: manipulation;
@@ -128,3 +140,112 @@ body {
   color-scheme: dark;
 }
 
+/*
+ * Temas do app (recurso Pro). Os valores de cada tema (--t-*) vêm de
+ * lib/tema-app.ts, num <style> do <head>; aqui fica só a distribuição deles
+ * pelas superfícies. Tudo na camada base: as classes do Tailwind valem por cima.
+ *
+ * A ideia: cada superfície define as cores de tinta de quem está dentro dela.
+ * - Superfícies do tema (fundo, cartões, cinzas) usam as cores do tema.
+ * - Superfícies de cor fixa (faixas marinho, áreas douradas, verde, vermelho,
+ *   degradês no style) usam sempre as mesmas cores, em qualquer tema.
+ * Só vale nas telas logadas (.casca-app); landing e login não mudam.
+ */
+@layer base {
+  .casca-app,
+  .casca-app :is(.bg-white, .bg-white\/90, .bg-cinza-fundo, .bg-cinza-claro, .bg-painel, .bg-fundo) {
+    --color-marinho: var(--t-texto);
+    --color-cinza: var(--t-cinza);
+    --color-cinza-escuro: var(--t-cinza-escuro);
+    --color-cinza-claro: var(--t-cinza-claro);
+    --color-dourado-texto: var(--t-destaque-texto);
+    --color-positivo: var(--t-positivo);
+    --color-recebido: var(--t-recebido);
+    --color-pendente: var(--t-pendente);
+    --color-negativo: var(--t-negativo);
+    --color-white: #ffffff;
+  }
+  .casca-app {
+    --color-fundo: var(--t-fundo);
+    --color-cinza-fundo: var(--t-cinza-fundo);
+    --color-painel: var(--t-painel);
+    --color-texto-segmento: var(--t-texto-segmento);
+    --color-dourado: var(--t-destaque);
+    --color-dourado-claro: var(--t-destaque-claro);
+    --color-dourado-icone: var(--t-destaque-icone);
+    --shadow-cartao: var(--t-sombra);
+    color: var(--color-marinho);
+  }
+  /* O "branco" dos cartões e painéis é a superfície do tema. */
+  .casca-app :is(.bg-white, .bg-white\/90) {
+    --color-white: var(--t-superficie);
+  }
+
+  /* Superfícies de cor fixa. Cartões com só um toque de cor (.superficie-tema) seguem o tema. */
+  .casca-app :is([class*="bg-marinho"], [class*="from-marinho"]) {
+    --color-marinho: #2b2d42;
+    --color-white: #ffffff;
+    --color-cinza: #b0b6bf;
+    --color-cinza-escuro: #9196a2;
+    --color-cinza-claro: #dfe1e6;
+    --color-dourado-texto: var(--t-destaque-claro);
+    color-scheme: dark;
+  }
+  .casca-app
+    :is(
+      .bg-dourado-claro,
+      .bg-dourado,
+      .bg-dourado-icone,
+      [class*="from-dourado"],
+      [class*="bg-positivo"],
+      [class*="bg-negativo"],
+      [style*="background"]:not(.superficie-tema)
+    ) {
+    --color-marinho: #2b2d42;
+    --color-white: #ffffff;
+    --color-cinza: #5c6170;
+    --color-cinza-escuro: #4a4f5c;
+    color: var(--color-marinho);
+    color-scheme: light;
+  }
+
+  /* Temas escuros (data-tema-escuro, posto junto com o tema no <head>). */
+  html[data-tema-escuro] .casca-app {
+    color-scheme: dark;
+  }
+  /*
+   * Ícones de linha em arquivo (marinho) ficam claros: inverter o claro/escuro
+   * e girar o matiz de volta mantém verde verde e vermelho vermelho. Ícones de
+   * cor própria usam data-cor-fixa; dentro de áreas de cor fixa nada muda.
+   */
+  html[data-tema-escuro] .casca-app img[src*="/icones/"]:not([data-cor-fixa]) {
+    filter: invert(1) hue-rotate(180deg);
+  }
+  html[data-tema-escuro]
+    .casca-app
+    :is(.bg-dourado-claro, .bg-dourado, .bg-dourado-icone, [class*="from-dourado"], [class*="bg-marinho"], [class*="from-marinho"])
+    img[src*="/icones/"]:not([data-cor-fixa]) {
+    filter: none;
+  }
+  /*
+   * Seleção e botões marinho quase somem no fundo escuro: ganham contorno na
+   * cor de destaque (WCAG 1.4.11, 3:1). Faixas grandes ganham só um fio claro.
+   */
+  html[data-tema-escuro] .casca-app [class*="bg-marinho"] {
+    outline: 1px solid rgb(255 255 255 / 0.08);
+  }
+  html[data-tema-escuro] .casca-app :is(button, a, [role="radio"], [role="tab"])[class*="bg-marinho"] {
+    outline: 1.5px solid var(--color-dourado);
+    outline-offset: -1.5px;
+  }
+}
+
+/*
+ * Dourado como texto (links, "Ver todas"): usa a variante que passa no
+ * contraste do tema. Depois das utilidades do Tailwind, na mesma camada.
+ */
+@layer utilities {
+  .casca-app .text-dourado {
+    color: var(--color-dourado-texto);
+  }
+}

@@ -23,11 +23,21 @@ function descrever(movimentacao: Movimentacao) {
       corValor: pendente ? "text-pendente" : "",
     };
   }
+  if (movimentacao.tipo === "entrada") {
+    const entrada = movimentacao.dados;
+    return {
+      href: `/resumo/entrada/${entrada.id}`,
+      titulo: entrada.descricao,
+      apoio: `${entrada.tipo} · fora do corre`,
+      valor: `+ ${formatarMoeda(entrada.valor)}`,
+      corValor: "text-cinza-escuro",
+    };
+  }
   const despesa = movimentacao.dados;
   return {
     href: `/resumo/despesa/${despesa.id}`,
     titulo: despesa.observacao || despesa.tipo,
-    apoio: despesa.tipo,
+    apoio: despesa.do_corre === false ? `${despesa.tipo} · pessoal` : despesa.tipo,
     valor: `– ${formatarMoeda(despesa.valor_total ?? 0)}`,
     corValor: "",
   };
@@ -37,7 +47,7 @@ function descrever(movimentacao: Movimentacao) {
 export function ListaMovimentacoes({ movimentacoes }: { movimentacoes: Movimentacao[] }) {
   // Ao abrir um item, guarda a lista inteira para o detalhe navegar entre eles.
   const lembrarSequencia = () =>
-    salvarSequencia(movimentacoes.map(({ tipo, dados }) => ({ tipo, id: dados.id })));
+    salvarSequencia(movimentacoes.flatMap((m) => (m.tipo === "entrada" ? [] : [{ tipo: m.tipo, id: m.dados.id }])));
 
   const grupos = new Map<string, Movimentacao[]>();
   for (const movimentacao of movimentacoes) {
@@ -55,7 +65,7 @@ export function ListaMovimentacoes({ movimentacoes }: { movimentacoes: Movimenta
           <ul>
             {itens.map((movimentacao) => {
               const item = descrever(movimentacao);
-              const receita = movimentacao.tipo === "receita";
+              const receita = movimentacao.tipo !== "despesa";
               return (
                 <li key={movimentacao.dados.id} className="border-b border-cinza-claro last:border-b-0">
                   <Link href={item.href} onClick={lembrarSequencia} className="flex items-center gap-3 px-4 py-2">

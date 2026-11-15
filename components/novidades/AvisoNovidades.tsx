@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useId, useState } from "react";
+import { ConvitePro } from "@/components/pro/ConvitePro";
 import { Botao } from "@/components/ui/Botao";
 import { IconeCirculo } from "@/components/ui/IconeCirculo";
 import { PainelInferior } from "@/components/ui/PainelInferior";
 import { useAvisoForcado } from "@/hooks/useAvisoForcado";
 import { useNovidadesPendentes } from "@/hooks/useNovidades";
+import { usePlano } from "@/hooks/usePlano";
 import { NOTAS } from "@/lib/novidades";
 
 /**
@@ -14,13 +17,26 @@ import { NOTAS } from "@/lib/novidades";
  * nota que a pessoa ainda não viu neste aparelho (mesmo com a sessão aberta
  * desde antes da atualização). Só fecha depois que ela marca que leu e está
  * ciente e toca em Entendi; tocar fora ou apertar Esc não dispensa.
+ * Para quem está no grátis, em seguida abre o convite do Pro.
  */
 export function AvisoNovidades() {
   const [pendentes, marcarVistas] = useNovidadesPendentes();
   const [forcado, limparForcado] = useAvisoForcado("novidades");
+  const [conviteForcado, limparConvite] = useAvisoForcado("convite-pro");
+  const { ehPro, carregando } = usePlano();
+  const [convite, setConvite] = useState(false);
+  // Prévia de outro aviso aberta pelo Painel do sistema: fica só ela na tela.
+  const outraPrevia = (useSearchParams().get("aviso") ?? "novidades") !== "novidades";
   const [ciente, setCiente] = useState(false);
   const idCiente = useId();
-  if (!pendentes && !forcado) return null;
+  if (convite || conviteForcado) {
+    const fechar = () => {
+      setConvite(false);
+      limparConvite();
+    };
+    return <ConvitePro aoFechar={fechar} previa={conviteForcado || ehPro} />;
+  }
+  if ((!pendentes || outraPrevia) && !forcado) return null;
 
   const nota = NOTAS[0];
 
@@ -29,6 +45,8 @@ export function AvisoNovidades() {
     marcarVistas();
     limparForcado();
     setCiente(false);
+    // Na prévia (ADM, que é Pro) também abre, para conferir a sequência.
+    if ((!ehPro && !carregando) || forcado) setConvite(true);
   }
 
   return (

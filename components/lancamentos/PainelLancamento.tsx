@@ -28,7 +28,10 @@ function ConteudoOpcao({ icone, fundo, titulo, descricao }: { icone: string; fun
   );
 }
 
-/** Painel do botão (+): escolhe entre lançar Receita ou Despesa. */
+/**
+ * Painel do botão (+): Receita, Despesa e Outra entrada (dinheiro que não é
+ * do corre, como salário e bolsa), no mesmo formato.
+ */
 export function PainelLancamento({ aoFechar }: { aoFechar: () => void }) {
   const router = useRouter();
   const { data: clientes } = useClientes();
@@ -72,7 +75,15 @@ export function PainelLancamento({ aoFechar }: { aoFechar: () => void }) {
           icone="/icones/seta-despesa.svg"
           fundo="bg-negativo/12"
           titulo="Despesa"
-          descricao="Combustível, peças, alimentação, diária da central"
+          descricao="Combustível, peças, diária, mercado, contas"
+        />
+      </Link>
+      <Link href="/novo/entrada" onClick={aoFechar} className={CLASSE_OPCAO}>
+        <ConteudoOpcao
+          icone="/icones/saldo-linha.svg"
+          fundo="bg-cinza-fundo"
+          titulo="Outra entrada"
+          descricao="Salário, bolsa, ajuda: dinheiro fora do corre"
         />
       </Link>
       <p className="text-center text-[11px] text-cinza-escuro">
