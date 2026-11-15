@@ -8,6 +8,7 @@ export type Aviso =
   | "novidades"
   | "primeiro-uso"
   | "pro"
+  | "convite-pro"
   | "moto";
 
 /**

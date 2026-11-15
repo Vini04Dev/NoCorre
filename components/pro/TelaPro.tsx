@@ -2,11 +2,11 @@
 
 import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
 import { IconeCirculo } from "@/components/ui/IconeCirculo";
+import { usePerfil } from "@/hooks/usePerfil";
 import { usePlano } from "@/hooks/usePlano";
-import { RECURSOS_PRO } from "@/lib/pro";
+import { linkPedirPro, RECURSOS_PRO } from "@/lib/pro";
+import { BotaoPedirPro } from "./BotaoPedirPro";
 import { SeloPro } from "./SeloPro";
-
-const EMAIL = "vini0102033@gmail.com";
 
 /**
  * Tela do plano Pro: o que ele inclui e a situação da conta. Ainda não há
@@ -14,6 +14,7 @@ const EMAIL = "vini0102033@gmail.com";
  */
 export function TelaPro() {
   const { ehPro, carregando } = usePlano();
+  const { data: perfil } = usePerfil();
   return (
     <main className="flex flex-col gap-4 px-5 pt-[calc(env(safe-area-inset-top)+12px)] pb-10">
       <CabecalhoTela titulo="No Corre! Pro" voltarPara="/perfil" />
@@ -49,14 +50,9 @@ export function TelaPro() {
         <section className="flex flex-col gap-2 rounded-[14px] border border-dourado bg-dourado-claro/20 p-4 text-xs">
           <p className="font-bold">O Pro está em fase de testes</p>
           <p className="text-cinza-escuro">
-            Ainda não há assinatura. Quem quiser testar os recursos Pro pode pedir acesso por e-mail.
+            Ainda não há assinatura. Quem quiser testar os recursos Pro pode pedir acesso pelo WhatsApp.
           </p>
-          <a
-            href={`mailto:${EMAIL}?subject=Quero%20testar%20o%20No%20Corre!%20Pro`}
-            className="mt-1 rounded-[10px] bg-linear-to-r from-dourado-claro to-dourado py-3 text-center text-sm font-extrabold"
-          >
-            Pedir acesso ao Pro
-          </a>
+          <BotaoPedirPro href={linkPedirPro(perfil?.email)} />
         </section>
       )}
     </main>

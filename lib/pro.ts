@@ -21,3 +21,20 @@ export const RECURSOS_PRO = [
 ] as const;
 
 export type RecursoPro = (typeof RECURSOS_PRO)[number]["chave"];
+
+/** WhatsApp do autor (DDI + DDD + número), para quem quer pedir acesso ao Pro. */
+const WHATSAPP_PRO = "5535910221632";
+
+/**
+ * Link do WhatsApp com a mensagem já escrita. O e-mail da conta vai junto para
+ * achar a pessoa no Painel do sistema; ela vê o texto antes de enviar.
+ */
+export function linkPedirPro(email?: string | null) {
+  const mensagem = [
+    "Olá! Uso o No Corre! e quero pedir acesso ao plano Pro.",
+    email ? `O e-mail da minha conta é ${email}.` : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
+  return `https://wa.me/${WHATSAPP_PRO}?text=${encodeURIComponent(mensagem)}`;
+}

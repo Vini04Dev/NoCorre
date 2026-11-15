@@ -262,6 +262,7 @@ export function TelaAdmin({ metricas, erro }: { metricas: MetricasAdmin | null; 
               {[
                 { href: "/?aviso=novidades", rotulo: "Aviso de atualização", quando: "abre a cada versão nova, ao entrar" },
                 { href: "/?aviso=pro", rotulo: "O Pro chegou!", quando: "uma vez, quando a conta vira Pro" },
+                { href: "/?aviso=convite-pro", rotulo: "Convite do Pro", quando: "depois da nota de atualização, para quem é grátis" },
                 { href: "/?aviso=primeiro-uso", rotulo: "Aviso de primeiro cliente", quando: "abre no Início enquanto não há cliente" },
                 { href: "/?aviso=vencimento", rotulo: "Notificações", quando: "sininho do Início com contas, compromisso, entregas a receber e moto" },
                 { href: "/admin/previa/moto", rotulo: "Primeira visita da moto", quando: "Pro, ao abrir a Saúde da moto pela primeira vez" },
