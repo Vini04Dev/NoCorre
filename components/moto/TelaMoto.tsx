@@ -8,7 +8,7 @@ import { Botao } from "@/components/ui/Botao";
 import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
 import { CampoTexto } from "@/components/ui/CampoTexto";
 import { PainelInferior } from "@/components/ui/PainelInferior";
-import { useComponentes, useConfigurarMoto, useQuilometragem, useRegistrarKm, useSalvarComponente, type Componente } from "@/hooks/useMoto";
+import { useComponentes, useQuilometragem, useRegistrarKm, useSalvarComponente, type Componente } from "@/hooks/useMoto";
 import { usePerfil } from "@/hooks/usePerfil";
 import { usePlano } from "@/hooks/usePlano";
 import {
@@ -23,6 +23,7 @@ import {
   type Situacao,
 } from "@/lib/moto";
 import { CarrosselMoto } from "./CarrosselMoto";
+import { ConfigurarMoto } from "./ConfigurarMoto";
 
 /**
  * Lugar da imagem quando o modelo da moto ainda não tem fotos no app (hoje só
@@ -45,33 +46,7 @@ function EmBreve({ modelo }: { modelo: string | null | undefined }) {
   );
 }
 
-const somenteNumeros =(texto: string) => texto.replace(/\D/g, "").slice(0, 7);
-
-/** Primeira vez: só pede o odômetro; os itens padrão são criados contando a partir daí. */
-function Configurar() {
-  const configurar = useConfigurarMoto();
-  const [km, setKm] = useState("");
-  return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (km) configurar.mutate(Number(km));
-      }}
-      className="flex flex-col gap-3 rounded-[14px] border border-black/8 bg-white p-4 shadow-cartao"
-    >
-      <p className="text-sm font-bold">Quantos km a moto está marcando agora?</p>
-      <p className="text-xs text-cinza-escuro">
-        Olhe o odômetro no painel. O app começa a contar óleo, relação, pneus e freios a partir daqui; depois você
-        ajusta a última troca de cada um, se lembrar.
-      </p>
-      <AvisoErro mensagem={configurar.error?.message} />
-      <CampoTexto rotulo="Quilometragem atual" inputMode="numeric" value={km} onChange={(e) => setKm(somenteNumeros(e.target.value))} placeholder="Ex.: 32500" />
-      <Botao type="submit" disabled={!km || configurar.isPending}>
-        {configurar.isPending ? "Salvando..." : "Começar a acompanhar"}
-      </Botao>
-    </form>
-  );
-}
+const somenteNumeros = (texto: string) => texto.replace(/\D/g, "").slice(0, 7);
 
 /** Atualizar o odômetro (valor do painel) ou somar os km rodados desde a última vez. */
 function PainelKm({ atual, aoFechar }: { atual: number; aoFechar: () => void }) {
@@ -190,7 +165,7 @@ export function TelaMoto() {
 
   const kmAtual = quilometragem.data?.atual;
   const itens = (componentes.data ?? []).filter((c) => c.ativo);
-  if (kmAtual == null || itens.length === 0) return casca(<Configurar />);
+  if (kmAtual == null || itens.length === 0) return casca(<ConfigurarMoto />);
 
   const calculados = itens.map((c) => ({ componente: c, ...desgaste(kmAtual, c.km_ultima_troca, c.intervalo_km) }));
   // Duas peças na mesma parte (ex.: freio da frente e de trás): vale a mais gasta.

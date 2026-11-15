@@ -78,8 +78,13 @@ export function useRegistrarKm() {
  * Primeira configuração: odômetro atual e os itens padrão, todos contando a
  * partir de agora (a pessoa corrige a última troca de cada um se souber).
  */
+/**
+ * Primeira configuração: odômetro de agora e, por peça, quanto do intervalo já
+ * foi rodado (0 = trocou agora, 1,1 = passou 10% da troca). O km da última
+ * troca sai daí: km atual menos a fração do intervalo.
+ */
 export function useConfigurarMoto() {
-  return useMutacaoMoto(async (km: number) => {
+  return useMutacaoMoto(async ({ km, fracoes = {} }: { km: number; fracoes?: Record<string, number> }) => {
     const supabase = criarClienteNavegador();
     const leitura = await supabase.from("moto_quilometragem").insert({ km });
     if (leitura.error) throw new Error(traduzirErroBanco(leitura.error));
@@ -87,7 +92,7 @@ export function useConfigurarMoto() {
       tipo,
       nome,
       intervalo_km,
-      km_ultima_troca: km,
+      km_ultima_troca: Math.max(0, Math.round(km - (fracoes[tipo] ?? 0) * intervalo_km)),
     }));
     const { error } = await supabase.from("moto_componentes").upsert(itens, { onConflict: "usuario_id,tipo" });
     if (error) throw new Error(traduzirErroBanco(error));
