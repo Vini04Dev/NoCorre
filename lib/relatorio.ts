@@ -151,20 +151,21 @@ export function gerarAvisos(
     return somas;
   };
   const somasAnteriores = somar(anterior.despesas);
-  let maiorAlta: { tipo: string; valor: number; aumento: number } | null = null;
+  let maiorAlta: { tipo: string; valor: number; antes: number; aumento: number } | null = null;
   for (const [tipo, valor] of somar(atual.despesas)) {
     const antes = somasAnteriores.get(tipo);
     if (!antes) continue;
     const aumento = Math.round(((valor - antes) / antes) * 100);
     if (aumento >= AUMENTO_MINIMO_PARA_AVISAR && (!maiorAlta || aumento > maiorAlta.aumento)) {
-      maiorAlta = { tipo, valor, aumento };
+      maiorAlta = { tipo, valor, antes, aumento };
     }
   }
   if (maiorAlta) {
     avisos.push({
       icone: "alta",
-      titulo: `${maiorAlta.tipo} ${maiorAlta.aumento}% acima do período anterior`,
-      detalhe: `${moeda(maiorAlta.valor)} gastos com ${maiorAlta.tipo.toLowerCase()} neste período.`,
+      // Em reais: "R$ 51 a mais" se entende melhor que "53% acima".
+      titulo: `${maiorAlta.tipo}: ${moeda(maiorAlta.valor - maiorAlta.antes)} a mais que no período anterior`,
+      detalhe: `Foram ${moeda(maiorAlta.valor)} agora, contra ${moeda(maiorAlta.antes)} antes.`,
     });
   }
 
@@ -179,7 +180,7 @@ export function gerarAvisos(
     avisos.push({
       icone: "horario",
       titulo: `Horário mais rentável: ${melhor * 3}h às ${melhor * 3 + 3}h`,
-      detalhe: `${Math.round((faixas[melhor] / totalPago) * 100)}% da sua receita do período saiu desse horário.`,
+      detalhe: `${moeda(faixas[melhor])} dos ${moeda(totalPago)} recebidos no período saíram desse horário.`,
     });
   }
 
@@ -219,61 +220,52 @@ const somaCentavos = (itens: ItemValor[]) => itens.reduce((soma, item) => soma +
 const somaPagas = (receitas: ItemReceita[]) =>
   somaCentavos(receitas.filter((r) => r.status_pagamento === "pago"));
 
-export type Tendencia = {
-  chave: "receita" | "despesa" | "saldo" | "entregas" | "ticket";
-  rotulo: string;
-  atual: number;
-  anterior: number;
-  /** Variação em % contra o período anterior; null quando não havia base para comparar. */
-  variacao: number | null;
-  /** Subir é bom (receita) ou ruim (despesa)? */
-  subirEhBom: boolean;
-  dinheiro: boolean;
+type ItemDespesa = ItemValor & { tipo: string };
+
+/** Números de um período, em reais e quantidades (nada de porcentagem). */
+export type NumerosCorre = {
+  /** Receita paga. */
+  recebido: number;
+  /** Recebido menos as despesas do corre. */
+  sobrou: number;
+  entregas: number;
+  /** Dias com pelo menos uma receita. */
+  diasTrabalhados: number;
+  /** Recebido dividido pelas entregas pagas. */
+  porEntrega: number;
+  /** Recebido dividido pelos dias trabalhados. */
+  porDia: number;
+  /** Custo do corre a cada R$ 100 recebidos. */
+  custoACada100: number;
+  /** Categoria de despesa do corre que mais pesou, se houver. */
+  maiorCusto: string | null;
 };
 
 /**
- * Comparação com o período anterior de mesmo tamanho: receita paga, despesas,
- * saldo, entregas (soma das quantidades, pagas ou não) e ticket médio
- * (receita paga por entrega paga).
+ * "Como foi o corre": o que o entregador quer saber, em reais e em número de
+ * entregas (fáceis de entender), em vez de variação percentual. As despesas
+ * passadas aqui são só as do corre.
  */
-export function tendencias(
-  atual: { receitas: ItemReceita[]; despesas: ItemValor[] },
-  anterior: { receitas: ItemReceita[]; despesas: ItemValor[] },
-): Tendencia[] {
-  const medir = (dados: typeof atual) => {
-    const receita = somaPagas(dados.receitas);
-    const despesa = somaCentavos(dados.despesas);
-    const deEntrega = dados.receitas.filter((r) => contaComoEntrega(r.tipo));
-    const entregas = deEntrega.reduce((soma, r) => soma + r.quantidade, 0);
-    const entregasPagas = deEntrega.filter((r) => r.status_pagamento === "pago").reduce((s, r) => s + r.quantidade, 0);
-    return {
-      receita: receita / 100,
-      despesa: despesa / 100,
-      saldo: (receita - despesa) / 100,
-      entregas,
-      ticket: entregasPagas ? receita / entregasPagas / 100 : 0,
-    };
+export function numerosDoCorre(dados: { receitas: (ItemReceita & { data_hora: string })[]; despesas: ItemDespesa[] }): NumerosCorre {
+  const recebido = somaPagas(dados.receitas);
+  const custo = somaCentavos(dados.despesas);
+  const deEntrega = dados.receitas.filter((r) => contaComoEntrega(r.tipo));
+  const entregas = deEntrega.reduce((soma, r) => soma + r.quantidade, 0);
+  const entregasPagas = deEntrega.filter((r) => r.status_pagamento === "pago").reduce((s, r) => s + r.quantidade, 0);
+  const dias = new Set(dados.receitas.map((r) => new Date(r.data_hora).toDateString())).size;
+  const porCategoria = new Map<string, number>();
+  for (const d of dados.despesas) porCategoria.set(d.tipo, (porCategoria.get(d.tipo) ?? 0) + centavos(d.valor_total));
+  const maior = [...porCategoria].sort((a, b) => b[1] - a[1])[0];
+  return {
+    recebido: recebido / 100,
+    sobrou: (recebido - custo) / 100,
+    entregas,
+    diasTrabalhados: dias,
+    porEntrega: entregasPagas ? recebido / entregasPagas / 100 : 0,
+    porDia: dias ? recebido / dias / 100 : 0,
+    custoACada100: recebido ? Math.round((custo / recebido) * 100) : 0,
+    maiorCusto: maior ? maior[0] : null,
   };
-  const a = medir(atual);
-  const b = medir(anterior);
-  const variacao = (agora: number, antes: number) =>
-    antes === 0 ? null : Math.round(((agora - antes) / Math.abs(antes)) * 100);
-  const linha = (chave: Tendencia["chave"], rotulo: string, subirEhBom: boolean, dinheiro: boolean): Tendencia => ({
-    chave,
-    rotulo,
-    atual: a[chave],
-    anterior: b[chave],
-    variacao: variacao(a[chave], b[chave]),
-    subirEhBom,
-    dinheiro,
-  });
-  return [
-    linha("receita", "Receita", true, true),
-    linha("despesa", "Despesas do corre", false, true),
-    linha("saldo", "Saldo do corre", true, true),
-    linha("entregas", "Entregas", true, false),
-    linha("ticket", "Média por entrega", true, true),
-  ];
 }
 
 export const FAIXAS_HORARIO = ["0h", "3h", "6h", "9h", "12h", "15h", "18h", "21h"];

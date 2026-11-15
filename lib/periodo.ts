@@ -70,3 +70,42 @@ export function nomeDoPeriodo(filtro: FiltroPeriodo) {
     }
   }
 }
+
+/**
+ * Com quem o período é comparado, em linguagem do dia a dia: "que ontem",
+ * "que na semana passada"... (o anterior de mesmo tamanho, como nos Relatórios).
+ */
+export function comparadoCom(filtro: FiltroPeriodo) {
+  switch (filtro.tipo) {
+    case "dia":
+      return "que ontem";
+    case "semana":
+      return "que na semana passada";
+    case "mes":
+      return "que no mês passado";
+    case "mes-passado":
+      return "que no mês retrasado";
+    case "personalizado": {
+      const dias = Math.round((new Date(filtro.ate).getTime() - new Date(filtro.de).getTime()) / 86_400_000) + 1;
+      return `que nos ${dias} dias anteriores`;
+    }
+  }
+}
+
+/** Quando, para frases como "Você recebeu nesta semana". */
+export function quandoFoi(filtro: FiltroPeriodo) {
+  switch (filtro.tipo) {
+    case "dia":
+      return "hoje";
+    case "semana":
+      return "nesta semana";
+    case "mes":
+      return "neste mês";
+    case "mes-passado":
+      return "no mês passado";
+    case "personalizado": {
+      const curta = (texto: string) => texto.split("-").reverse().slice(0, 2).join("/");
+      return `de ${curta(filtro.de)} a ${curta(filtro.ate)}`;
+    }
+  }
+}
