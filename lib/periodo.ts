@@ -74,8 +74,22 @@ export function nomeDoPeriodo(filtro: FiltroPeriodo) {
 /**
  * Com quem o período é comparado, em linguagem do dia a dia: "que ontem",
  * "que na semana passada"... (o anterior de mesmo tamanho, como nos Relatórios).
+ * Em andamento: o período ainda não terminou, então a comparação vai só até o
+ * mesmo ponto do anterior ("que até este dia no mês passado").
  */
-export function comparadoCom(filtro: FiltroPeriodo) {
+export function comparadoCom(filtro: FiltroPeriodo, emAndamento = false) {
+  if (emAndamento) {
+    switch (filtro.tipo) {
+      case "dia":
+        return "que ontem até esta hora";
+      case "semana":
+        return "que até este dia na semana passada";
+      case "mes":
+        return "que até este dia no mês passado";
+      default:
+        return "que no mesmo trecho do período anterior";
+    }
+  }
   switch (filtro.tipo) {
     case "dia":
       return "que ontem";

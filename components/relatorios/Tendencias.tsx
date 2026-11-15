@@ -117,19 +117,29 @@ export function Tendencias({
       </div>
 
       {previsao && (
-        <div className={`${CARTAO} flex flex-col gap-1 bg-marinho text-white`}>
-          <span className="text-xs font-bold">Se continuar nesse ritmo</span>
-          <p className="text-[13px] leading-snug text-white/90">
-            O mês fecha com cerca de{" "}
-            <b className="text-dourado-claro">
-              <Valor texto={formatarMoeda(previsao.receita)} />
-            </b>{" "}
-            recebidos e{" "}
-            <b className={previsao.saldo < 0 ? "text-[#f08a7a]" : "text-[#9be15d]"}>
-              <Valor texto={formatarMoeda(previsao.saldo)} />
-            </b>{" "}
-            de sobra do corre. Faltam {previsao.diasRestantes} {previsao.diasRestantes === 1 ? "dia" : "dias"}.
-          </p>
+        // Fundo marinho próprio (não o branco do CARTAO, que venceria e apagaria o texto).
+        <div className="flex flex-col gap-2 rounded-[12px] bg-marinho px-3.5 py-3 text-white">
+          <div>
+            <p className="text-xs font-bold">Se continuar nesse ritmo até o fim do mês</p>
+            <p className="text-[11px] text-white/75">
+              Uma estimativa pelo que você fez até agora. Faltam {previsao.diasRestantes}{" "}
+              {previsao.diasRestantes === 1 ? "dia" : "dias"}.
+            </p>
+          </div>
+          <dl className="grid grid-cols-2 gap-2">
+            <div className="flex flex-col">
+              <dt className="text-[11px] text-white/75">Vai receber cerca de</dt>
+              <dd className="text-lg font-extrabold text-dourado-claro">
+                <Valor texto={formatarMoeda(previsao.receita)} />
+              </dd>
+            </div>
+            <div className="flex flex-col">
+              <dt className="text-[11px] text-white/75">Deve sobrar do corre</dt>
+              <dd className={`text-lg font-extrabold ${previsao.saldo < 0 ? "text-[#f08a7a]" : "text-[#9be15d]"}`}>
+                <Valor texto={formatarMoeda(previsao.saldo)} />
+              </dd>
+            </div>
+          </dl>
         </div>
       )}
     </section>

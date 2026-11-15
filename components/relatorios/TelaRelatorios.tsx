@@ -65,14 +65,24 @@ export function TelaRelatorios() {
         6,
       )
     : [];
+  // Período ainda correndo (esta semana, este mês): o anterior entra só até o
+  // mesmo ponto, senão metade do mês sempre parece pior que o mês inteiro.
+  const [agora] = useState(() => Date.now());
+  const emAndamento = Boolean(dados && agora < dados.fim.getTime());
+  const limiteAnterior = dados ? dados.inicio.getTime() - (dados.fim.getTime() - dados.inicio.getTime()) + (Math.min(agora, dados.fim.getTime()) - dados.inicio.getTime()) : 0;
+  const ateMesmoPonto = <T extends { data_hora: string }>(lista: T[]) =>
+    emAndamento ? lista.filter((item) => new Date(item.data_hora).getTime() < limiteAnterior) : lista;
+  const anteriorComparavel = dados
+    ? { receitas: ateMesmoPonto(doCliente(dados.anterior.receitas)), despesas: ateMesmoPonto(dados.anterior.despesas) }
+    : null;
   const numeros = dados ? numerosDoCorre({ receitas, despesas: doCorre(despesas) }) : null;
-  const numerosAntes = dados
-    ? numerosDoCorre({ receitas: doCliente(dados.anterior.receitas), despesas: doCorre(dados.anterior.despesas) })
+  const numerosAntes = anteriorComparavel
+    ? numerosDoCorre({ receitas: anteriorComparavel.receitas, despesas: doCorre(anteriorComparavel.despesas) })
     : null;
   // O ritmo até o fim do mês só faz sentido olhando o mês que ainda está correndo.
   const previsao = periodo.tipo === "mes" && numeros ? previsaoDoMes(numeros.recebido, numeros.recebido - numeros.sobrou) : null;
   const avisos = dados
-    ? gerarAvisos({ receitas, despesas }, dados.anterior, doCliente(pendentes.data ?? []))
+    ? gerarAvisos({ receitas, despesas }, { despesas: anteriorComparavel!.despesas }, doCliente(pendentes.data ?? []))
     : [];
 
   return (
@@ -115,7 +125,7 @@ export function TelaRelatorios() {
             <Tendencias
               atual={numeros}
               anterior={numerosAntes}
-              comparado={comparadoCom(periodo)}
+              comparado={comparadoCom(periodo, emAndamento)}
               nomePeriodo={quandoFoi(periodo)}
               previsao={previsao}
             />
