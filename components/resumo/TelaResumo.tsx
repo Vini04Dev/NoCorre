@@ -5,7 +5,10 @@ import { useState } from "react";
 import { CartaoSaldo } from "./CartaoSaldo";
 import { ListaMovimentacoes } from "./ListaMovimentacoes";
 import { PainelFiltros } from "./PainelFiltros";
+import { BotaoCarteira } from "@/components/carteiras/BotaoCarteira";
 import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
+import { useSaldosCarteiras, useTransferenciasDoPeriodo } from "@/hooks/useCarteiras";
+import { useCarteiraEmFoco } from "@/hooks/useCarteiraEmFoco";
 import { useEstadoDaTela } from "@/hooks/useEstadoDaTela";
 import { useMovimentacoes, usePendentes } from "@/hooks/useMovimentacoes";
 import {
@@ -15,8 +18,9 @@ import {
   type FiltroRapido,
   type Filtros,
 } from "@/lib/filtros";
+import { ehDaCarteira, movimentoDaCarteira } from "@/lib/carteiras";
 import { formatarMoeda } from "@/lib/formatar";
-import { nomeDoPeriodo, type FiltroPeriodo } from "@/lib/periodo";
+import { intervaloDoPeriodo, nomeDoPeriodo, type FiltroPeriodo } from "@/lib/periodo";
 import { calcularTotais } from "@/lib/totais";
 
 const RAPIDOS: { valor: FiltroRapido; rotulo: string }[] = [
@@ -41,17 +45,29 @@ export function TelaResumo({ dia }: { dia?: string }) {
 
   const movimentacoes = useMovimentacoes(periodo);
   // "Pendentes" mostra tudo o que falta receber, de qualquer data, não só do período.
-  const pendentes = usePendentes();
+  const pendentesTodos = usePendentes();
+
+  // Carteira em foco (botão no topo): o extrato mostra só o que passou por ela.
+  const emFoco = useCarteiraEmFoco();
+  const focada = emFoco.carteira;
+  const daqui = (id: string | null) => !focada || ehDaCarteira(id, focada.id, emFoco.principalId);
+  const { inicio, fim } = intervaloDoPeriodo(periodo);
+  const { data: transferencias } = useTransferenciasDoPeriodo(inicio, fim, Boolean(focada));
+  const { data: saldos } = useSaldosCarteiras(Boolean(focada));
+  const dados = movimentacoes.data && {
+    receitas: movimentacoes.data.receitas.filter((r) => daqui(r.carteira_id)),
+    despesas: movimentacoes.data.despesas.filter((d) => daqui(d.carteira_id)),
+    entradas: movimentacoes.data.entradas.filter((e) => daqui(e.carteira_id)),
+  };
+  const pendentes = { ...pendentesTodos, data: pendentesTodos.data?.filter((r) => daqui(r.carteira_id)) };
   const consulta = rapido === "pendentes" ? pendentes : movimentacoes;
 
-  const totais = movimentacoes.data
-    ? calcularTotais(movimentacoes.data.receitas, movimentacoes.data.despesas)
-    : null;
+  const totais = dados ? calcularTotais(dados.receitas, dados.despesas) : null;
   const lista =
     rapido === "pendentes"
       ? (pendentes.data ?? []).map((dados) => ({ tipo: "receita" as const, dados }))
       : movimentacoes.data
-        ? montarExtrato(movimentacoes.data.receitas, movimentacoes.data.despesas, rapido, filtros, movimentacoes.data.entradas)
+        ? montarExtrato(dados!.receitas, dados!.despesas, rapido, filtros, dados!.entradas)
         : [];
   const aReceber = (pendentes.data ?? []).reduce((soma, r) => soma + Math.round((r.valor_total ?? 0) * 100), 0);
   const filtrosAtivos = quantidadeFiltrosAtivos(filtros);
@@ -61,6 +77,8 @@ export function TelaResumo({ dia }: { dia?: string }) {
       <div className="flex flex-col gap-3.5 lg:sticky lg:top-6">
       <header className="flex items-center justify-between">
         <h1 className="text-[22px] font-extrabold lg:text-3xl">Resumo</h1>
+        <div className="flex items-center gap-2">
+        <BotaoCarteira variante="tela" />
         <button
           type="button"
           onClick={() => setPainelAberto(true)}
@@ -74,13 +92,19 @@ export function TelaResumo({ dia }: { dia?: string }) {
             </span>
           )}
         </button>
+        </div>
       </header>
 
       <SeletorPeriodoAmplo valor={periodo} aoMudar={setPeriodo} />
       <CartaoSaldo
         nomePeriodo={nomeDoPeriodo(periodo)}
         totais={totais}
-        entradas={(movimentacoes.data?.entradas ?? []).reduce((soma, e) => soma + e.valor, 0)}
+        entradas={(dados?.entradas ?? []).reduce((soma, e) => soma + e.valor, 0)}
+        carteira={
+          focada && dados && transferencias
+            ? { nome: focada.nome, saldo: saldos?.get(focada.id), ...movimentoDaCarteira(dados, transferencias, focada.id, emFoco.principalId) }
+            : undefined
+        }
       />
 
       <div role="radiogroup" aria-label="Mostrar" className="-mx-[17px] flex gap-2 overflow-x-auto px-[17px] lg:mx-0 lg:flex-wrap lg:px-0">

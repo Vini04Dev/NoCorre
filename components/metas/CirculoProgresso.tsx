@@ -5,10 +5,18 @@ type Props = {
   tamanho?: number;
   espessura?: number;
   className?: string;
+  /** Meta pausada ou encerrada: símbolo no lugar do percentual. */
+  simbolo?: "certo" | "pausa" | "fim" | null;
+};
+
+const SIMBOLOS = {
+  certo: { d: "M20 6 9 17l-5-5", rotulo: "concluída" },
+  pausa: { d: "M9 5v14M15 5v14", rotulo: "pausada" },
+  fim: { d: "M6 12h12", rotulo: "encerrada" },
 };
 
 /** Anel de progresso com o percentual no meio. Acima de 100% o anel fica cheio. */
-export function CirculoProgresso({ percentual, traco, tamanho = 60, espessura = 7, className = "" }: Props) {
+export function CirculoProgresso({ percentual, traco, tamanho = 60, espessura = 7, className = "", simbolo = null }: Props) {
   const raio = (tamanho - espessura) / 2;
   const circunferencia = 2 * Math.PI * raio;
   const preenchido = Math.min(Math.max(percentual, 0), 100) / 100;
@@ -28,9 +36,27 @@ export function CirculoProgresso({ percentual, traco, tamanho = 60, espessura = 
           className={traco}
         />
       </svg>
-      <span className="absolute font-extrabold" style={{ fontSize: tamanho * 0.22 }}>
-        {percentual}%
-      </span>
+      {simbolo ? (
+        <svg
+          width={tamanho * 0.36}
+          height={tamanho * 0.36}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2.6}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          role="img"
+          aria-label={SIMBOLOS[simbolo].rotulo}
+          className="absolute"
+        >
+          <path d={SIMBOLOS[simbolo].d} />
+        </svg>
+      ) : (
+        <span className="absolute font-extrabold" style={{ fontSize: tamanho * 0.22 }}>
+          {percentual}%
+        </span>
+      )}
     </div>
   );
 }

@@ -15,6 +15,7 @@ import { formatarMoeda } from "@/lib/formatar";
 import {
   corDaMeta,
   ROTULO_PARAMETRO,
+  simboloDaMeta,
   textoPeriodo,
   textoProgresso,
   textoRitmo,
@@ -80,7 +81,7 @@ function Conteudo({ meta }: { meta: MetaComProgresso }) {
         <AvisoErro mensagem={excluir.error?.message} />
 
         <section className="flex flex-col items-center gap-2 rounded-[14px] border border-black/8 bg-white px-4 py-5 text-center shadow-cartao">
-          <CirculoProgresso percentual={meta.percentual} traco={cor.traco} tamanho={140} espessura={14} />
+          <CirculoProgresso percentual={meta.percentual} traco={cor.traco} tamanho={140} espessura={14} simbolo={simboloDaMeta(meta)} />
           <h2 className="mt-1 text-base font-extrabold">{meta.nome}</h2>
           <p className={`text-sm font-semibold ${cor.texto}`}>{textoProgresso(meta)}</p>
           {meta.aReceber > 0 && !meta.encerrada && (

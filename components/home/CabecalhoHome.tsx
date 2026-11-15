@@ -2,12 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { BotaoOlho } from "./BotaoOlho";
+import { BotaoCarteira } from "@/components/carteiras/BotaoCarteira";
 import { SinoNotificacoes } from "@/components/notificacoes/SinoNotificacoes";
 
 /**
- * Faixa do Início: saudação à esquerda; à direita o olho (esconder valores) e
- * o sininho de notificações. Mesmo degradê da esquerda para a direita no
- * celular e no computador.
+ * Faixa do Início: saudação à esquerda; à direita o olho (esconder valores),
+ * a carteira (Pro, com duas ou mais) e o sininho de notificações. Mesmo
+ * degradê da esquerda para a direita no celular e no computador.
  */
 export function CabecalhoHome({ nome }: { nome?: string }) {
   const saudacao = nome ? `Olá, ${nome}!` : "Olá!";
@@ -26,6 +27,7 @@ export function CabecalhoHome({ nome }: { nome?: string }) {
       </div>
       <div className="flex shrink-0 items-center gap-2">
         <BotaoOlho className="shrink-0" />
+        <BotaoCarteira />
         {/* useSearchParams (prévia ?aviso=vencimento) precisa de Suspense em volta. */}
         <Suspense>
           <SinoNotificacoes />

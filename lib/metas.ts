@@ -259,3 +259,13 @@ export function emAbertoNaConta(conta: MetaComProgresso, despesaEditada?: { id: 
   const devolvido = conta.pagamentos.find((pagamento) => pagamento.id === despesaEditada?.id)?.valor_total ?? 0;
   return Math.round((conta.valor_alvo - conta.atual + devolvido) * 100) / 100;
 }
+
+/**
+ * Símbolo no lugar do percentual quando a meta já não está correndo: pausada
+ * ou encerrada. Só muda o que aparece; o cálculo continua o mesmo.
+ */
+export function simboloDaMeta(meta: Pick<MetaComProgresso, "situacao" | "encerrada">): "certo" | "pausa" | "fim" | null {
+  if (meta.situacao === "pausada") return "pausa";
+  if (!meta.encerrada) return null;
+  return meta.situacao === "batida" || meta.situacao === "quitada" || meta.situacao === "dentro_limite" ? "certo" : "fim";
+}

@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Calendario } from "./Calendario";
 import { ResumoCarteira } from "./ResumoCarteira";
-import { SeletorCarteira } from "./SeletorCarteira";
 import { ForaDoCorre } from "@/components/ui/ForaDoCorre";
 import { LinhaValor } from "@/components/ui/LinhaValor";
 import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
@@ -49,11 +48,6 @@ export function ResumoPeriodo() {
 
   return (
     <section className="flex flex-col gap-[21px]">
-      {emFoco.disponivel && (
-        <div className="-mb-3 flex">
-          <SeletorCarteira ativas={emFoco.ativas} valor={emFoco.carteira?.id ?? null} aoMudar={emFoco.escolher} />
-        </div>
-      )}
       <div className="flex items-start gap-2">
         <div className="min-w-0 flex-1">
           <SeletorPeriodoAmplo valor={periodo} aoMudar={setPeriodo} />
