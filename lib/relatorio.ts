@@ -1,3 +1,4 @@
+import { contaComoEntrega } from "./categorias-padrao";
 import type { Despesa, Receita } from "@/hooks/useMovimentacoes";
 
 /*
@@ -83,7 +84,7 @@ export function rankingClientes(receitas: Receita[], limite = 5) {
   const somas = new Map<string, number>();
   for (const r of receitas) {
     const nome = r.clientes?.nome ?? "Sem cliente";
-    somas.set(nome, (somas.get(nome) ?? 0) + r.quantidade);
+    if (contaComoEntrega(r.tipo)) somas.set(nome, (somas.get(nome) ?? 0) + r.quantidade);
   }
   const total = [...somas.values()].reduce((a, b) => a + b, 0);
   const posicoes = [...somas]
@@ -187,7 +188,7 @@ export function gerarAvisos(
 /* ---------- Tendências, mapa do corre e evolução mensal ---------- */
 
 type ItemValor = { valor_total: number | null };
-type ItemReceita = ItemValor & { status_pagamento: string; quantidade: number };
+type ItemReceita = ItemValor & { tipo: string; status_pagamento: string; quantidade: number };
 
 const somaCentavos = (itens: ItemValor[]) => itens.reduce((soma, item) => soma + centavos(item.valor_total), 0);
 const somaPagas = (receitas: ItemReceita[]) =>
@@ -217,8 +218,9 @@ export function tendencias(
   const medir = (dados: typeof atual) => {
     const receita = somaPagas(dados.receitas);
     const despesa = somaCentavos(dados.despesas);
-    const entregas = dados.receitas.reduce((soma, r) => soma + r.quantidade, 0);
-    const entregasPagas = dados.receitas.filter((r) => r.status_pagamento === "pago").reduce((s, r) => s + r.quantidade, 0);
+    const deEntrega = dados.receitas.filter((r) => contaComoEntrega(r.tipo));
+    const entregas = deEntrega.reduce((soma, r) => soma + r.quantidade, 0);
+    const entregasPagas = deEntrega.filter((r) => r.status_pagamento === "pago").reduce((s, r) => s + r.quantidade, 0);
     return {
       receita: receita / 100,
       despesa: despesa / 100,

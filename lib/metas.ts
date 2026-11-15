@@ -1,3 +1,4 @@
+import { contaComoEntrega } from "./categorias-padrao";
 import { dataHoraParaCampos } from "./data";
 import { formatarMoeda } from "./formatar";
 import type { Enums, Tables } from "@/types/database";
@@ -96,7 +97,7 @@ export function calcularProgresso(
       break;
     case "quantidade":
       for (const receita of receitas) {
-        if (noPeriodo(meta, receita.data_hora) && bateFiltro(receita)) atual += receita.quantidade;
+        if (noPeriodo(meta, receita.data_hora) && bateFiltro(receita) && contaComoEntrega(receita.tipo)) atual += receita.quantidade;
       }
       break;
     case "despesa":

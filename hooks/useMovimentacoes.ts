@@ -130,7 +130,7 @@ export function useDespesa(id: string) {
   });
 }
 
-export type LinhaHistorico = Pick<Receita, "data_hora" | "valor_total" | "status_pagamento" | "quantidade" | "cliente_id">;
+export type LinhaHistorico = Pick<Receita, "tipo" | "data_hora" | "valor_total" | "status_pagamento" | "quantidade" | "cliente_id">;
 export type LinhaHistoricoDespesa = Pick<Despesa, "data_hora" | "valor_total" | "do_corre">;
 
 /**
@@ -163,7 +163,7 @@ export function useHistoricoMeses(meses = 6) {
         buscarTudo<LinhaHistorico>((de, ate) =>
           supabase
             .from("receitas")
-            .select("data_hora, valor_total, status_pagamento, quantidade, cliente_id")
+            .select("tipo, data_hora, valor_total, status_pagamento, quantidade, cliente_id")
             .gte("data_hora", inicio.toISOString())
             .lt("data_hora", fim.toISOString())
             .order("data_hora")

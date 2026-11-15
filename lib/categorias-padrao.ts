@@ -2,6 +2,19 @@ import type { Enums } from "@/types/database";
 
 export type TipoCategoria = Enums<"tipo_categoria">;
 
+/**
+ * Receita do corre que não depende de entrega: o fixo que o estabelecimento
+ * paga (semanal, mensal) além ou no lugar do valor por entrega. Entra no saldo
+ * do corre, mas não conta como entrega. Salário de outro emprego (CLT) não é
+ * do corre: vai em Outra entrada.
+ */
+export const CATEGORIA_FIXO = "Fixo";
+
+/** O lançamento conta como entrega (quantidade) nos totais, metas e relatórios? */
+export function contaComoEntrega(tipo: string) {
+  return tipo !== CATEGORIA_FIXO;
+}
+
 /** Categoria das despesas que pagam uma conta das Metas; o app preenche sozinho. */
 export const CATEGORIA_CONTAS = "Contas";
 
@@ -10,7 +23,7 @@ export const CATEGORIA_CONTAS = "Contas";
  * a tabela `categorias` guarda só as que cada pessoa cria.
  */
 export const CATEGORIAS_PADRAO: Record<TipoCategoria, string[]> = {
-  receita: ["Entrega", "Corrida", "Gorjeta"],
+  receita: ["Entrega", "Corrida", "Gorjeta", CATEGORIA_FIXO],
   // Diária é o que a central cobra do entregador por dia: despesa, não receita.
   despesa: ["Combustível", "Alimentação", "Peças", "EPI", "Diária da central", "Mercado", CATEGORIA_CONTAS],
 };

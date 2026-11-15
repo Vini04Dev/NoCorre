@@ -12,7 +12,9 @@ import { CampoTexto } from "@/components/ui/CampoTexto";
 import { ConfirmarExclusao } from "@/components/ui/ConfirmarExclusao";
 import { SeletorChips } from "@/components/ui/SeletorChips";
 import { useExcluirEntrada, useSalvarEntrada } from "@/hooks/useEntradas";
-import type { Entrada } from "@/hooks/useMovimentacoes";
+import { useExcluirLancamento } from "@/hooks/useLancamentos";
+import type { Entrada, Receita } from "@/hooks/useMovimentacoes";
+import { formatarMoeda } from "@/lib/formatar";
 import { camposParaDataHora, dataHoraParaCampos } from "@/lib/data";
 
 /** Origens mais comuns de dinheiro fora do corre (perfil dos entregadores: muitos têm outra renda). */
@@ -25,23 +27,26 @@ type Erros = { descricao?: string; valor?: string; data?: string };
  * Vai para a carteira, mas não conta como receita do trabalho nem como entrega,
  * e fica fora do saldo do corre do Início.
  */
-export function FormularioEntrada({ entrada }: { entrada?: Entrada }) {
+export function FormularioEntrada({ entrada, origem }: { entrada?: Entrada; origem?: Receita }) {
   const router = useRouter();
   const salvar = useSalvarEntrada();
   const excluir = useExcluirEntrada();
-  const inicio = dataHoraParaCampos(entrada ? new Date(entrada.data_hora) : new Date());
+  const tirarReceita = useExcluirLancamento();
+  const [inicio] = useState(() => dataHoraParaCampos(entrada || origem ? new Date((entrada ?? origem)!.data_hora) : new Date()));
   const [tipo, setTipo] = useState(entrada?.tipo ?? TIPOS_ENTRADA[0]);
-  const [descricao, setDescricao] = useState(entrada?.descricao ?? "");
-  const [centavos, setCentavos] = useState(Math.round((entrada?.valor ?? 0) * 100));
+  const [descricao, setDescricao] = useState(entrada?.descricao ?? origem?.observacao ?? "");
+  const [centavos, setCentavos] = useState(Math.round((entrada?.valor ?? origem?.valor_total ?? 0) * 100));
   const [data, setData] = useState(inicio.data);
   // undefined = ninguém mexeu (não manda a coluna); null = carteira principal.
-  const [carteiraId, setCarteiraId] = useState<string | null | undefined>(entrada ? entrada.carteira_id : undefined);
+  const [carteiraId, setCarteiraId] = useState<string | null | undefined>(
+    entrada ? entrada.carteira_id : origem ? origem.carteira_id : undefined,
+  );
   // Lançamento novo sem escolha: a carteira em foco no Início (à vista no campo Carteira).
   const { carteira: emFoco } = useCarteiraEmFoco();
   const carteiraEfetiva = carteiraId !== undefined ? carteiraId : emFoco?.id;
   const [erros, setErros] = useState<Erros>({});
   const [confirmando, setConfirmando] = useState(false);
-  const destino = entrada ? "/resumo" : "/";
+  const destino = entrada || origem ? "/resumo" : "/";
 
   function enviar(evento: React.FormEvent) {
     evento.preventDefault();
@@ -61,7 +66,14 @@ export function FormularioEntrada({ entrada }: { entrada?: Entrada }) {
           ...campoCarteira(carteiraEfetiva),
         },
       },
-      { onSuccess: () => router.push(destino) },
+      {
+        // Movendo uma receita: a entrada é criada primeiro e só então a receita sai,
+        // para o valor nunca sumir no meio do caminho.
+        onSuccess: () =>
+          origem
+            ? tirarReceita.mutate({ tabela: "receitas", id: origem.id }, { onSuccess: () => router.push(destino) })
+            : router.push(destino),
+      },
     );
   }
 
@@ -80,12 +92,23 @@ export function FormularioEntrada({ entrada }: { entrada?: Entrada }) {
   return (
     <form onSubmit={enviar} noValidate className="flex min-h-dvh flex-col">
       <div className="flex flex-col gap-3 px-5 pt-[calc(env(safe-area-inset-top)+12px)]">
-        <CabecalhoTela titulo={entrada ? "Editar entrada" : "Outra entrada"} voltarPara={destino} />
-        <p className="-mt-1 text-xs text-cinza-escuro">
-          Dinheiro que não vem do corre, como salário, bolsa ou ajuda. Entra na carteira, mas fica fora do saldo do corre e
-          das entregas.
-        </p>
-        <AvisoErro mensagem={salvar.error?.message ?? excluir.error?.message} />
+        <CabecalhoTela
+          titulo={entrada ? "Editar entrada" : origem ? "Mover para outra entrada" : "Outra entrada"}
+          voltarPara={origem ? `/resumo/receita/${origem.id}` : destino}
+        />
+        {origem ? (
+          <p className="-mt-1 rounded-[10px] bg-cinza-fundo px-3 py-2 text-xs text-cinza-escuro">
+            Esta receita de <b>{origem.clientes?.nome ?? "cliente"}</b> ({formatarMoeda(origem.valor_total ?? 0)}) vai virar outra
+            entrada, na mesma carteira. Ela sai das receitas, das entregas e do saldo do corre.
+            {origem.status_pagamento === "pendente" && " Ela estava pendente: a entrada conta como dinheiro que já entrou."}
+          </p>
+        ) : (
+          <p className="-mt-1 text-xs text-cinza-escuro">
+            Dinheiro que não vem do corre, como salário, bolsa ou ajuda. Entra na carteira, mas fica fora do saldo do corre e
+            das entregas.
+          </p>
+        )}
+        <AvisoErro mensagem={salvar.error?.message ?? excluir.error?.message ?? tirarReceita.error?.message} />
         <SeletorChips
           rotulo="De onde veio"
           opcoes={TIPOS_ENTRADA.map((valor) => ({ valor, rotulo: valor }))}
@@ -109,7 +132,7 @@ export function FormularioEntrada({ entrada }: { entrada?: Entrada }) {
 
       <div className="sticky bottom-0 mt-auto flex flex-col gap-2 bg-fundo px-5 pt-2.5 pb-[calc(env(safe-area-inset-bottom)+26px)]">
         <Botao type="submit" disabled={salvar.isPending}>
-          {salvar.isPending ? "Salvando..." : entrada ? "Salvar alterações" : "Salvar entrada"}
+          {salvar.isPending || tirarReceita.isPending ? "Salvando..." : entrada ? "Salvar alterações" : origem ? "Mover para outra entrada" : "Salvar entrada"}
         </Botao>
         {entrada && (
           <Botao variante="perigo" onClick={() => setConfirmando(true)}>

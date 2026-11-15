@@ -1,3 +1,5 @@
+import { contaComoEntrega } from "./categorias-padrao";
+
 /**
  * Tipos de carteira. A coluna no banco é texto livre (como o tipo de receitas e
  * despesas); estas opções só definem o rótulo e o ícone do cartão.
@@ -56,7 +58,7 @@ export function ehDaCarteira(carteiraDoLancamento: string | null, carteiraId: st
 }
 
 type Movimentos = {
-  receitas: { carteira_id: string | null; valor_total: number | null; quantidade: number; status_pagamento: "pago" | "pendente" }[];
+  receitas: { tipo: string; carteira_id: string | null; valor_total: number | null; quantidade: number; status_pagamento: "pago" | "pendente" }[];
   despesas: { carteira_id: string | null; valor_total: number | null }[];
   entradas: { carteira_id: string | null; valor: number }[];
 };
@@ -80,7 +82,7 @@ export function movimentoDaCarteira(
     if (!daqui(r.carteira_id)) continue;
     if (r.status_pagamento === "pago") recebidos += c(r.valor_total);
     else pendentes += c(r.valor_total);
-    entregas += r.quantidade;
+    if (contaComoEntrega(r.tipo)) entregas += r.quantidade;
   }
   for (const d of dados.despesas) if (daqui(d.carteira_id)) despesas += c(d.valor_total);
   for (const e of dados.entradas) if (daqui(e.carteira_id)) entradas += c(e.valor);
