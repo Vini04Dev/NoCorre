@@ -28,7 +28,7 @@ export function EvolucaoSaldo({ meses }: { meses: Mes[] }) {
   return (
     <section className="flex flex-col gap-2.5">
       <div className="flex items-center justify-between gap-2 text-[11px] font-semibold">
-        <h2 className="tracking-[0.66px] text-cinza">SALDO ACUMULADO</h2>
+        <h2 className="tracking-[0.66px] text-cinza">SALDO DO CORRE ACUMULADO</h2>
         {atual && (
           <span aria-live="polite" className={atual.acumulado < 0 ? "text-negativo" : ""}>
             até {atual.rotulo}: <Valor texto={formatarMoeda(atual.acumulado)} />

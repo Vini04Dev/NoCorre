@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
+import { CampoCarteira, campoCarteira } from "@/components/carteiras/CampoCarteira";
+import { useCarteiraEmFoco } from "@/hooks/useCarteiraEmFoco";
 import { CampoCategoria } from "./CampoCategoria";
 import { CamposValor, validarValores, valoresIniciais, type Valores } from "./CamposValor";
 import { PrimeiroCliente } from "./PrimeiroCliente";
@@ -53,6 +55,11 @@ export function FormularioReceita({ receita }: { receita?: Receita }) {
   const [forma, setForma] = useState<FormaPagamento | null>(receita?.forma_pagamento ?? null);
   const [situacao, setSituacao] = useState<StatusPagamento>(receita?.status_pagamento ?? "pago");
   const [observacao, setObservacao] = useState(receita?.observacao ?? "");
+  // undefined = ninguém mexeu (não manda a coluna); null = carteira principal.
+  const [carteiraId, setCarteiraId] = useState<string | null | undefined>(receita?.carteira_id);
+  // Lançamento novo sem escolha: a carteira em foco no Início (à vista no campo Carteira).
+  const { carteira: emFoco } = useCarteiraEmFoco();
+  const carteiraEfetiva = carteiraId !== undefined ? carteiraId : emFoco?.id;
   const [erros, setErros] = useState<Erros>({});
 
   function enviar(evento: React.FormEvent) {
@@ -75,6 +82,7 @@ export function FormularioReceita({ receita }: { receita?: Receita }) {
           forma_pagamento: forma,
           status_pagamento: situacao,
           observacao: observacao.trim() || null,
+          ...campoCarteira(carteiraEfetiva),
         },
       },
       { onSuccess: () => router.push(destino) },
@@ -141,6 +149,7 @@ export function FormularioReceita({ receita }: { receita?: Receita }) {
           aoMudar={(valor) => setForma(valor as FormaPagamento | null)}
           desmarcavel
         />
+        <CampoCarteira valor={carteiraEfetiva ?? null} aoMudar={setCarteiraId} />
         <Alternador rotulo="Situação" opcoes={SITUACOES} valor={situacao} aoMudar={setSituacao} />
         <CampoTexto
           rotulo="Observação"

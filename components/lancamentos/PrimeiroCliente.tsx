@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { IconeTingido } from "@/components/ui/Icones";
 import { classeBotao } from "@/components/ui/Botao";
 
 const EXEMPLOS = ["iFood", "99", "Vai Moto", "Entrega avulsa", "Corridas avulsas"];
@@ -12,7 +12,7 @@ export function PrimeiroCliente({ aoFechar }: { aoFechar: () => void }) {
   return (
     <div className="flex flex-col items-center gap-3 text-center">
       <span className="grid size-[54px] place-items-center rounded-full bg-marinho">
-        <Image src="/icones/cadastro.svg" alt="" width={32} height={32} />
+        <IconeTingido src="/icones/cadastro.svg" tamanho={32} cor="bg-dourado-icone" />
       </span>
       <h2 id="primeiro-cliente-titulo" className="text-lg font-extrabold">
         Bora começar o corre!

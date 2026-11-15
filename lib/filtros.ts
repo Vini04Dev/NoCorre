@@ -1,4 +1,4 @@
-import type { Despesa, Movimentacao, Receita } from "@/hooks/useMovimentacoes";
+import type { Despesa, Entrada, Movimentacao, Receita } from "@/hooks/useMovimentacoes";
 import type { Enums } from "@/types/database";
 
 export type FiltroRapido = "todos" | "receitas" | "despesas" | "pendentes";
@@ -41,8 +41,12 @@ export function montarExtrato(
   despesas: Despesa[],
   rapido: Exclude<FiltroRapido, "pendentes">,
   filtros: Filtros,
+  entradas: Entrada[] = [],
 ): Movimentacao[] {
+  // Entradas fora do corre só aparecem em "Todos" e sem filtro: não têm cliente, categoria nem situação.
+  const semFiltro = quantidadeFiltrosAtivos(filtros) === 0;
   const lista: Movimentacao[] = [
+    ...(rapido === "todos" && semFiltro ? entradas.map((dados) => ({ tipo: "entrada" as const, dados })) : []),
     ...(rapido === "despesas" ? [] : receitas.filter((r) => receitaPassa(r, filtros)).map((dados) => ({ tipo: "receita" as const, dados }))),
     ...(rapido === "receitas" ? [] : despesas.filter((d) => despesaPassa(d, filtros)).map((dados) => ({ tipo: "despesa" as const, dados }))),
   ];

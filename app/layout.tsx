@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { CSS_TEMAS_APP, SCRIPT_TEMA_APP } from "@/lib/tema-app";
 import { Inter, Poppins } from "next/font/google";
 import { Provedores } from "./provedores";
 import "./globals.css";
@@ -40,7 +41,13 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="pt-BR" className={`${poppins.variable} ${inter.variable} h-full antialiased`}>
+    // suppressHydrationWarning: o script abaixo põe data-tema-app no <html> antes do React.
+    <html lang="pt-BR" className={`${poppins.variable} ${inter.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: SCRIPT_TEMA_APP }} />
+        {/* Valores de cada tema, gerados de lib/tema-app.ts (a distribuição fica em globals.css). */}
+        <style dangerouslySetInnerHTML={{ __html: CSS_TEMAS_APP }} />
+      </head>
       <body className="min-h-full font-sans">
         <Provedores>{children}</Provedores>
       </body>

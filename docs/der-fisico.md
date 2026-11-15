@@ -33,6 +33,7 @@ usuário) e RLS ligada: cada pessoa só lê e altera as próprias linhas.
 | `status_pagamento` | `pago`, `pendente`                                       |
 | `tipo_categoria`   | `receita`, `despesa`                                     |
 | `cor_evento`       | `amarelo`, `verde`, `vermelho`, `azul`, `roxo`, `cinza`  |
+| `plano_conta`      | `gratis`, `pro`                                          |
 | `parametro_meta`   | `quantidade`, `receita`, `despesa`, `conta`              |
 | `status_meta`      | `ativa`, `inativa`                                       |
 
@@ -60,6 +61,7 @@ ficam em `auth.users`).
 | `ano_veiculo`    | `smallint`    | opcional, `check` entre 1950 e 2100                 |
 | `placa`          | `varchar(10)` | opcional                                            |
 | `foto`           | `text`        | opcional, caminho no bucket `fotos-perfil`          |
+| `plano`          | `plano_conta` | not null, default `gratis`; só o servidor altera    |
 | `created_at`     | `timestamptz` | default `now()`                                     |
 
 Criada automaticamente pelo trigger `ao_criar_usuario` quando alguém se
@@ -213,6 +215,131 @@ encerram quando batem o alvo ou quando o período termina; limite de despesa só
 no fim do período; conta a pagar quando é quitada (enquanto não for, continua
 ativa, e passa a "em atraso" depois do fim do período).
 
+## Plano Pro
+
+`perfis.plano` diz se a conta é `gratis` ou `pro`. Não há cobrança ainda: o
+ADM liga o Pro pelo painel do sistema (servidor, com a Secret key).
+
+- Desde a migration `20261111100000_plano_pro`, o `update` em `perfis` vale só
+  para as colunas que o app edita (`nome`, `telefone`, `tipo_sanguineo`,
+  `veiculo`, `ano_veiculo`, `placa`, `foto`), por permissão de coluna. Assim
+  ninguém se dá o Pro pela API. **Coluna nova editável pela pessoa precisa
+  entrar nesse `grant`.**
+- `public.eh_pro()` (security definer, `search_path` vazio) devolve se quem
+  chamou é Pro. As tabelas de recursos Pro usam essa função na política de
+  RLS de escrita, então o banco recusa gravação de quem não é Pro.
+- Neste projeto as tabelas não dão acesso automático ao `service_role`. A
+  migration `20261111130000_plano_admin` libera para ele só ler `id` e
+  `plano` de `perfis` e alterar `plano`, que é o que o painel precisa para
+  ligar e desligar o Pro.
+
+## Carteiras (Pro)
+
+Migration `20261111110000_carteiras`. Separa o dinheiro por onde ele está
+(conta do banco, dinheiro em mão, conta do salário).
+
+### carteiras
+
+| Coluna          | Tipo            | Regras                                              |
+|-----------------|-----------------|-----------------------------------------------------|
+| `id`            | `uuid`          | PK; `unique (id, usuario_id)` para FKs compostas    |
+| `usuario_id`    | `uuid`          | FK `auth.users`, `on delete cascade`                |
+| `nome`          | `varchar(40)`   | not null, único por pessoa                          |
+| `cor`           | `cor_evento`    | default `azul`                                      |
+| `saldo_inicial` | `numeric(10,2)` | default 0 (quanto tinha ao começar a usar)          |
+| `padrao`        | `boolean`       | no máximo uma por pessoa (índice único parcial)     |
+| `arquivada`     | `boolean`       | some das escolhas, mantém o histórico               |
+
+### transferencias
+
+| Coluna       | Tipo            | Regras                                          |
+|--------------|-----------------|-------------------------------------------------|
+| `origem_id`  | `uuid`          | FK composta `(origem_id, usuario_id)`            |
+| `destino_id` | `uuid`          | FK composta; `check (origem_id <> destino_id)`   |
+| `valor`      | `numeric(10,2)` | `> 0`                                            |
+| `data_hora`  | `timestamptz`   | default `now()`                                  |
+| `observacao` | `varchar(120)`  | opcional                                         |
+
+- `receitas.carteira_id` e `despesas.carteira_id`: opcionais, FK composta com
+  `on delete no action` (carteira com lançamentos não é excluída; arquiva-se).
+  Lançamento sem carteira conta na principal.
+- RLS: ler e excluir os próprios; criar e editar só com `eh_pro()`.
+- `public.saldos_carteiras()` (security invoker): saldo inicial + receitas
+  pagas − despesas ± transferências, por carteira.
+- **Para desfazer** (se o recurso não for adiante):
+  `drop function public.saldos_carteiras(); drop table public.transferencias;
+  alter table public.receitas drop column carteira_id; alter table
+  public.despesas drop column carteira_id; drop table public.carteiras;` e
+  `supabase migration repair --status reverted 20261111110000`.
+
+## Contas fixas
+
+Migration `20261112090000_contas_fixas`. Despesas que se repetem todo mês no
+mesmo dia (plano de celular, internet, parcela). O Início avisa de 3 dias
+antes até o pagamento; nada é lançado sozinho.
+
+### contas_fixas
+
+| Coluna           | Tipo            | Regras                                                        |
+|------------------|-----------------|---------------------------------------------------------------|
+| `id`             | `uuid`          | PK; `unique (id, usuario_id)` para FKs compostas              |
+| `usuario_id`     | `uuid`          | FK `auth.users`, `on delete cascade`                          |
+| `descricao`      | `varchar(60)`   | not null                                                      |
+| `tipo`           | `varchar(50)`   | categoria da despesa lançada no pagamento                     |
+| `valor`          | `numeric(10,2)` | `> 0`                                                         |
+| `dia_vencimento` | `smallint`      | 1 a 31; em mês mais curto vence no último dia (regra do app)  |
+| `carteira_id`    | `uuid`          | opcional; FK composta, `on delete set null (carteira_id)`     |
+| `automatico`     | `boolean`       | débito automático: o aviso pergunta se o débito caiu          |
+| `ativa`          | `boolean`       | `false` pausa os avisos                                       |
+
+- `despesas.conta_fixa_id`: opcional, FK composta com `on delete set null
+  (conta_fixa_id)`. A conta do mês está paga quando há despesa ligada a ela
+  dentro do mês.
+- RLS: tudo só nas próprias linhas (não é recurso Pro).
+- **Para desfazer:** `alter table public.despesas drop column conta_fixa_id;
+  drop table public.contas_fixas;` e `supabase migration repair --status
+  reverted 20261112090000`.
+
+## Do corre, parcelas e entradas
+
+Migration `20261113090000_corre_pessoal_parcelas_entradas`. Só acrescenta; o
+código antigo continua funcionando.
+
+- **`despesas.do_corre`** (`boolean`, padrão `true`): custo do trabalho (entra
+  no saldo do corre do Início) ou gasto pessoal. O app preenche pelo padrão da
+  categoria e a pessoa pode trocar. Na migration, despesas antigas ligadas a
+  conta/meta ou de categorias claramente pessoais viram pessoais.
+- **`categorias.do_corre`** (`boolean`, padrão `false`): padrão das despesas da
+  categoria criada pela pessoa. As categorias padrão ficam no código
+  (`lib/categorias-padrao.ts`).
+- **`contas_fixas.parcelas_total`** (`smallint`, 2 a 120, opcional) e
+  **`parcelas_antes`** (`smallint`, padrão 0, menor que o total): conta
+  parcelada. Pagas = `parcelas_antes` + despesas ligadas; quitada some dos
+  avisos e dos totais.
+- **`entradas`**: dinheiro que não é do corre (salário, bolsa, benefício,
+  ajuda). Não conta como receita, entrega nem saldo do corre; soma na carteira.
+
+### entradas
+
+| Coluna        | Tipo            | Regras                                                        |
+|---------------|-----------------|---------------------------------------------------------------|
+| `id`          | `uuid`          | PK                                                            |
+| `usuario_id`  | `uuid`          | FK `auth.users`, `on delete cascade`, default `auth.uid()`    |
+| `descricao`   | `varchar(60)`   | not null                                                      |
+| `tipo`        | `varchar(50)`   | livre; sugestões no app (Salário, Bolsa, Benefício...)        |
+| `valor`       | `numeric(10,2)` | `> 0`                                                         |
+| `data_hora`   | `timestamptz`   | default `now()`                                               |
+| `carteira_id` | `uuid`          | opcional; FK composta; sem carteira conta na principal        |
+
+- RLS: tudo só nas próprias linhas (não é recurso Pro).
+- `saldos_carteiras()` passa a somar as entradas.
+- **Para desfazer:** `drop table public.entradas;`, `alter table
+  public.despesas drop column do_corre;`, `alter table public.categorias drop
+  column do_corre;`, `alter table public.contas_fixas drop column
+  parcelas_total, drop column parcelas_antes;`, recriar `saldos_carteiras()`
+  como na migration `20261111110000_carteiras` e `supabase migration repair
+  --status reverted 20261113090000`.
+
 ## Administração
 
 O painel `/admin` do app abre só para o e-mail definido em `ADMIN_EMAIL`,
@@ -250,6 +377,24 @@ sessão), o mesmo dado do detalhe da pessoa.
 
 Número de requisições à API não está no banco (só na Management API do
 Supabase, que exige token de acesso à conta) e por isso ficou de fora.
+
+## Saúde da moto (Pro)
+
+Migration `20261111120000_saude_moto`.
+
+- `moto_quilometragem` (`km` integer ≥ 0, `registrado_em`): leituras do
+  odômetro. A quilometragem atual é a leitura mais recente. "Somar km rodados"
+  grava a leitura nova (atual + rodados).
+- `moto_componentes` (`tipo`, `nome`, `intervalo_km` > 0, `km_ultima_troca`,
+  `ativo`; único por `(usuario_id, tipo)`): itens acompanhados. Os padrões
+  (óleo 3.000 km, relação 15.000, pneu traseiro 15.000, dianteiro 20.000,
+  freios 10.000) vivem em `lib/moto.ts` e são só sugestão.
+- Desgaste = (km atual − km da última troca) ÷ intervalo: até 70% em dia, 90%
+  trocar logo, 100% passou da hora. Calculado na hora, nunca salvo.
+- RLS: ler e excluir os próprios; criar e editar só com `eh_pro()`.
+- **Para desfazer:** `drop table public.moto_componentes; drop table
+  public.moto_quilometragem;` e `supabase migration repair --status reverted
+  20261111120000`.
 
 ## Segurança (RLS)
 

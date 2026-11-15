@@ -20,6 +20,54 @@ export type Nota = {
 
 export const NOTAS: Nota[] = [
   {
+    versao: "0.0.4",
+    data: "2026-11-15",
+    titulo: "O dinheiro do corre separado do resto",
+    resumo: "Gastos pessoais e outras entradas fora do saldo do corre, contas do mês, um sininho de avisos e Relatórios mais fáceis de entender.",
+    destaques: [
+      {
+        icone: "/icones/saldo-linha.svg",
+        titulo: "Saldo só do corre",
+        texto: "Cada despesa agora é do corre ou pessoal. O saldo mostra só o que o corre deu; mercado, conta de luz e outros gastos pessoais aparecem à parte.",
+      },
+      {
+        icone: "/icones/receita.svg",
+        titulo: "Outra entrada",
+        texto: "Salário, bolsa ou ajuda da família entram pelo botão + em Outra entrada, sem misturar com as entregas. Uma receita lançada errado pode ser movida para lá.",
+      },
+      {
+        icone: "/icones/conta-fixa.svg",
+        titulo: "Contas do mês",
+        texto: "Cadastre aluguel, internet ou parcelas em Metas. O app lembra o vencimento, conta as parcelas pagas e marca débito automático.",
+      },
+      {
+        icone: "/icones/relatorios.svg",
+        titulo: "Relatórios mais claros",
+        texto: "Tudo em reais, sem porcentagem: quanto recebeu, quanto sobrou, por dia e por entrega, comparado ao mesmo ponto do período anterior.",
+      },
+      {
+        icone: "/icones/info.svg",
+        titulo: "Sininho de avisos",
+        texto: "No Início, o sininho junta contas para vencer, o próximo compromisso e entregas a receber. O que é urgente aparece numa linha logo abaixo.",
+      },
+      {
+        icone: "/icones/destaque-usuario.svg",
+        titulo: "Quanto fiz em cada cliente",
+        texto: "Em Relatórios, os clientes aparecem por entregas ou por valor recebido. Toque num deles para ver só as receitas dele no Resumo.",
+      },
+      {
+        icone: "/icones/despesa.svg",
+        titulo: "Categoria Fixo",
+        texto: "Para o valor fixo da diária ou do estabelecimento. Entra no que você recebeu, mas não conta como entrega.",
+      },
+      {
+        icone: "/icones/metas.svg",
+        titulo: "Metas mais fáceis de ler",
+        texto: "Meta pausada ou encerrada mostra um símbolo no lugar da porcentagem.",
+      },
+    ],
+  },
+  {
     versao: "0.0.3",
     data: "2026-11-12",
     titulo: "Página de apresentação revisada",

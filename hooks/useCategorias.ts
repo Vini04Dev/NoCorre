@@ -23,7 +23,7 @@ export function useCategorias() {
   return useQuery({ queryKey: CHAVE, queryFn: buscarCategorias });
 }
 
-type SalvarCategoria = { id?: string; nome: string; tipo: TipoCategoria };
+type SalvarCategoria = { id?: string; nome: string; tipo: TipoCategoria; do_corre?: boolean };
 
 async function salvarCategoria({ id, ...dados }: SalvarCategoria) {
   const supabase = criarClienteNavegador();

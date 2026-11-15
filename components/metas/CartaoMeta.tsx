@@ -4,6 +4,7 @@ import {
   corDaMeta,
   ROTULO_PARAMETRO,
   ROTULO_SITUACAO,
+  simboloDaMeta,
   textoPeriodo,
   textoProgresso,
   type MetaComProgresso,
@@ -22,7 +23,7 @@ export function CartaoMeta({ meta }: { meta: MetaComProgresso }) {
       href={`/metas/${meta.id}`}
       className="flex items-center gap-3.5 rounded-[14px] border border-black/8 bg-white px-3.5 py-3.5 shadow-cartao"
     >
-      <CirculoProgresso percentual={meta.percentual} traco={cor.traco} />
+      <CirculoProgresso percentual={meta.percentual} traco={cor.traco} simbolo={simboloDaMeta(meta)} />
       <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
         <span className="w-full truncate text-[15px] font-extrabold">{meta.nome}</span>
         <span className="text-xs font-semibold">{textoProgresso(meta)}</span>

@@ -1,3 +1,4 @@
+import { contaComoEntrega } from "./categorias-padrao";
 import { dataHoraParaCampos } from "./data";
 import { formatarMoeda } from "./formatar";
 import type { Enums, Tables } from "@/types/database";
@@ -96,7 +97,7 @@ export function calcularProgresso(
       break;
     case "quantidade":
       for (const receita of receitas) {
-        if (noPeriodo(meta, receita.data_hora) && bateFiltro(receita)) atual += receita.quantidade;
+        if (noPeriodo(meta, receita.data_hora) && bateFiltro(receita) && contaComoEntrega(receita.tipo)) atual += receita.quantidade;
       }
       break;
     case "despesa":
@@ -258,4 +259,14 @@ export function proximoPeriodo(meta: Pick<Meta, "data_inicio" | "data_fim">) {
 export function emAbertoNaConta(conta: MetaComProgresso, despesaEditada?: { id: string; valor_total: number | null }) {
   const devolvido = conta.pagamentos.find((pagamento) => pagamento.id === despesaEditada?.id)?.valor_total ?? 0;
   return Math.round((conta.valor_alvo - conta.atual + devolvido) * 100) / 100;
+}
+
+/**
+ * Símbolo no lugar do percentual quando a meta já não está correndo: pausada
+ * ou encerrada. Só muda o que aparece; o cálculo continua o mesmo.
+ */
+export function simboloDaMeta(meta: Pick<MetaComProgresso, "situacao" | "encerrada">): "certo" | "pausa" | "fim" | null {
+  if (meta.situacao === "pausada") return "pausa";
+  if (!meta.encerrada) return null;
+  return meta.situacao === "batida" || meta.situacao === "quitada" || meta.situacao === "dentro_limite" ? "certo" : "fim";
 }

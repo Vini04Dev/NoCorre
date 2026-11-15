@@ -14,9 +14,46 @@ export type Database = {
   }
   public: {
     Tables: {
+      carteiras: {
+        Row: {
+          arquivada: boolean
+          cor: Database["public"]["Enums"]["cor_evento"]
+          created_at: string
+          id: string
+          nome: string
+          padrao: boolean
+          saldo_inicial: number
+          tipo: string | null
+          usuario_id: string
+        }
+        Insert: {
+          arquivada?: boolean
+          cor?: Database["public"]["Enums"]["cor_evento"]
+          created_at?: string
+          id?: string
+          nome: string
+          padrao?: boolean
+          saldo_inicial?: number
+          tipo?: string | null
+          usuario_id?: string
+        }
+        Update: {
+          arquivada?: boolean
+          cor?: Database["public"]["Enums"]["cor_evento"]
+          created_at?: string
+          id?: string
+          nome?: string
+          padrao?: boolean
+          saldo_inicial?: number
+          tipo?: string | null
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       categorias: {
         Row: {
           created_at: string
+          do_corre: boolean
           id: string
           nome: string
           tipo: Database["public"]["Enums"]["tipo_categoria"]
@@ -24,6 +61,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          do_corre?: boolean
           id?: string
           nome: string
           tipo: Database["public"]["Enums"]["tipo_categoria"]
@@ -31,6 +69,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          do_corre?: boolean
           id?: string
           nome?: string
           tipo?: Database["public"]["Enums"]["tipo_categoria"]
@@ -71,8 +110,56 @@ export type Database = {
         }
         Relationships: []
       }
+      contas_fixas: {
+        Row: {
+          ativa: boolean
+          automatico: boolean
+          carteira_id: string | null
+          created_at: string
+          descricao: string
+          dia_vencimento: number
+          id: string
+          parcelas_antes: number
+          parcelas_total: number | null
+          tipo: string
+          usuario_id: string
+          valor: number
+        }
+        Insert: {
+          ativa?: boolean
+          automatico?: boolean
+          carteira_id?: string | null
+          created_at?: string
+          descricao: string
+          dia_vencimento: number
+          id?: string
+          parcelas_antes?: number
+          parcelas_total?: number | null
+          tipo: string
+          usuario_id?: string
+          valor: number
+        }
+        Update: {
+          ativa?: boolean
+          automatico?: boolean
+          carteira_id?: string | null
+          created_at?: string
+          descricao?: string
+          dia_vencimento?: number
+          id?: string
+          parcelas_antes?: number
+          parcelas_total?: number | null
+          tipo?: string
+          usuario_id?: string
+          valor?: number
+        }
+        Relationships: []
+      }
       despesas: {
         Row: {
+          carteira_id: string | null
+          conta_fixa_id: string | null
+          do_corre: boolean
           created_at: string
           data_hora: string
           id: string
@@ -85,6 +172,9 @@ export type Database = {
           valor_unitario: number
         }
         Insert: {
+          carteira_id?: string | null
+          conta_fixa_id?: string | null
+          do_corre?: boolean
           created_at?: string
           data_hora?: string
           id?: string
@@ -97,6 +187,9 @@ export type Database = {
           valor_unitario: number
         }
         Update: {
+          carteira_id?: string | null
+          conta_fixa_id?: string | null
+          do_corre?: boolean
           created_at?: string
           data_hora?: string
           id?: string
@@ -117,6 +210,39 @@ export type Database = {
             referencedColumns: ["id", "usuario_id"]
           },
         ]
+      }
+      entradas: {
+        Row: {
+          carteira_id: string | null
+          created_at: string
+          data_hora: string
+          descricao: string
+          id: string
+          tipo: string
+          usuario_id: string
+          valor: number
+        }
+        Insert: {
+          carteira_id?: string | null
+          created_at?: string
+          data_hora?: string
+          descricao: string
+          id?: string
+          tipo: string
+          usuario_id?: string
+          valor: number
+        }
+        Update: {
+          carteira_id?: string | null
+          created_at?: string
+          data_hora?: string
+          descricao?: string
+          id?: string
+          tipo?: string
+          usuario_id?: string
+          valor?: number
+        }
+        Relationships: []
       }
       eventos: {
         Row: {
@@ -204,6 +330,63 @@ export type Database = {
           },
         ]
       }
+      moto_componentes: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          id: string
+          intervalo_km: number
+          km_ultima_troca: number
+          nome: string
+          tipo: string
+          usuario_id: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          intervalo_km: number
+          km_ultima_troca?: number
+          nome: string
+          tipo: string
+          usuario_id?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          intervalo_km?: number
+          km_ultima_troca?: number
+          nome?: string
+          tipo?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
+      moto_quilometragem: {
+        Row: {
+          created_at: string
+          id: string
+          km: number
+          registrado_em: string
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          km: number
+          registrado_em?: string
+          usuario_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          km?: number
+          registrado_em?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       perfis: {
         Row: {
           ano_veiculo: number | null
@@ -212,6 +395,7 @@ export type Database = {
           id: string
           nome: string
           placa: string | null
+          plano: Database["public"]["Enums"]["plano_conta"]
           telefone: string | null
           tipo_sanguineo: string | null
           veiculo: string | null
@@ -223,6 +407,7 @@ export type Database = {
           id: string
           nome: string
           placa?: string | null
+          plano?: Database["public"]["Enums"]["plano_conta"]
           telefone?: string | null
           tipo_sanguineo?: string | null
           veiculo?: string | null
@@ -234,6 +419,7 @@ export type Database = {
           id?: string
           nome?: string
           placa?: string | null
+          plano?: Database["public"]["Enums"]["plano_conta"]
           telefone?: string | null
           tipo_sanguineo?: string | null
           veiculo?: string | null
@@ -242,6 +428,7 @@ export type Database = {
       }
       receitas: {
         Row: {
+          carteira_id: string | null
           cliente_id: string
           created_at: string
           data_hora: string
@@ -256,6 +443,7 @@ export type Database = {
           valor_unitario: number
         }
         Insert: {
+          carteira_id?: string | null
           cliente_id: string
           created_at?: string
           data_hora?: string
@@ -272,6 +460,7 @@ export type Database = {
           valor_unitario: number
         }
         Update: {
+          carteira_id?: string | null
           cliente_id?: string
           created_at?: string
           data_hora?: string
@@ -297,12 +486,47 @@ export type Database = {
           },
         ]
       }
+      transferencias: {
+        Row: {
+          created_at: string
+          data_hora: string
+          destino_id: string
+          id: string
+          observacao: string | null
+          origem_id: string
+          usuario_id: string
+          valor: number
+        }
+        Insert: {
+          created_at?: string
+          data_hora?: string
+          destino_id: string
+          id?: string
+          observacao?: string | null
+          origem_id: string
+          usuario_id?: string
+          valor: number
+        }
+        Update: {
+          created_at?: string
+          data_hora?: string
+          destino_id?: string
+          id?: string
+          observacao?: string | null
+          origem_id?: string
+          usuario_id?: string
+          valor?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      eh_pro: { Args: never; Returns: boolean }
       excluir_minha_conta: { Args: never; Returns: undefined }
+      saldos_carteiras: { Args: never; Returns: { carteira_id: string; saldo: number }[] }
       metricas_admin: { Args: never; Returns: Json }
       metricas_usuario_admin: { Args: { p_usuario: string }; Returns: Json }
     }
@@ -310,6 +534,7 @@ export type Database = {
       cor_evento: "amarelo" | "verde" | "vermelho" | "azul" | "roxo" | "cinza"
       forma_pagamento: "pix" | "dinheiro"
       parametro_meta: "quantidade" | "receita" | "despesa" | "conta"
+      plano_conta: "gratis" | "pro"
       status_meta: "ativa" | "inativa"
       status_pagamento: "pago" | "pendente"
       tipo_categoria: "receita" | "despesa"
@@ -444,6 +669,7 @@ export const Constants = {
       cor_evento: ["amarelo", "verde", "vermelho", "azul", "roxo", "cinza"],
       forma_pagamento: ["pix", "dinheiro"],
       parametro_meta: ["quantidade", "receita", "despesa", "conta"],
+      plano_conta: ["gratis", "pro"],
       status_meta: ["ativa", "inativa"],
       status_pagamento: ["pago", "pendente"],
       tipo_categoria: ["receita", "despesa"],

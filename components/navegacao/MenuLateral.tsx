@@ -2,9 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { IconeMenu } from "@/components/ui/Icones";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { PainelLancamento } from "@/components/lancamentos/PainelLancamento";
+import { usePlano } from "@/hooks/usePlano";
 
 type Item = { href: string; rotulo: string; icone: string; iconeAtivo?: string };
 
@@ -25,6 +27,12 @@ const MODULOS: Item[] = [
   { href: "/cadastro", rotulo: "Cadastro", icone: "/icones/cadastro.svg" },
 ];
 
+/** Módulos que só aparecem para quem é Pro. */
+const MODULOS_PRO: Item[] = [
+  { href: "/carteiras", rotulo: "Carteiras", icone: "/icones/carteira-modulo.svg" },
+  { href: "/moto", rotulo: "Saúde da moto", icone: "/icones/moto-modulo.svg" },
+];
+
 const PERFIL: Item = { href: "/perfil", rotulo: "Perfil", icone: "/icones/perfil.svg", iconeAtivo: "/icones/perfil-ativo.svg" };
 
 function estaAtivo(pathname: string, href: string) {
@@ -40,7 +48,7 @@ function LinkMenu({ item, ativo }: { item: Item; ativo: boolean }) {
         ativo ? "bg-dourado-claro/35 font-semibold" : "font-medium text-marinho/80 hover:bg-cinza-fundo"
       }`}
     >
-      <Image src={(ativo && item.iconeAtivo) || item.icone} alt="" width={24} height={24} className="size-6" />
+      <IconeMenu src={item.icone} ativo={ativo} />
       {item.rotulo}
     </Link>
   );
@@ -65,6 +73,7 @@ function Grupo({ titulo, itens, pathname }: { titulo?: string; itens: Item[]; pa
 export function MenuLateral({ admin = false }: { admin?: boolean }) {
   const pathname = usePathname();
   const [painelAberto, setPainelAberto] = useState(false);
+  const { ehPro } = usePlano();
 
   return (
     <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 flex-col border-r border-black/8 bg-white px-4 py-6 lg:flex">
@@ -92,7 +101,7 @@ export function MenuLateral({ admin = false }: { admin?: boolean }) {
 
       <nav aria-label="Navegação principal" className="mt-5 flex flex-1 flex-col overflow-y-auto">
         <Grupo itens={PRINCIPAIS} pathname={pathname} />
-        <Grupo titulo="MÓDULOS" itens={MODULOS} pathname={pathname} />
+        <Grupo titulo="MÓDULOS" itens={ehPro ? [...MODULOS, ...MODULOS_PRO] : MODULOS} pathname={pathname} />
         {admin && (
           <Grupo
             titulo="ADMINISTRAÇÃO"

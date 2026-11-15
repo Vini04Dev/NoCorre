@@ -12,7 +12,7 @@ import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
 import { useClientes } from "@/hooks/useClientes";
 import { useEstadoDaTela } from "@/hooks/useEstadoDaTela";
 import { useHistoricoMeses, usePendentes, useRelatorio } from "@/hooks/useMovimentacoes";
-import type { FiltroPeriodo } from "@/lib/periodo";
+import { comparadoCom, quandoFoi, type FiltroPeriodo } from "@/lib/periodo";
 import {
   gerarAvisos,
   mapaDoCorre,
@@ -21,9 +21,11 @@ import {
   previsaoDoMes,
   rankingClientes,
   receitaPorDia,
-  tendencias,
+  numerosDoCorre,
+  type CriterioRanking,
 } from "@/lib/relatorio";
 import { ComparativoMensal } from "./ComparativoMensal";
+import { PrevisaoMes } from "@/components/contas/PrevisaoMes";
 import { EvolucaoSaldo } from "./EvolucaoSaldo";
 import { MapaDoCorre } from "./MapaDoCorre";
 import { Tendencias } from "./Tendencias";
@@ -47,28 +49,40 @@ export function TelaRelatorios() {
   const dados = relatorio.data;
   const receitas = dados ? doCliente(dados.atual.receitas) : [];
   const despesas = dados?.atual.despesas ?? [];
+  // Tendências, comparativo e acumulado falam do corre, como o saldo do Início;
+  // a rosca de categorias mostra todas as despesas (para onde vai o dinheiro).
+  const doCorre = <T extends { do_corre?: boolean }>(lista: T[]) => lista.filter((d) => d.do_corre !== false);
   const categoriasReceita = porCategoria(receitas.filter((r) => r.status_pagamento === "pago"));
   const categoriasDespesa = porCategoria(despesas);
-  const ranking = rankingClientes(receitas);
+  const [criterioRanking, setCriterioRanking] = useEstadoDaTela<CriterioRanking>("relatorios:ranking", "entregas");
+  const ranking = rankingClientes(receitas, criterioRanking);
   const historico = useHistoricoMeses(6);
   const meses = historico.data
     ? porMes(
         clienteId ? historico.data.receitas.filter((r) => r.cliente_id === clienteId) : historico.data.receitas,
-        historico.data.despesas,
+        doCorre(historico.data.despesas),
         historico.data.inicio,
         6,
       )
     : [];
-  const listaTendencias = dados
-    ? tendencias({ receitas, despesas }, { receitas: doCliente(dados.anterior.receitas), despesas: dados.anterior.despesas })
-    : [];
-  // A previsão só faz sentido olhando o mês que ainda está correndo.
-  const previsao =
-    periodo.tipo === "mes" && listaTendencias.length
-      ? previsaoDoMes(listaTendencias[0].atual, listaTendencias[1].atual)
-      : null;
+  // Período ainda correndo (esta semana, este mês): o anterior entra só até o
+  // mesmo ponto, senão metade do mês sempre parece pior que o mês inteiro.
+  const [agora] = useState(() => Date.now());
+  const emAndamento = Boolean(dados && agora < dados.fim.getTime());
+  const limiteAnterior = dados ? dados.inicio.getTime() - (dados.fim.getTime() - dados.inicio.getTime()) + (Math.min(agora, dados.fim.getTime()) - dados.inicio.getTime()) : 0;
+  const ateMesmoPonto = <T extends { data_hora: string }>(lista: T[]) =>
+    emAndamento ? lista.filter((item) => new Date(item.data_hora).getTime() < limiteAnterior) : lista;
+  const anteriorComparavel = dados
+    ? { receitas: ateMesmoPonto(doCliente(dados.anterior.receitas)), despesas: ateMesmoPonto(dados.anterior.despesas) }
+    : null;
+  const numeros = dados ? numerosDoCorre({ receitas, despesas: doCorre(despesas) }) : null;
+  const numerosAntes = anteriorComparavel
+    ? numerosDoCorre({ receitas: anteriorComparavel.receitas, despesas: doCorre(anteriorComparavel.despesas) })
+    : null;
+  // O ritmo até o fim do mês só faz sentido olhando o mês que ainda está correndo.
+  const previsao = periodo.tipo === "mes" && numeros ? previsaoDoMes(numeros.recebido, numeros.recebido - numeros.sobrou) : null;
   const avisos = dados
-    ? gerarAvisos({ receitas, despesas }, dados.anterior, doCliente(pendentes.data ?? []))
+    ? gerarAvisos({ receitas, despesas }, { despesas: anteriorComparavel!.despesas }, doCliente(pendentes.data ?? []))
     : [];
 
   return (
@@ -104,46 +118,62 @@ export function TelaRelatorios() {
       {relatorio.isPending && <p className="py-6 text-center text-[13px] text-cinza-escuro">Carregando...</p>}
       {relatorio.isError && <p className="py-6 text-center text-[13px] text-negativo">{relatorio.error.message}</p>}
 
-      {dados && (
-        <>
-          <Tendencias itens={listaTendencias} previsao={previsao} />
-          <GraficoBarras barras={receitaPorDia(receitas, dados.inicio, dados.fim)} />
-
-          <div className="flex flex-col gap-[18px] lg:grid lg:grid-cols-2 lg:items-start lg:gap-8">
-          <section className="flex flex-col gap-2.5">
-            <div className="flex items-center justify-between text-[11px] font-semibold">
-              <h2 className="tracking-[0.66px] text-cinza">POR CATEGORIA</h2>
-              <span>Receitas · Despesas</span>
-            </div>
-            <div className="flex gap-3">
-              <Rosca
-                titulo="Receitas pagas por categoria"
-                total={categoriasReceita.total}
-                fatias={categoriasReceita.fatias}
-                cores={CORES_RECEITA}
-                vazio="Sem receitas pagas."
-              />
-              <Rosca
-                titulo="Despesas por categoria"
-                total={categoriasDespesa.total}
-                fatias={categoriasDespesa.fatias}
-                cores={CORES_DESPESA}
-                vazio="Sem despesas."
-              />
-            </div>
-          </section>
-
-          <RankingClientes total={ranking.total} posicoes={ranking.posicoes} />
-          <ListaAvisos avisos={avisos} />
-          <MapaDoCorre celulas={mapaDoCorre(receitas)} />
+      {dados && numeros && numerosAntes && (
+        <div className="flex flex-col gap-[18px] lg:grid lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)] lg:items-start lg:gap-8">
+          {/* Esquerda: como foi o corre e os gráficos do tempo. */}
+          <div className="flex flex-col gap-[18px]">
+            <Tendencias
+              atual={numeros}
+              anterior={numerosAntes}
+              comparado={comparadoCom(periodo, emAndamento)}
+              nomePeriodo={quandoFoi(periodo)}
+              previsao={previsao}
+            />
+            <GraficoBarras barras={receitaPorDia(receitas, dados.inicio, dados.fim)} />
+            <MapaDoCorre celulas={mapaDoCorre(receitas)} />
+            {meses.length > 0 && (
+              <div className="flex flex-col gap-[18px] xl:grid xl:grid-cols-2 xl:items-start xl:gap-6">
+                <ComparativoMensal meses={meses} />
+                <EvolucaoSaldo meses={meses} />
+              </div>
+            )}
           </div>
-        </>
-      )}
 
-      {meses.length > 0 && (
-        <div className="flex flex-col gap-[18px] lg:grid lg:grid-cols-2 lg:items-start lg:gap-8">
-          <ComparativoMensal meses={meses} />
-          <EvolucaoSaldo meses={meses} />
+          {/* Direita: o bolso do mês, para onde vai o dinheiro, clientes e avisos. */}
+          <div className="flex flex-col gap-[18px] lg:sticky lg:top-6">
+            {/* Saldo do mês inteiro: sem sentido com filtro de cliente ou outro período. */}
+            {periodo.tipo === "mes" && !clienteId && <PrevisaoMes />}
+            <RankingClientes
+              total={ranking.total}
+              posicoes={ranking.posicoes}
+              criterio={criterioRanking}
+              aoMudarCriterio={setCriterioRanking}
+              periodo={periodo}
+            />
+            <section className="flex flex-col gap-2.5">
+              <div className="flex items-center justify-between text-[11px] font-semibold">
+                <h2 className="tracking-[0.66px] text-cinza">POR CATEGORIA</h2>
+                <span>Receitas · Despesas</span>
+              </div>
+              <div className="flex gap-3">
+                <Rosca
+                  titulo="Receitas pagas por categoria"
+                  total={categoriasReceita.total}
+                  fatias={categoriasReceita.fatias}
+                  cores={CORES_RECEITA}
+                  vazio="Sem receitas pagas."
+                />
+                <Rosca
+                  titulo="Despesas por categoria"
+                  total={categoriasDespesa.total}
+                  fatias={categoriasDespesa.fatias}
+                  cores={CORES_DESPESA}
+                  vazio="Sem despesas."
+                />
+              </div>
+            </section>
+            <ListaAvisos avisos={avisos} />
+          </div>
         </div>
       )}
 

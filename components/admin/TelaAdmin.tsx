@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
 import { Secao } from "@/components/ui/Secao";
 import { formatarBytes, type MetricasAdmin } from "@/lib/admin";
+import { AlternarMeuPlano } from "./AlternarMeuPlano";
 import { BotaoAtualizar } from "./BotaoAtualizar";
 import { TabelaCadastros } from "./TabelaCadastros";
 
@@ -152,6 +153,10 @@ export function TelaAdmin({ metricas, erro }: { metricas: MetricasAdmin | null; 
         acao={<BotaoAtualizar />}
       />
 
+      <Secao titulo="MINHA CONTA">
+        <AlternarMeuPlano />
+      </Secao>
+
       {(erro || !metricas) && (
         <p className="rounded-[12px] bg-negativo/10 px-4 py-3 text-[13px] text-negativo">
           Não foi possível carregar as métricas{erro ? `: ${erro}` : "."}
@@ -256,7 +261,11 @@ export function TelaAdmin({ metricas, erro }: { metricas: MetricasAdmin | null; 
               </p>
               {[
                 { href: "/?aviso=novidades", rotulo: "Aviso de atualização", quando: "abre a cada versão nova, ao entrar" },
+                { href: "/?aviso=pro", rotulo: "O Pro chegou!", quando: "uma vez, quando a conta vira Pro" },
+                { href: "/?aviso=convite-pro", rotulo: "Convite do Pro", quando: "depois da nota de atualização, para quem é grátis" },
                 { href: "/?aviso=primeiro-uso", rotulo: "Aviso de primeiro cliente", quando: "abre no Início enquanto não há cliente" },
+                { href: "/?aviso=vencimento", rotulo: "Notificações", quando: "sininho do Início com contas, compromisso, entregas a receber e moto" },
+                { href: "/admin/previa/moto", rotulo: "Primeira visita da moto", quando: "Pro, ao abrir a Saúde da moto pela primeira vez" },
                 { href: "/admin/previa/confirmacao", rotulo: "Confirme seu email", quando: "logo depois de criar a conta" },
                 { href: "/admin/previa/erro", rotulo: "Algo deu errado", quando: "quando uma tela falha ao carregar" },
                 { href: "/endereco-que-nao-existe", rotulo: "Página não encontrada", quando: "endereço errado ou antigo" },

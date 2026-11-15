@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { cookies, headers } from "next/headers";
 import { Suspense } from "react";
 import { AvisoPrimeiroUso } from "@/components/home/AvisoPrimeiroUso";
+import { AvisoProChegou } from "@/components/pro/AvisoProChegou";
 import { CabecalhoHome } from "@/components/home/CabecalhoHome";
 import { CartaoModulo } from "@/components/home/CartaoModulo";
-import { ProximoEvento } from "@/components/home/ProximoEvento";
+import { LinhaUrgente } from "@/components/notificacoes/LinhaUrgente";
 import { ResumoPeriodo } from "@/components/home/ResumoPeriodo";
 import { classeFontesLanding } from "@/components/landing/fontes";
 import { COOKIE_IDIOMA, COOKIE_TEMA, escolherIdioma, TEXTOS } from "@/components/landing/idiomas";
@@ -50,7 +51,8 @@ async function Home() {
   const supabase = await criarClienteServidor();
   // Em paralelo: cada ida ao banco custa uma viagem de rede.
   const [{ data: perfil }, admin] = await Promise.all([
-    supabase.from("perfis").select("nome").maybeSingle(),
+    // "*" e não ("nome, plano"): antes da migration do plano a coluna não existe e a consulta falharia.
+    supabase.from("perfis").select("*").maybeSingle(),
     ehAdmin(),
   ]);
   const primeiroNome = perfil?.nome.split(" ")[0];
@@ -60,7 +62,10 @@ async function Home() {
       <CabecalhoHome nome={primeiroNome} />
       <main className="flex flex-col gap-7 px-[17px] pt-6 lg:grid lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:items-start lg:gap-8 lg:px-0 lg:pt-8">
         <div className="flex flex-col gap-7">
-          <ProximoEvento />
+          {/* O resto dos avisos fica no sininho; aqui só o urgente, em uma linha. */}
+          <Suspense>
+            <LinhaUrgente />
+          </Suspense>
           <Secao titulo="MEU SALDO">
             <ResumoPeriodo />
           </Secao>
@@ -78,10 +83,19 @@ async function Home() {
               <CartaoModulo
                 href="/metas"
                 titulo="Metas"
-                descricao="Defina metas através de parâmetros pessoais e alcance-as com sucesso!"
+                descricao="Defina metas, acompanhe o progresso e não esqueça as contas que vencem todo mês."
                 icone="/icones/metas.svg"
                 tamanhoIcone={39}
               />
+              {perfil?.plano === "pro" && (
+                <CartaoModulo
+                  href="/carteiras"
+                  titulo="Carteiras"
+                  descricao="Separe o dinheiro do banco, da mão e do salário, cada um com seu saldo."
+                  icone="/icones/carteira-modulo.svg"
+                  tamanhoIcone={36}
+                />
+              )}
               <CartaoModulo
                 href="/cadastro"
                 titulo="Cadastro"
@@ -89,6 +103,15 @@ async function Home() {
                 icone="/icones/cadastro.svg"
                 tamanhoIcone={41}
               />
+              {perfil?.plano === "pro" && (
+                <CartaoModulo
+                  href="/moto"
+                  titulo="Saúde da moto"
+                  descricao="Quilometragem, troca de óleo, pneus, relação e freios no tempo certo."
+                  icone="/icones/moto-modulo.svg"
+                  tamanhoIcone={38}
+                />
+              )}
               <p className="text-center text-xs text-cinza-escuro">Mais módulos em breve.</p>
             </nav>
           </Secao>
@@ -108,6 +131,7 @@ async function Home() {
       </main>
       <Suspense>
         <AvisoPrimeiroUso />
+        <AvisoProChegou />
       </Suspense>
     </>
   );
