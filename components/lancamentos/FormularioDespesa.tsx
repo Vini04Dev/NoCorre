@@ -5,6 +5,7 @@ import { useState } from "react";
 import { CampoCarteira, campoCarteira } from "@/components/carteiras/CampoCarteira";
 import { useCarteiraEmFoco } from "@/hooks/useCarteiraEmFoco";
 import { CampoCategoria } from "./CampoCategoria";
+import { CampoTipoGasto } from "./CampoTipoGasto";
 import { CampoConta } from "./CampoConta";
 import { CamposValor, validarValores, valoresIniciais, type Valores } from "./CamposValor";
 import { AvisoErro } from "@/components/ui/AvisoErro";
@@ -129,22 +130,7 @@ export function FormularioDespesa({ despesa, contaInicial, fixa }: Props) {
           placeholder={conta ? conta.nome : "Ex.: Gasolina"}
         />
         {!conta && <CampoCategoria tipo="despesa" valor={categoria} aoMudar={setCategoria} erro={erros.categoria} />}
-        <label className="flex items-start gap-2.5 rounded-[10px] bg-cinza-fundo px-3 py-2.5 text-xs">
-          <input
-            type="checkbox"
-            checked={doCorre}
-            onChange={(e) => setDoCorreEscolhido(e.target.checked)}
-            className="mt-0.5 size-4 shrink-0 accent-marinho"
-          />
-          <span>
-            <span className="font-semibold">Gasto do corre</span>
-            <span className="block text-[11px] text-cinza-escuro">
-              {doCorre
-                ? "Custo do trabalho (gasolina, peças, diária): desconta do saldo do corre no Início."
-                : "Gasto pessoal (mercado, contas, parcelas): não mexe no saldo do corre, mas sai da carteira."}
-            </span>
-          </span>
-        </label>
+        <CampoTipoGasto doCorre={doCorre} aoMudar={setDoCorreEscolhido} />
         <CamposValor valores={valores} aoMudar={setValores} corTotal="text-negativo" erros={erros} />
         <CampoCarteira valor={carteiraEfetiva ?? null} aoMudar={setCarteiraId} />
       </div>

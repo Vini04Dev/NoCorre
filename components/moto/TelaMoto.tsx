@@ -23,28 +23,8 @@ import {
   type Situacao,
 } from "@/lib/moto";
 import { CarrosselMoto } from "./CarrosselMoto";
-import { ConfigurarMoto } from "./ConfigurarMoto";
-
-/**
- * Lugar da imagem quando o modelo da moto ainda não tem fotos no app (hoje só
- * a CG 160 tem). A lista de manutenção continua funcionando igual.
- */
-function EmBreve({ modelo }: { modelo: string | null | undefined }) {
-  return (
-    <div className="flex aspect-[950/466] w-full max-w-md flex-col items-center justify-center gap-1.5 rounded-[12px] border border-dashed border-cinza-claro px-6 text-center">
-      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="text-cinza" aria-hidden>
-        <circle cx="5.5" cy="16.5" r="3.5" />
-        <circle cx="18.5" cy="16.5" r="3.5" />
-        <path d="M5.5 16.5 9 10h5l2.5 6.5M14 10l1.5-3H18M9 10 7.5 7H5" />
-      </svg>
-      <p className="text-sm font-bold">Em breve</p>
-      <p className="text-[11px] text-cinza-escuro">
-        {modelo ? `A imagem da ${modelo} ainda não está no app.` : "Cadastre o modelo da moto no Perfil."} As manutenções abaixo já
-        funcionam normalmente.
-      </p>
-    </div>
-  );
-}
+import { PrimeiraVisitaMoto } from "./ConfigurarMoto";
+import { EmBreve } from "./EmBreveMoto";
 
 const somenteNumeros = (texto: string) => texto.replace(/\D/g, "").slice(0, 7);
 
@@ -151,7 +131,7 @@ export function TelaMoto() {
   const componentes = useComponentes(ehPro);
   const [painel, setPainel] = useState<{ tipo: "km" } | { tipo: "componente"; componente: Componente } | null>(null);
 
-  const cabecalho = <CabecalhoTela titulo="Saúde da moto" voltarPara="/perfil" tituloGrande acao={<SeloPro />} />;
+  const cabecalho = <CabecalhoTela titulo="Saúde da moto" voltarPara="/" tituloGrande acao={<SeloPro />} />;
   const casca = (conteudo: React.ReactNode) => (
     <main className="flex flex-col gap-4 px-[17px] pt-[calc(env(safe-area-inset-top)+12px)] pb-6 lg:max-w-3xl lg:px-0 lg:pt-2">
       {cabecalho}
@@ -165,7 +145,7 @@ export function TelaMoto() {
 
   const kmAtual = quilometragem.data?.atual;
   const itens = (componentes.data ?? []).filter((c) => c.ativo);
-  if (kmAtual == null || itens.length === 0) return casca(<ConfigurarMoto />);
+  if (kmAtual == null || itens.length === 0) return casca(<PrimeiraVisitaMoto veiculo={perfil?.veiculo} />);
 
   const calculados = itens.map((c) => ({ componente: c, ...desgaste(kmAtual, c.km_ultima_troca, c.intervalo_km) }));
   // Duas peças na mesma parte (ex.: freio da frente e de trás): vale a mais gasta.

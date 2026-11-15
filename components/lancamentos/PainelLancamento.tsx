@@ -29,9 +29,8 @@ function ConteudoOpcao({ icone, fundo, titulo, descricao }: { icone: string; fun
 }
 
 /**
- * Painel do botão (+): Receita ou Despesa em destaque. Dinheiro que não é do
- * corre (salário, bolsa) fica num link discreto abaixo, para não virar uma
- * terceira escolha para quem só faz entregas.
+ * Painel do botão (+): Receita, Despesa e Outra entrada (dinheiro que não é
+ * do corre, como salário e bolsa), no mesmo formato.
  */
 export function PainelLancamento({ aoFechar }: { aoFechar: () => void }) {
   const router = useRouter();
@@ -79,17 +78,13 @@ export function PainelLancamento({ aoFechar }: { aoFechar: () => void }) {
           descricao="Combustível, peças, diária, mercado, contas"
         />
       </Link>
-      <Link
-        href="/novo/entrada"
-        onClick={aoFechar}
-        className="-mt-1 flex items-center justify-between rounded-[10px] px-3.5 py-2 text-xs text-cinza-escuro"
-      >
-        <span>
-          <span className="font-semibold text-marinho">Outra entrada</span> · salário, bolsa, ajuda (fora do corre)
-        </span>
-        <span aria-hidden className="text-base">
-          ›
-        </span>
+      <Link href="/novo/entrada" onClick={aoFechar} className={CLASSE_OPCAO}>
+        <ConteudoOpcao
+          icone="/icones/saldo-linha.svg"
+          fundo="bg-cinza-fundo"
+          titulo="Outra entrada"
+          descricao="Salário, bolsa, ajuda: dinheiro fora do corre"
+        />
       </Link>
       <p className="text-center text-[11px] text-cinza-escuro">
         Para cadastrar clientes e categorias, use o módulo Cadastro na tela inicial.

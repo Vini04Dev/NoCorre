@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CampoTipoGasto } from "@/components/lancamentos/CampoTipoGasto";
 import { Alternador } from "@/components/ui/Alternador";
 import { AvisoErro } from "@/components/ui/AvisoErro";
 import { Botao } from "@/components/ui/Botao";
@@ -76,22 +77,7 @@ export function PainelCategoria({ categoria, aoFechar }: Props) {
           autoFocus
         />
         <Alternador rotulo="Usar em" opcoes={OPCOES_TIPO} valor={tipo} aoMudar={setTipo} />
-        {tipo === "despesa" && (
-          <label className="flex items-start gap-2.5 text-xs">
-            <input
-              type="checkbox"
-              checked={doCorre}
-              onChange={(e) => setDoCorre(e.target.checked)}
-              className="mt-0.5 size-4 shrink-0 accent-marinho"
-            />
-            <span>
-              <span className="font-semibold">Gasto do corre</span>
-              <span className="block text-[11px] text-cinza-escuro">
-                Marque se é custo do trabalho (ex.: lavagem da moto). Desmarcado, conta como gasto pessoal.
-              </span>
-            </span>
-          </label>
-        )}
+        {tipo === "despesa" && <CampoTipoGasto rotulo="Gastos desta categoria são" doCorre={doCorre} aoMudar={setDoCorre} />}
         <div className="mt-1 grid grid-cols-2 gap-2.5">
           <Botao variante="contorno" onClick={aoFechar}>
             Cancelar
