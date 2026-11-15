@@ -77,25 +77,50 @@ export function porCategoria(itens: { tipo: string; valor_total: number | null }
   };
 }
 
-export type PosicaoCliente = { nome: string; quantidade: number; percentual: number };
+export type CriterioRanking = "entregas" | "valor";
 
-/** Clientes com mais lançamentos de receita (soma da quantidade), do maior para o menor. */
-export function rankingClientes(receitas: Receita[], limite = 5) {
-  const somas = new Map<string, number>();
+export type PosicaoCliente = {
+  id: string;
+  nome: string;
+  /** Entregas (soma da quantidade; o fixo do estabelecimento não conta). */
+  quantidade: number;
+  /** Receita paga no período, em reais. */
+  valor: number;
+  /** Receita pendente no período, em reais. */
+  aReceber: number;
+  /** Parte do total pelo critério escolhido. */
+  percentual: number;
+};
+
+/**
+ * Clientes do período com entregas e valor lado a lado, do maior para o menor
+ * pelo critério escolhido (entregas ou receita paga). Por valor, entra também
+ * quem só pagou fixo, sem entrega.
+ */
+export function rankingClientes(receitas: Receita[], criterio: CriterioRanking = "entregas", limite = 5) {
+  const porCliente = new Map<string, { nome: string; quantidade: number; pago: number; pendente: number }>();
   for (const r of receitas) {
-    const nome = r.clientes?.nome ?? "Sem cliente";
-    if (contaComoEntrega(r.tipo)) somas.set(nome, (somas.get(nome) ?? 0) + r.quantidade);
+    const atual = porCliente.get(r.cliente_id) ?? { nome: r.clientes?.nome ?? "Sem cliente", quantidade: 0, pago: 0, pendente: 0 };
+    if (contaComoEntrega(r.tipo)) atual.quantidade += r.quantidade;
+    if (r.status_pagamento === "pago") atual.pago += centavos(r.valor_total);
+    else atual.pendente += centavos(r.valor_total);
+    porCliente.set(r.cliente_id, atual);
   }
-  const total = [...somas.values()].reduce((a, b) => a + b, 0);
-  const posicoes = [...somas]
-    .sort((a, b) => b[1] - a[1])
+  const medida = (c: { quantidade: number; pago: number }) => (criterio === "valor" ? c.pago : c.quantidade);
+  const lista = [...porCliente].filter(([, c]) => medida(c) > 0);
+  const total = lista.reduce((soma, [, c]) => soma + medida(c), 0);
+  const posicoes = lista
+    .sort((a, b) => medida(b[1]) - medida(a[1]))
     .slice(0, limite)
-    .map(([nome, quantidade]): PosicaoCliente => ({
-      nome,
-      quantidade,
-      percentual: total ? Math.round((quantidade / total) * 100) : 0,
+    .map(([id, c]): PosicaoCliente => ({
+      id,
+      nome: c.nome,
+      quantidade: c.quantidade,
+      valor: c.pago / 100,
+      aReceber: c.pendente / 100,
+      percentual: total ? Math.round((medida(c) / total) * 100) : 0,
     }));
-  return { total, posicoes };
+  return { total: criterio === "valor" ? total / 100 : total, posicoes };
 }
 
 export type Aviso = { icone: "alta" | "horario" | "pendente"; titulo: string; detalhe: string };

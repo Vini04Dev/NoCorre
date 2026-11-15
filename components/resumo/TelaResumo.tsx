@@ -9,6 +9,7 @@ import { BotaoCarteira } from "@/components/carteiras/BotaoCarteira";
 import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
 import { useSaldosCarteiras, useTransferenciasDoPeriodo } from "@/hooks/useCarteiras";
 import { useCarteiraEmFoco } from "@/hooks/useCarteiraEmFoco";
+import { useClientes } from "@/hooks/useClientes";
 import { useEstadoDaTela } from "@/hooks/useEstadoDaTela";
 import { useMovimentacoes, usePendentes } from "@/hooks/useMovimentacoes";
 import {
@@ -71,6 +72,16 @@ export function TelaResumo({ dia }: { dia?: string }) {
         : [];
   const aReceber = (pendentes.data ?? []).reduce((soma, r) => soma + Math.round((r.valor_total ?? 0) * 100), 0);
   const filtrosAtivos = quantidadeFiltrosAtivos(filtros);
+  // Com filtro (ex.: só o iFood, vindo do ranking dos Relatórios), o cartão soma só o que está na lista.
+  const { data: clientes } = useClientes();
+  const filtrado = rapido !== "pendentes" && filtrosAtivos > 0 && Boolean(dados);
+  const totaisFiltro = filtrado
+    ? calcularTotais(
+        lista.flatMap((m) => (m.tipo === "receita" ? [m.dados] : [])),
+        lista.flatMap((m) => (m.tipo === "despesa" ? [m.dados] : [])),
+      )
+    : null;
+  const nomeCliente = filtros.clienteId ? clientes?.find((c) => c.id === filtros.clienteId)?.nome : undefined;
 
   return (
     <main className="flex flex-col gap-3.5 px-[17px] pt-[calc(env(safe-area-inset-top)+12px)] lg:grid lg:grid-cols-[380px_minmax(0,1fr)] lg:items-start lg:gap-8 lg:px-0 lg:pt-2">
@@ -99,6 +110,7 @@ export function TelaResumo({ dia }: { dia?: string }) {
       <CartaoSaldo
         nomePeriodo={nomeDoPeriodo(periodo)}
         totais={totais}
+        filtro={totaisFiltro ? { titulo: nomeCliente ?? "Com os filtros", ...totaisFiltro } : undefined}
         entradas={(dados?.entradas ?? []).reduce((soma, e) => soma + e.valor, 0)}
         carteira={
           focada && dados && transferencias

@@ -22,6 +22,7 @@ import {
   rankingClientes,
   receitaPorDia,
   tendencias,
+  type CriterioRanking,
 } from "@/lib/relatorio";
 import { ComparativoMensal } from "./ComparativoMensal";
 import { PrevisaoMes } from "@/components/contas/PrevisaoMes";
@@ -53,7 +54,8 @@ export function TelaRelatorios() {
   const doCorre = <T extends { do_corre?: boolean }>(lista: T[]) => lista.filter((d) => d.do_corre !== false);
   const categoriasReceita = porCategoria(receitas.filter((r) => r.status_pagamento === "pago"));
   const categoriasDespesa = porCategoria(despesas);
-  const ranking = rankingClientes(receitas);
+  const [criterioRanking, setCriterioRanking] = useEstadoDaTela<CriterioRanking>("relatorios:ranking", "entregas");
+  const ranking = rankingClientes(receitas, criterioRanking);
   const historico = useHistoricoMeses(6);
   const meses = historico.data
     ? porMes(
@@ -139,7 +141,13 @@ export function TelaRelatorios() {
             </div>
           </section>
 
-          <RankingClientes total={ranking.total} posicoes={ranking.posicoes} />
+          <RankingClientes
+            total={ranking.total}
+            posicoes={ranking.posicoes}
+            criterio={criterioRanking}
+            aoMudarCriterio={setCriterioRanking}
+            periodo={periodo}
+          />
           <ListaAvisos avisos={avisos} />
           <MapaDoCorre celulas={mapaDoCorre(receitas)} />
           </div>
