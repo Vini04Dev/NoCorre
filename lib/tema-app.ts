@@ -5,6 +5,9 @@
  * dela saem o CSS dos temas (CSS_TEMAS_APP), as prévias da tela de tema e o teste.
  *
  * O primeiro é o padrão e precisa bater com os valores do @theme em app/globals.css.
+ *
+ * Tema temático (Natal e outras datas) não troca cor: usa as do Clássico e
+ * soma enfeites por cima das telas.
  */
 
 export type CoresTema = {
@@ -39,32 +42,35 @@ export type CoresTema = {
   sombra: string;
 };
 
+/** Cores do Clássico: o padrão do app e a base dos temas temáticos. */
+const CORES_CLASSICO = {
+  fundo: "#f9fafb",
+  superficie: "#ffffff",
+  cinzaFundo: "#f3f4f6",
+  cinzaClaro: "#dfe1e6",
+  painel: "#e8e8e8",
+  texto: "#2b2d42",
+  cinza: "#6c7180",
+  cinzaEscuro: "#5c6170",
+  textoSegmento: "#1f2937",
+  destaque: "#e0a92e",
+  destaqueClaro: "#ffd36a",
+  destaqueIcone: "#c89e3b",
+  destaqueTexto: "#916408",
+  positivo: "#3a8500",
+  recebido: "#347701",
+  pendente: "#857000",
+  negativo: "#cc0000",
+  sombra: "0px 4px 4px 0px rgba(0, 0, 0, 0.1)",
+} as const satisfies CoresTema;
+
 export const TEMAS_APP = [
   {
     valor: "classico",
     nome: "Clássico",
     descricao: "Branco e dourado, o visual de sempre.",
     escuro: false,
-    cores: {
-      fundo: "#f9fafb",
-      superficie: "#ffffff",
-      cinzaFundo: "#f3f4f6",
-      cinzaClaro: "#dfe1e6",
-      painel: "#e8e8e8",
-      texto: "#2b2d42",
-      cinza: "#6c7180",
-      cinzaEscuro: "#5c6170",
-      textoSegmento: "#1f2937",
-      destaque: "#e0a92e",
-      destaqueClaro: "#ffd36a",
-      destaqueIcone: "#c89e3b",
-      destaqueTexto: "#916408",
-      positivo: "#3a8500",
-      recebido: "#347701",
-      pendente: "#857000",
-      negativo: "#cc0000",
-      sombra: "0px 4px 4px 0px rgba(0, 0, 0, 0.1)",
-    },
+    cores: CORES_CLASSICO,
   },
   {
     valor: "neblina",
@@ -144,32 +150,14 @@ export const TEMAS_APP = [
       sombra: "0px 4px 10px 0px rgba(0, 0, 0, 0.4)",
     },
   },
+  // Temático: mesmas cores do Clássico; o que muda são os enfeites (components/tema/Enfeites.tsx),
+  // ligados pelo CSS quando este tema está no <html>.
   {
     valor: "natal",
     nome: "Natal",
-    descricao: "Verde de pinheiro com dourado. Para o corre de fim de ano.",
-    escuro: true,
-    cores: {
-      fundo: "#0f1f1a",
-      superficie: "#183028",
-      cinzaFundo: "#213b32",
-      cinzaClaro: "#2f4d42",
-      painel: "#1c352c",
-      texto: "#eef3ef",
-      cinza: "#9db3a8",
-      cinzaEscuro: "#b3c5bc",
-      textoSegmento: "#eef3ef",
-      destaque: "#e9b949",
-      destaqueClaro: "#ffd97a",
-      destaqueIcone: "#f0c35a",
-      destaqueTexto: "#ffd97a",
-      // Vermelho só para valor negativo: como destaque ele se confundiria com "saiu dinheiro".
-      positivo: "#7bdc3c",
-      recebido: "#9bd95f",
-      pendente: "#ffd84d",
-      negativo: "#ff8080",
-      sombra: "0px 4px 10px 0px rgba(0, 0, 0, 0.45)",
-    },
+    descricao: "O Clássico com gorros do Noel e pisca-pisca.",
+    escuro: false,
+    cores: CORES_CLASSICO,
   },
 ] as const satisfies readonly { valor: string; nome: string; descricao: string; escuro: boolean; cores: CoresTema }[];
 

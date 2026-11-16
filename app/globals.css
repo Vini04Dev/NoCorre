@@ -249,3 +249,31 @@ body {
     color: var(--color-dourado-texto);
   }
 }
+/*
+ * Enfeites dos temas temáticos (components/tema/Enfeites.tsx). Ficam no HTML o
+ * tempo todo e só aparecem com o tema ligado no <html>. Sem camada: precisa
+ * valer por cima das classes de display do Tailwind.
+ */
+.enfeite-natal {
+  display: none;
+}
+html[data-tema-app="natal"] .casca-app .enfeite-natal {
+  display: block;
+}
+@keyframes luz-pisca {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+.luz-pisca {
+  animation: luz-pisca 1.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .luz-pisca {
+    animation: none;
+  }
+}

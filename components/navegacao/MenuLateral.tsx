@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { Gorro } from "@/components/tema/Enfeites";
 import Link from "next/link";
 import { IconeMenu } from "@/components/ui/Icones";
 import { usePathname } from "next/navigation";
@@ -78,8 +79,11 @@ export function MenuLateral({ admin = false }: { admin?: boolean }) {
   return (
     <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 flex-col border-r border-black/8 bg-white px-4 py-6 lg:flex">
       <Link href="/" className="flex items-center gap-3 px-2">
-        <span className="size-10 overflow-hidden rounded-[10px] bg-white shadow-cartao ring-1 ring-black/5">
-          <Image src="/imagens/logo.png" alt="" width={40} height={40} priority />
+        <span className="relative">
+          <span className="block size-10 overflow-hidden rounded-[10px] bg-white shadow-cartao ring-1 ring-black/5">
+            <Image src="/imagens/logo.png" alt="" width={40} height={40} priority />
+          </span>
+          <Gorro className="-top-3.5 -right-3 w-7 rotate-[20deg]" />
         </span>
         <span className="flex flex-col">
           <span className="text-lg leading-tight font-black">No Corre!</span>
