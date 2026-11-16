@@ -90,6 +90,15 @@ export function PainelFiltros({ filtros, aoAplicar, aoFechar }: Props) {
           marcados={rascunho.categorias}
           aoMudar={(categorias) => mudar({ categorias })}
         />
+        <Chips
+          rotulo="Tipo de despesa"
+          opcoes={[
+            { valor: "corre", rotulo: "Do corre" },
+            { valor: "pessoal", rotulo: "Pessoal" },
+          ]}
+          marcados={rascunho.gastos ?? []}
+          aoMudar={(gastos) => mudar({ gastos })}
+        />
         <div className="flex flex-col gap-1.5">
           <label htmlFor={idCliente} className="text-[13px] font-semibold">
             Cliente

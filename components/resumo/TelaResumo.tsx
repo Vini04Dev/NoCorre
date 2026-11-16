@@ -63,7 +63,7 @@ export function TelaResumo({ dia }: { dia?: string }) {
   const pendentes = { ...pendentesTodos, data: pendentesTodos.data?.filter((r) => daqui(r.carteira_id)) };
   const consulta = rapido === "pendentes" ? pendentes : movimentacoes;
 
-  const totais = dados ? calcularTotais(dados.receitas, dados.despesas) : null;
+  const totais = dados ? calcularTotais(dados.receitas, dados.despesas, dados.entradas) : null;
   const lista =
     rapido === "pendentes"
       ? (pendentes.data ?? []).map((dados) => ({ tipo: "receita" as const, dados }))
@@ -111,7 +111,6 @@ export function TelaResumo({ dia }: { dia?: string }) {
         nomePeriodo={nomeDoPeriodo(periodo)}
         totais={totais}
         filtro={totaisFiltro ? { titulo: nomeCliente ?? "Com os filtros", ...totaisFiltro } : undefined}
-        entradas={(dados?.entradas ?? []).reduce((soma, e) => soma + e.valor, 0)}
         carteira={
           focada && dados && transferencias
             ? { nome: focada.nome, saldo: saldos?.get(focada.id), ...movimentoDaCarteira(dados, transferencias, focada.id, emFoco.principalId) }
