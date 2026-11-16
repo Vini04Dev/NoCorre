@@ -8,13 +8,15 @@ type Props = {
   corValor: string;
   /** Com ação, a linha vira botão (ex.: abrir o Resumo filtrado). */
   aoTocar?: () => void;
+  /** Linha com sublinhas: mostra a seta que recolhe ou abre o detalhe. */
+  recuo?: { aberto: boolean; aoAlternar: () => void };
 };
 
 const CLASSE =
   "flex h-[43px] w-full items-center justify-between rounded-[10px] border border-black/8 bg-white pr-3 pl-2.5 shadow-cartao";
 
 /** Linha chave-valor da Home: rótulo à esquerda, ícone e valor à direita. */
-export function LinhaValor({ rotulo, valor, icone, corValor, aoTocar }: Props) {
+export function LinhaValor({ rotulo, valor, icone, corValor, aoTocar, recuo }: Props) {
   const conteudo = (
     <>
       <span className="text-base font-extrabold uppercase">{rotulo}:</span>
@@ -24,6 +26,36 @@ export function LinhaValor({ rotulo, valor, icone, corValor, aoTocar }: Props) {
       </span>
     </>
   );
+
+  // Seta e linha são dois botões lado a lado (um botão não pode ficar dentro do outro).
+  if (recuo) {
+    return (
+      <div className={`${CLASSE} !pl-0`}>
+        <button
+          type="button"
+          onClick={recuo.aoAlternar}
+          aria-expanded={recuo.aberto}
+          aria-label={`${recuo.aberto ? "Recolher" : "Mostrar"} o detalhe de ${rotulo.toLowerCase()}`}
+          className="grid h-full w-9 shrink-0 place-items-center"
+        >
+          <Image
+            src="/icones/seta-baixo.svg"
+            alt=""
+            width={12}
+            height={12}
+            className={`transition-transform ${recuo.aberto ? "" : "-rotate-90"}`}
+          />
+        </button>
+        <button
+          type="button"
+          onClick={aoTocar}
+          className="flex h-full min-w-0 flex-1 items-center justify-between text-left transition-transform active:scale-[0.99]"
+        >
+          {conteudo}
+        </button>
+      </div>
+    );
+  }
 
   if (!aoTocar) return <div className={CLASSE}>{conteudo}</div>;
   return (

@@ -9,6 +9,7 @@ import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
 import { useCarteiraEmFoco } from "@/hooks/useCarteiraEmFoco";
 import { useSaldosCarteiras } from "@/hooks/useCarteiras";
 import { gravarEstadoDaTela, useEstadoDaTela } from "@/hooks/useEstadoDaTela";
+import { usePreferencia } from "@/hooks/usePreferencia";
 import { FILTROS_VAZIOS, type FiltroRapido, type Filtros } from "@/lib/filtros";
 import { useMovimentacoes } from "@/hooks/useMovimentacoes";
 import { Valor } from "@/components/ui/Valor";
@@ -27,6 +28,9 @@ export function ResumoPeriodo() {
   const [visao, setVisao] = useEstadoDaTela<Visao>("home:visao", "lista");
   const { data, isError } = useMovimentacoes(periodo);
   const emFoco = useCarteiraEmFoco();
+  // Quem não quer ver o detalhe recolhe as sublinhas; a escolha fica guardada no aparelho.
+  const [recebidosAbertos, abrirRecebidos] = usePreferencia("home:detalhe-recebidos", true);
+  const [despesasAbertas, abrirDespesas] = usePreferencia("home:detalhe-despesas", true);
   // "Quanto eu tenho agora": soma das carteiras (Pro), que não depende do período escolhido.
   const { data: saldos } = useSaldosCarteiras(emFoco.ativas.length > 0);
   const tenhoAgora = saldos && emFoco.ativas.reduce((soma, c) => soma + Math.round((saldos.get(c.id) ?? 0) * 100), 0) / 100;
@@ -127,20 +131,25 @@ export function ResumoPeriodo() {
             icone="/icones/receita.svg"
             corValor="text-recebido"
             aoTocar={abrirResumo("todos")}
+            recuo={{ aberto: recebidosAbertos, aoAlternar: () => abrirRecebidos(!recebidosAbertos) }}
           />
           {/* Do corre: entregas, corridas e fixo. Pessoais: salário, bolsa, ajuda (outras entradas). */}
-          <SubLinhaValor
-            rotulo="Do corre"
-            valor={moeda(totais.recebidos)}
-            corValor="text-recebido"
-            aoTocar={abrirResumo("receitas", { ...FILTROS_VAZIOS, situacoes: ["pago"] })}
-          />
-          <SubLinhaValor
-            rotulo="Pessoais"
-            valor={moeda(totais.entradas)}
-            corValor="text-recebido"
-            aoTocar={abrirResumo("todos")}
-          />
+          {recebidosAbertos && (
+            <>
+              <SubLinhaValor
+                rotulo="Do corre"
+                valor={moeda(totais.recebidos)}
+                corValor="text-recebido"
+                aoTocar={abrirResumo("receitas", { ...FILTROS_VAZIOS, situacoes: ["pago"] })}
+              />
+              <SubLinhaValor
+                rotulo="Pessoais"
+                valor={moeda(totais.entradas)}
+                corValor="text-recebido"
+                aoTocar={abrirResumo("todos")}
+              />
+            </>
+          )}
           <LinhaValor
             rotulo="Pendentes"
             valor={moeda(totais.pendentes)}
@@ -154,20 +163,25 @@ export function ResumoPeriodo() {
             icone="/icones/despesa.svg"
             corValor="text-negativo"
             aoTocar={abrirResumo("despesas")}
+            recuo={{ aberto: despesasAbertas, aoAlternar: () => abrirDespesas(!despesasAbertas) }}
           />
           {/* Do corre e pessoais são partes da despesa, não totais à parte (pedido de quem usa). */}
-          <SubLinhaValor
-            rotulo="Do corre"
-            valor={moeda(totais.despesasCorre)}
-            corValor="text-negativo"
-            aoTocar={abrirResumo("despesas", { ...FILTROS_VAZIOS, gastos: ["corre"] })}
-          />
-          <SubLinhaValor
-            rotulo="Pessoais"
-            valor={moeda(totais.despesasPessoais)}
-            corValor="text-negativo"
-            aoTocar={abrirResumo("despesas", { ...FILTROS_VAZIOS, gastos: ["pessoal"] })}
-          />
+          {despesasAbertas && (
+            <>
+              <SubLinhaValor
+                rotulo="Do corre"
+                valor={moeda(totais.despesasCorre)}
+                corValor="text-negativo"
+                aoTocar={abrirResumo("despesas", { ...FILTROS_VAZIOS, gastos: ["corre"] })}
+              />
+              <SubLinhaValor
+                rotulo="Pessoais"
+                valor={moeda(totais.despesasPessoais)}
+                corValor="text-negativo"
+                aoTocar={abrirResumo("despesas", { ...FILTROS_VAZIOS, gastos: ["pessoal"] })}
+              />
+            </>
+          )}
           <LinhaValor
             rotulo="Entregas"
             valor={data ? String(totais.entregas) : "–"}
