@@ -51,8 +51,10 @@ export function NavegacaoDetalhe({ atual }: { atual: ItemSequencia }) {
       <p className="text-center text-xs font-semibold text-cinza-escuro">
         {indice + 1} de {sequencia.length}
       </p>
-      {/* Setas nos flancos da tela, na altura do meio, presas à coluna de 430 px do app. */}
-      <div className="pointer-events-none fixed inset-x-0 top-1/2 z-20 mx-auto flex max-w-[430px] -translate-y-1/2 justify-between px-1">
+      {/* Setas nos flancos da tela, na altura do meio, presas à coluna de 430 px do app.
+          No computador ficam dos dois lados do cartão: descontam o menu lateral (16rem)
+          e acompanham a largura do cartão (36rem), na altura do meio dele. */}
+      <div className="pointer-events-none fixed inset-x-0 top-1/2 z-20 mx-auto flex max-w-[430px] -translate-y-1/2 justify-between px-1 lg:top-80 lg:left-64 lg:max-w-[calc(36rem+6rem)]">
         <button
           type="button"
           onClick={() => anterior && router.replace(caminhoDoDetalhe(anterior))}
