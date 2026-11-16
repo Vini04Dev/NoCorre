@@ -272,8 +272,39 @@ html[data-tema-app="natal"] .casca-app .enfeite-natal {
 .luz-pisca {
   animation: luz-pisca 1.8s ease-in-out infinite;
 }
+/* Abre espaço em cima para o fio de luzes não cobrir a saudação. */
+html[data-tema-app="natal"] .casca-app .natal-folga {
+  padding-top: calc(env(safe-area-inset-top) + 36px);
+}
+@keyframes floco-cai {
+  0% {
+    transform: translate(0, -12px) rotate(0deg);
+    opacity: 0;
+  }
+  15%,
+  80% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translate(10px, 150px) rotate(160deg);
+    opacity: 0;
+  }
+}
+.floco-cai {
+  opacity: 0;
+  animation: floco-cai 10s linear infinite;
+}
 @media (prefers-reduced-motion: reduce) {
   .luz-pisca {
     animation: none;
+  }
+  /* Sem movimento: flocos parados, espalhados pela faixa. */
+  .floco-cai {
+    animation: none;
+    opacity: 0.4;
+    top: 30%;
+  }
+  .floco-cai:nth-child(even) {
+    top: 62%;
   }
 }
