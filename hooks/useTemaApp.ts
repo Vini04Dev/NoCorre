@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { CHAVE_TEMA_APP, TEMAS_APP, type TemaApp } from "@/lib/tema-app";
+import { CHAVE_TEMA_APP, enfeiteDoDia, TEMAS_APP, type TemaApp } from "@/lib/tema-app";
 
 const PADRAO = TEMAS_APP[0].valor;
 const ouvintes = new Set<() => void>();
@@ -36,6 +36,10 @@ export function aplicarTemaApp(tema: TemaApp) {
   else raiz.temaApp = tema;
   if (TEMAS_APP.find((t) => t.valor === tema)?.escuro) raiz.temaEscuro = "";
   else delete raiz.temaEscuro;
+  // Enfeite de data comemorativa só vale no Clássico.
+  const enfeite = tema === PADRAO ? enfeiteDoDia(new Date()) : null;
+  if (enfeite) raiz.enfeite = enfeite;
+  else delete raiz.enfeite;
   ouvintes.forEach((ouvinte) => ouvinte());
 }
 

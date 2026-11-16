@@ -1,9 +1,10 @@
 /**
- * Enfeites dos temas temáticos (Natal e, depois, outras datas). Um tema
- * temático usa as cores do Clássico e só soma estes desenhos por cima das
- * telas. Ficam sempre no HTML e aparecem pelo CSS quando o tema está ligado
- * (classe .enfeite-natal em app/globals.css), sem JavaScript e sem piscar na
- * primeira pintura. São decorativos: aria-hidden e sem toque.
+ * Enfeites de data comemorativa (Natal e, depois, outras datas). Entram
+ * sozinhos no tema Clássico, no período da data (ENFEITES em lib/tema-app.ts),
+ * sem trocar cor: só estes desenhos por cima das telas. Ficam sempre no HTML e
+ * aparecem pelo CSS quando o enfeite está ligado no <html> (classe
+ * .enfeite-natal em app/globals.css), sem piscar na primeira pintura. São
+ * decorativos: aria-hidden e sem toque.
  */
 
 const CORES_LUZ = ["#e5383b", "#ffd36a", "#38b000", "#4ea8de"];
@@ -94,22 +95,17 @@ export function Neve({ className = "" }: { className?: string }) {
   );
 }
 
-/** Desenho do gorro do Noel, sem a classe que o esconde (prévia na tela de tema). */
-export function DesenhoGorro({ className = "" }: { className?: string }) {
+/**
+ * Gorro do Noel para pôr no canto de um ícone, foto ou botão (o pai precisa ser
+ * `relative`). A posição e o tamanho vêm de `className`.
+ */
+export function Gorro({ className = "" }: { className?: string }) {
   return (
-    <svg aria-hidden viewBox="0 0 48 40" className={className}>
+    <svg aria-hidden viewBox="0 0 48 40" className={`enfeite-natal pointer-events-none absolute z-[1] ${className}`}>
       <path d="M8 30C10 14 22 4 34 6c6 1 10 6 10 12-4-4-8-5-11-3 4 5 6 10 7 15Z" fill="#d62828" />
       <path d="M8 30C10 14 22 4 34 6" fill="none" stroke="#a61e1e" strokeWidth="1" />
       <circle cx="44" cy="19" r="4.5" fill="#ffffff" stroke="#cfd4dc" strokeWidth="0.8" />
       <rect x="4" y="27" width="40" height="9" rx="4.5" fill="#ffffff" stroke="#cfd4dc" strokeWidth="0.8" />
     </svg>
   );
-}
-
-/**
- * Gorro do Noel para pôr no canto de um ícone, foto ou botão (o pai precisa ser
- * `relative`). A posição e o tamanho vêm de `className`.
- */
-export function Gorro({ className = "" }: { className?: string }) {
-  return <DesenhoGorro className={`enfeite-natal pointer-events-none absolute z-[1] ${className}`} />;
 }

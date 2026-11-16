@@ -28,7 +28,7 @@ function descrever(movimentacao: Movimentacao) {
     return {
       href: `/resumo/entrada/${entrada.id}`,
       titulo: entrada.descricao,
-      apoio: `${entrada.tipo} · fora do corre`,
+      apoio: `${entrada.tipo} · pessoal`,
       valor: `+ ${formatarMoeda(entrada.valor)}`,
       corValor: "text-cinza-escuro",
     };

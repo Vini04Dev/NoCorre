@@ -29,7 +29,7 @@ export const CATEGORIAS_PADRAO: Record<TipoCategoria, string[]> = {
 };
 
 /**
- * Categorias padrão que são custo do trabalho: entram no saldo do corre.
+ * Categorias padrão que são custo do trabalho: aparecem em Despesas › Do corre.
  * Alimentação conta como do corre (o lanche do turno); a compra do mês vai em
  * Mercado, que é pessoal. Cada despesa ainda pode trocar no formulário.
  */

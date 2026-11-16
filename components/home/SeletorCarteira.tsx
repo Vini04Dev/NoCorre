@@ -51,7 +51,7 @@ export function SeletorCarteira({
             </span>
             <span className="flex min-w-0 flex-1 flex-col">
               <span className="text-sm font-bold">Todas as carteiras</span>
-              <span className="text-[11px] text-cinza-escuro">Saldo do corre e o resumo de tudo</span>
+              <span className="text-[11px] text-cinza-escuro">Saldo e resumo de tudo</span>
             </span>
             <span className="text-sm font-extrabold">
               <Valor texto={formatarMoeda(total)} />

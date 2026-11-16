@@ -7,7 +7,6 @@ import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
 import { usePlano } from "@/hooks/usePlano";
 import { aplicarTemaApp, useTemaApp } from "@/hooks/useTemaApp";
 import { TEMAS_APP, type CoresTema } from "@/lib/tema-app";
-import { DesenhoGorro } from "./Enfeites";
 
 const MARINHO = "#2b2d42";
 const degradeBotao = (c: CoresTema) => `linear-gradient(90deg, ${c.destaqueClaro}, ${c.destaque})`;
@@ -113,13 +112,11 @@ export function TelaTema() {
                     ativo ? "border-dourado ring-2 ring-dourado" : "border-black/8"
                   }`}
                 >
-                  <span className="relative lg:hidden">
+                  <span className="lg:hidden">
                     <CelularPrevia c={cores} />
-                    {valor === "natal" && <DesenhoGorro className="absolute -top-1 left-1/2 ml-5 w-9 rotate-[20deg]" />}
                   </span>
-                  <span className="relative hidden lg:block">
+                  <span className="hidden lg:block">
                     <MonitorPrevia c={cores} />
-                    {valor === "natal" && <DesenhoGorro className="absolute -top-2 left-1/2 ml-16 w-10 rotate-[20deg]" />}
                   </span>
                   <span className="flex flex-col gap-0.5">
                     <span className="flex items-center justify-between gap-1 text-sm font-bold">

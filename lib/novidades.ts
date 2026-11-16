@@ -20,6 +20,44 @@ export type Nota = {
 
 export const NOTAS: Nota[] = [
   {
+    versao: "0.0.5",
+    data: "2026-11-16",
+    titulo: "Saldo de tudo, com o detalhe à mão",
+    resumo: "O saldo volta a contar tudo o que entrou e saiu, com recebidos e despesas divididos em do corre e pessoais.",
+    destaques: [
+      {
+        icone: "/icones/saldo-linha.svg",
+        titulo: "Saldo de tudo",
+        texto: "O saldo do Início e do Resumo volta a somar tudo o que entrou e descontar tudo o que saiu, do corre ou não.",
+      },
+      {
+        icone: "/icones/receita.svg",
+        titulo: "Recebidos e despesas em duas partes",
+        texto: "Cada um mostra o total e, logo abaixo, quanto foi do corre e quanto foi pessoal. Toque numa parte para ver só ela no Resumo.",
+      },
+      {
+        icone: "/icones/seta-baixo.svg",
+        titulo: "Mostre ou recolha o detalhe",
+        texto: "A seta ao lado de Recebidos e de Despesas recolhe as duas partes para quem prefere ver só o total. O app lembra a escolha.",
+      },
+      {
+        icone: "/icones/carteira-linha.svg",
+        titulo: "Quanto tenho agora",
+        texto: "Para quem usa carteiras (Pro), o Início mostra no topo a soma de todas elas, sem depender do período.",
+      },
+      {
+        icone: "/icones/filtro.svg",
+        titulo: "Filtro por tipo de despesa",
+        texto: "No Resumo, o painel de filtros separa as despesas do corre das pessoais.",
+      },
+      {
+        icone: "/icones/dispositivos.svg",
+        titulo: "Setas do detalhe no computador",
+        texto: "As setas de anterior e próximo no detalhe de um lançamento voltaram para o lado do cartão.",
+      },
+    ],
+  },
+  {
     versao: "0.0.4",
     data: "2026-11-15",
     titulo: "O dinheiro do corre separado do resto",

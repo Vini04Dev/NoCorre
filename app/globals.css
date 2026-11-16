@@ -251,13 +251,13 @@ body {
 }
 /*
  * Enfeites dos temas temáticos (components/tema/Enfeites.tsx). Ficam no HTML o
- * tempo todo e só aparecem com o tema ligado no <html>. Sem camada: precisa
+ * tempo todo e só aparecem com o enfeite da data ligado no <html> (lib/tema-app.ts). Sem camada: precisa
  * valer por cima das classes de display do Tailwind.
  */
 .enfeite-natal {
   display: none;
 }
-html[data-tema-app="natal"] .casca-app .enfeite-natal {
+html[data-enfeite="natal"] .casca-app .enfeite-natal {
   display: block;
 }
 @keyframes luz-pisca {
@@ -273,7 +273,7 @@ html[data-tema-app="natal"] .casca-app .enfeite-natal {
   animation: luz-pisca 1.8s ease-in-out infinite;
 }
 /* Abre espaço em cima para o fio de luzes não cobrir a saudação. */
-html[data-tema-app="natal"] .casca-app .natal-folga {
+html[data-enfeite="natal"] .casca-app .natal-folga {
   padding-top: calc(env(safe-area-inset-top) + 36px);
 }
 @keyframes floco-cai {
