@@ -6,6 +6,7 @@ import { sair } from "@/app/(auth)/acoes";
 import { useClientes } from "@/hooks/useClientes";
 import { limparEstadoDasTelas } from "@/hooks/useEstadoDaTela";
 import { CirculoProgresso } from "@/components/metas/CirculoProgresso";
+import { Gorro, Neve, PiscaPisca } from "@/components/tema/Enfeites";
 import { Secao } from "@/components/ui/Secao";
 import { useMetas } from "@/hooks/useMetas";
 import { useEstatisticasPerfil, usePerfil } from "@/hooks/usePerfil";
@@ -115,9 +116,13 @@ export function TelaPerfil({ admin = false }: { admin?: boolean }) {
       <h1 className="text-[22px] font-extrabold lg:col-span-2 lg:text-3xl">Perfil</h1>
       <div className="flex flex-col gap-4">
 
-      <section className="flex flex-col gap-2.5 rounded-[14px] bg-marinho px-[18px] py-3.5 text-white">
-        <div className="flex items-center gap-3.5">
-          <span className="size-16 shrink-0 overflow-hidden rounded-[27px] bg-white">
+      <section className="relative flex flex-col gap-2.5 rounded-[14px] bg-marinho px-[18px] py-3.5 text-white">
+        <Neve />
+        <PiscaPisca local="base" pequeno className="mx-3" />
+        <div className="relative flex items-center gap-3.5">
+          <span className="relative shrink-0">
+          <Gorro className="-top-5 -left-3.5 w-10 -scale-x-100 -rotate-[20deg]" />
+          <span className="block size-16 overflow-hidden rounded-[27px] bg-white">
             <Image
               src={perfil.fotoUrl ?? "/imagens/logo.png"}
               alt=""
@@ -126,6 +131,7 @@ export function TelaPerfil({ admin = false }: { admin?: boolean }) {
               unoptimized={Boolean(perfil.fotoUrl)}
               className="size-16 object-cover"
             />
+          </span>
           </span>
           <div className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
             <p className="w-full truncate text-[17px] font-extrabold">{perfil.nome}</p>

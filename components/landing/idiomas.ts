@@ -1,7 +1,7 @@
 /**
  * Textos da landing em português, inglês e espanhol. O app em si continua só em
- * português: as telas de celular desenhadas na landing (MockupCelular) mostram o
- * app como ele é, por isso não são traduzidas.
+ * português; as telas de celular desenhadas na landing (MockupCelular) têm os
+ * próprios textos, também nos três idiomas, em telas-idiomas.ts.
  *
  * Números, depoimentos e nomes são FICTÍCIOS (ver dados.ts).
  */
@@ -58,6 +58,8 @@ const pt = {
       titulo: "Cada parcela no lugar certo.",
       texto: "Financiamento, água, luz: o pagamento abate da conta escolhida e o app avisa quanto falta.",
     },
+    { selo: "CARTEIRAS · PRO", titulo: "Cada real no seu lugar.", texto: "Dinheiro em mão, conta do banco e reserva: cada carteira com o próprio saldo e as transferências entre elas." },
+    { selo: "SAÚDE DA MOTO · PRO", titulo: "A moto avisa antes de parar.", texto: "Informe a quilometragem e veja o que está em dia e o que já passou da hora: óleo, pneus, relação e freios." },
   ],
   relatorios: {
     selo: "RELATÓRIOS",
@@ -112,6 +114,22 @@ const pt = {
       },
     ],
   },
+  recursos: {
+    selo: "RECURSOS",
+    titulo: "Tudo o que o app já faz.",
+    texto: "Do saldo do dia à troca de óleo, sem planilha e sem caderninho.",
+    /** Na ordem dos ícones em Recursos.tsx; os dois últimos são do Pro. */
+    itens: [
+      { titulo: "Saldo na cara", texto: "Tudo o que entrou e saiu no dia, na semana ou no mês, com as despesas do corre separadas das pessoais." },
+      { titulo: "Contas do mês", texto: "Aluguel, internet e parcelas com vencimento, contagem de parcelas e débito automático." },
+      { titulo: "Avisos no sininho", texto: "Contas para vencer, compromissos e entregas a receber num lugar só." },
+      { titulo: "Relatórios em reais", texto: "Quanto recebeu, quanto sobrou, por dia e por entrega, sem porcentagem difícil." },
+      { titulo: "Agenda", texto: "Compromissos por dia, semana e mês, com o próximo lembrado no Início." },
+      { titulo: "Outras entradas", texto: "Salário, bolsa ou ajuda da família entram sem misturar com as entregas." },
+      { titulo: "Carteiras", texto: "Dinheiro em mão, conta do banco e reserva, cada um com o próprio saldo." },
+      { titulo: "Saúde da moto", texto: "Óleo, pneus, relação e freios: o app avisa pela quilometragem quando trocar." },
+    ],
+  },
   planos: {
     selo: "PLANOS",
     titulo: "Grátis para começar. Grátis para continuar.",
@@ -120,15 +138,15 @@ const pt = {
     porMes: "/mês",
     itensGratis: [
       "Receitas e despesas ilimitadas",
-      "Resumo do dia, semana e mês",
-      "Metas e contas a pagar",
-      "Relatórios e avisos",
+      "Saldo do dia, da semana e do mês",
+      "Metas e contas do mês",
+      "Relatórios, agenda e avisos",
       "Funciona no celular como app",
     ],
     criarMinhaConta: "Criar minha conta",
-    emBreve: "Em breve",
-    itensPro: ["Tudo do plano grátis", "Agenda com lembretes", "Saúde da moto (trocas por km)", "Exportar relatórios"],
-    avisaremos: "Avisaremos no app",
+    emBreve: "Em teste",
+    itensPro: ["Tudo do plano grátis", "Carteiras com saldo próprio", "Saúde da moto (trocas por km)", "Temas do app"],
+    avisaremos: "Sem cobrança: peça acesso pelo app",
   },
   codigo: {
     selo: "Código aberto",
@@ -144,7 +162,7 @@ const pt = {
       {
         pergunta: "O No Corre! é pago?",
         resposta:
-          "Não. Todos os recursos disponíveis hoje são gratuitos. Está previsto um plano Pro com funções adicionais, mas o controle de receitas, despesas, metas e relatórios continua gratuito.",
+          "Não. Tudo do plano grátis continua gratuito: receitas, despesas, metas, contas do mês e relatórios. O plano Pro (carteiras, saúde da moto e temas) está em fase de testes e, por enquanto, é liberado a pedido, sem cobrança.",
       },
       {
         pergunta: "Preciso baixar na loja de aplicativos?",
@@ -228,6 +246,8 @@ const en: Textos = {
       titulo: "Every installment in its place.",
       texto: "Financing, water, power: each payment comes off the chosen bill and the app tells you what's left.",
     },
+    { selo: "WALLETS · PRO", titulo: "Every real in its place.", texto: "Cash in hand, bank account and savings: each wallet with its own balance, plus transfers between them." },
+    { selo: "BIKE HEALTH · PRO", titulo: "Your bike warns you before it stops.", texto: "Enter the mileage and see what is fine and what is overdue: oil, tires, chain and brakes." },
   ],
   relatorios: {
     selo: "REPORTS",
@@ -282,6 +302,22 @@ const en: Textos = {
       },
     ],
   },
+  recursos: {
+    selo: "FEATURES",
+    titulo: "Everything the app already does.",
+    texto: "From today's balance to the next oil change, with no spreadsheet and no notebook.",
+    /** Na ordem dos ícones em Recursos.tsx; os dois últimos são do Pro. */
+    itens: [
+      { titulo: "Balance up front", texto: "Everything that came in and went out today, this week or this month, with work expenses split from personal ones." },
+      { titulo: "Monthly bills", texto: "Rent, internet and installments with due dates, installment count and automatic debit." },
+      { titulo: "Alerts in the bell", texto: "Bills about to be due, appointments and deliveries to collect, all in one place." },
+      { titulo: "Reports in plain money", texto: "How much you received, how much was left, per day and per delivery, with no confusing percentages." },
+      { titulo: "Calendar", texto: "Appointments by day, week and month, with the next one shown on the home screen." },
+      { titulo: "Other income", texto: "Salary, scholarship or family help come in without mixing with deliveries." },
+      { titulo: "Wallets", texto: "Cash in hand, bank account and savings, each with its own balance." },
+      { titulo: "Bike health", texto: "Oil, tires, chain and brakes: the app warns you by mileage when to replace them." },
+    ],
+  },
   planos: {
     selo: "PRICING",
     titulo: "Free to start. Free to keep going.",
@@ -290,15 +326,15 @@ const en: Textos = {
     porMes: "/month",
     itensGratis: [
       "Unlimited revenue and expenses",
-      "Daily, weekly and monthly summary",
-      "Goals and bills to pay",
-      "Reports and alerts",
+      "Daily, weekly and monthly balance",
+      "Goals and monthly bills",
+      "Reports, calendar and alerts",
       "Works on your phone like an app",
     ],
     criarMinhaConta: "Create my account",
-    emBreve: "Soon",
-    itensPro: ["Everything in Free", "Calendar with reminders", "Bike health (service by mileage)", "Export reports"],
-    avisaremos: "We'll let you know in the app",
+    emBreve: "In testing",
+    itensPro: ["Everything in Free", "Wallets with their own balance", "Bike health (service by mileage)", "App themes"],
+    avisaremos: "No charge: request access in the app",
   },
   codigo: {
     selo: "Open source",
@@ -313,7 +349,8 @@ const en: Textos = {
     itens: [
       {
         pergunta: "Is No Corre! paid?",
-        resposta: "No. Every feature available today is free. A Pro plan with additional features is planned, but tracking revenue, expenses, goals and reports remains free.",
+        resposta:
+          "No. Everything in the Free plan stays free: revenue, expenses, goals, monthly bills and reports. The Pro plan (wallets, bike health and themes) is in testing and, for now, is unlocked on request at no charge.",
       },
       {
         pergunta: "Do I need to download it from an app store?",
@@ -394,6 +431,8 @@ const es: Textos = {
       titulo: "Cada cuota en su lugar.",
       texto: "Financiación, agua, luz: el pago se descuenta de la cuenta elegida y la app avisa cuánto falta.",
     },
+    { selo: "BILLETERAS · PRO", titulo: "Cada real en su lugar.", texto: "Efectivo, cuenta del banco y ahorro: cada billetera con su propio saldo y las transferencias entre ellas." },
+    { selo: "SALUD DE LA MOTO · PRO", titulo: "La moto avisa antes de parar.", texto: "Indica el kilometraje y mira qué está al día y qué ya se pasó: aceite, neumáticos, transmisión y frenos." },
   ],
   relatorios: {
     selo: "INFORMES",
@@ -448,6 +487,22 @@ const es: Textos = {
       },
     ],
   },
+  recursos: {
+    selo: "FUNCIONES",
+    titulo: "Todo lo que la app ya hace.",
+    texto: "Del saldo del día al cambio de aceite, sin planilla y sin cuaderno.",
+    /** Na ordem dos ícones em Recursos.tsx; os dois últimos são do Pro. */
+    itens: [
+      { titulo: "Saldo a la vista", texto: "Todo lo que entró y salió en el día, la semana o el mes, con los gastos del trabajo separados de los personales." },
+      { titulo: "Cuentas del mes", texto: "Alquiler, internet y cuotas con vencimiento, conteo de cuotas y débito automático." },
+      { titulo: "Avisos en la campana", texto: "Cuentas por vencer, compromisos y entregas por cobrar en un solo lugar." },
+      { titulo: "Informes en dinero", texto: "Cuánto recibiste, cuánto sobró, por día y por entrega, sin porcentajes difíciles." },
+      { titulo: "Agenda", texto: "Compromisos por día, semana y mes, con el próximo recordado en el Inicio." },
+      { titulo: "Otros ingresos", texto: "Salario, beca o ayuda de la familia entran sin mezclarse con las entregas." },
+      { titulo: "Billeteras", texto: "Efectivo, cuenta del banco y ahorro, cada uno con su propio saldo." },
+      { titulo: "Salud de la moto", texto: "Aceite, neumáticos, transmisión y frenos: la app avisa por kilometraje cuándo cambiar." },
+    ],
+  },
   planos: {
     selo: "PLANES",
     titulo: "Gratis para empezar. Gratis para seguir.",
@@ -456,15 +511,15 @@ const es: Textos = {
     porMes: "/mes",
     itensGratis: [
       "Ingresos y gastos ilimitados",
-      "Resumen del día, la semana y el mes",
-      "Metas y cuentas por pagar",
-      "Informes y avisos",
+      "Saldo del día, la semana y el mes",
+      "Metas y cuentas del mes",
+      "Informes, agenda y avisos",
       "Funciona en el celular como una app",
     ],
     criarMinhaConta: "Crear mi cuenta",
-    emBreve: "Pronto",
-    itensPro: ["Todo lo del plan gratis", "Agenda con recordatorios", "Salud de la moto (cambios por km)", "Exportar informes"],
-    avisaremos: "Te avisaremos en la app",
+    emBreve: "En pruebas",
+    itensPro: ["Todo lo del plan gratis", "Billeteras con saldo propio", "Salud de la moto (cambios por km)", "Temas de la app"],
+    avisaremos: "Sin costo: pide acceso en la app",
   },
   codigo: {
     selo: "Código abierto",
@@ -479,7 +534,8 @@ const es: Textos = {
     itens: [
       {
         pergunta: "¿No Corre! es pago?",
-        resposta: "No. Todas las funciones disponibles hoy son gratuitas. Está previsto un plan Pro con funciones adicionales, pero el control de ingresos, gastos, metas e informes sigue siendo gratuito.",
+        resposta:
+          "No. Todo lo del plan gratis sigue siendo gratuito: ingresos, gastos, metas, cuentas del mes e informes. El plan Pro (billeteras, salud de la moto y temas) está en pruebas y, por ahora, se libera a pedido, sin costo.",
       },
       {
         pergunta: "¿Tengo que descargarla de una tienda de apps?",

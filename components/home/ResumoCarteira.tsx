@@ -23,7 +23,7 @@ type Props = {
  * Início com uma carteira escolhida: o saldo de agora em destaque e, no
  * período, o que entrou e o que saiu por ela (receitas, outras entradas,
  * despesas do corre ou pessoais e transferências). Responde "o que passou
- * pela Next nesta semana?"; o saldo do corre fica na visão "Todas".
+ * pela Next nesta semana?"; o saldo de tudo fica na visão "Todas".
  */
 export function ResumoCarteira({ carteira, principalId, inicio, fim, dados }: Props) {
   const router = useRouter();

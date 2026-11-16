@@ -5,6 +5,9 @@
  * dela saem o CSS dos temas (CSS_TEMAS_APP), as prévias da tela de tema e o teste.
  *
  * O primeiro é o padrão e precisa bater com os valores do @theme em app/globals.css.
+ *
+ * Tema temático (Natal e outras datas) não é escolhido aqui: entra sozinho no
+ * Clássico, no período da data, só com enfeites por cima das telas (ENFEITES).
  */
 
 export type CoresTema = {
@@ -39,32 +42,35 @@ export type CoresTema = {
   sombra: string;
 };
 
+/** Cores do Clássico: o padrão do app e a base dos temas temáticos. */
+const CORES_CLASSICO = {
+  fundo: "#f9fafb",
+  superficie: "#ffffff",
+  cinzaFundo: "#f3f4f6",
+  cinzaClaro: "#dfe1e6",
+  painel: "#e8e8e8",
+  texto: "#2b2d42",
+  cinza: "#6c7180",
+  cinzaEscuro: "#5c6170",
+  textoSegmento: "#1f2937",
+  destaque: "#e0a92e",
+  destaqueClaro: "#ffd36a",
+  destaqueIcone: "#c89e3b",
+  destaqueTexto: "#916408",
+  positivo: "#3a8500",
+  recebido: "#347701",
+  pendente: "#857000",
+  negativo: "#cc0000",
+  sombra: "0px 4px 4px 0px rgba(0, 0, 0, 0.1)",
+} as const satisfies CoresTema;
+
 export const TEMAS_APP = [
   {
     valor: "classico",
     nome: "Clássico",
     descricao: "Branco e dourado, o visual de sempre.",
     escuro: false,
-    cores: {
-      fundo: "#f9fafb",
-      superficie: "#ffffff",
-      cinzaFundo: "#f3f4f6",
-      cinzaClaro: "#dfe1e6",
-      painel: "#e8e8e8",
-      texto: "#2b2d42",
-      cinza: "#6c7180",
-      cinzaEscuro: "#5c6170",
-      textoSegmento: "#1f2937",
-      destaque: "#e0a92e",
-      destaqueClaro: "#ffd36a",
-      destaqueIcone: "#c89e3b",
-      destaqueTexto: "#916408",
-      positivo: "#3a8500",
-      recebido: "#347701",
-      pendente: "#857000",
-      negativo: "#cc0000",
-      sombra: "0px 4px 4px 0px rgba(0, 0, 0, 0.1)",
-    },
+    cores: CORES_CLASSICO,
   },
   {
     valor: "neblina",
@@ -183,10 +189,31 @@ export const CSS_TEMAS_APP = `@layer base{:root{${variaveis(TEMAS_APP[0].cores)}
   .join("")}}`;
 
 /**
+ * Enfeites de data comemorativa: valem só no tema Clássico e só dentro do
+ * período (dia e mês, pelo relógio do aparelho, todos os anos). Não há como
+ * ligar nem desligar. O CSS mostra os desenhos com html[data-enfeite="..."]
+ * (app/globals.css); os desenhos ficam em components/tema/Enfeites.tsx.
+ * Mês de 1 a 12. Um período não pode atravessar a virada do ano.
+ */
+export const ENFEITES = [{ valor: "natal", de: { mes: 12, dia: 1 }, ate: { mes: 12, dia: 26 } }] as const;
+
+export type Enfeite = (typeof ENFEITES)[number]["valor"];
+
+/** Enfeite que vale em `data`, ou null. Mesma conta do script do <head>. */
+export function enfeiteDoDia(data: Date): Enfeite | null {
+  const hoje = (data.getMonth() + 1) * 100 + data.getDate();
+  return ENFEITES.find((e) => hoje >= e.de.mes * 100 + e.de.dia && hoje <= e.ate.mes * 100 + e.ate.dia)?.valor ?? null;
+}
+
+/**
  * Script do <head>: aplica o tema guardado antes da primeira pintura, sem piscar
  * o padrão. Só aceita os valores conhecidos; marca os escuros com data-tema-escuro.
- * Também apaga a escolha de fundo da versão anterior da tela de tema.
+ * No Clássico, liga o enfeite da data (ou o pedido em ?enfeite=, usado na prévia
+ * do Painel do sistema). Também apaga a escolha de fundo da versão anterior da
+ * tela de tema.
  */
-export const SCRIPT_TEMA_APP = `try{localStorage.removeItem("nocorre:fundo-app");var v=localStorage.getItem("${CHAVE_TEMA_APP}"),t=${JSON.stringify(
+export const SCRIPT_TEMA_APP = `try{localStorage.removeItem("nocorre:fundo-app");var d=document.documentElement.dataset,v=localStorage.getItem("${CHAVE_TEMA_APP}"),t=${JSON.stringify(
   TEMAS_APP.map((t) => t.valor),
-)},e=${JSON.stringify(TEMAS_APP.filter((t) => t.escuro).map((t) => t.valor))};if(t.indexOf(v)>0){document.documentElement.dataset.temaApp=v;if(e.indexOf(v)>=0)document.documentElement.dataset.temaEscuro=""}}catch(x){}`;
+)},e=${JSON.stringify(TEMAS_APP.filter((t) => t.escuro).map((t) => t.valor))};if(t.indexOf(v)>0){d.temaApp=v;if(e.indexOf(v)>=0)d.temaEscuro=""}else{var n=${JSON.stringify(
+  ENFEITES.map((e) => [e.valor, e.de.mes * 100 + e.de.dia, e.ate.mes * 100 + e.ate.dia]),
+)},h=new Date(),k=(h.getMonth()+1)*100+h.getDate(),p=new URLSearchParams(location.search).get("enfeite");for(var i=0;i<n.length;i++){if(p===n[i][0]||(!p&&k>=n[i][1]&&k<=n[i][2])){d.enfeite=n[i][0];break}}}}catch(x){}`;

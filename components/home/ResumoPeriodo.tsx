@@ -4,11 +4,12 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Calendario } from "./Calendario";
 import { ResumoCarteira } from "./ResumoCarteira";
-import { ForaDoCorre } from "@/components/ui/ForaDoCorre";
-import { LinhaValor } from "@/components/ui/LinhaValor";
+import { LinhaValor, SubLinhaValor } from "@/components/ui/LinhaValor";
 import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
 import { useCarteiraEmFoco } from "@/hooks/useCarteiraEmFoco";
+import { useSaldosCarteiras } from "@/hooks/useCarteiras";
 import { gravarEstadoDaTela, useEstadoDaTela } from "@/hooks/useEstadoDaTela";
+import { usePreferencia } from "@/hooks/usePreferencia";
 import { FILTROS_VAZIOS, type FiltroRapido, type Filtros } from "@/lib/filtros";
 import { useMovimentacoes } from "@/hooks/useMovimentacoes";
 import { Valor } from "@/components/ui/Valor";
@@ -27,13 +28,18 @@ export function ResumoPeriodo() {
   const [visao, setVisao] = useEstadoDaTela<Visao>("home:visao", "lista");
   const { data, isError } = useMovimentacoes(periodo);
   const emFoco = useCarteiraEmFoco();
-  const totais = calcularTotais(data?.receitas ?? [], data?.despesas ?? []);
-  const entradas = (data?.entradas ?? []).reduce((soma, e) => soma + e.valor, 0);
+  // Quem não quer ver o detalhe recolhe as sublinhas; a escolha fica guardada no aparelho.
+  const [recebidosAbertos, abrirRecebidos] = usePreferencia("home:detalhe-recebidos", true);
+  const [despesasAbertas, abrirDespesas] = usePreferencia("home:detalhe-despesas", true);
+  // "Quanto eu tenho agora": soma das carteiras (Pro), que não depende do período escolhido.
+  const { data: saldos } = useSaldosCarteiras(emFoco.ativas.length > 0);
+  const tenhoAgora = saldos && emFoco.ativas.reduce((soma, c) => soma + Math.round((saldos.get(c.id) ?? 0) * 100), 0) / 100;
+  const totais = calcularTotais(data?.receitas ?? [], data?.despesas ?? [], data?.entradas ?? []);
   // Enquanto carrega, mostra "–" em vez de um R$ 0,00 que pareceria verdadeiro.
   const moeda = (valor: number) => (!data ? "–" : <Valor texto={formatarMoeda(valor)} />);
 
   // "Hoje" é sempre a lista: um calendário de um quadrado só não diz nada.
-  // Com uma carteira escolhida também: o calendário é do corre inteiro.
+  // Com uma carteira escolhida também: o calendário é de todas as carteiras.
   const permiteCalendario = periodo.tipo !== "dia" && !emFoco.carteira;
   const mostrarCalendario = permiteCalendario && visao === "calendario";
 
@@ -48,6 +54,23 @@ export function ResumoPeriodo() {
 
   return (
     <section className="flex flex-col gap-[21px]">
+      {tenhoAgora !== undefined && !emFoco.carteira && (
+        <button
+          type="button"
+          onClick={() => router.push("/carteiras")}
+          className="flex items-center justify-between gap-3 rounded-[12px] bg-marinho px-3.5 py-3 text-left text-white transition-transform active:scale-[0.99]"
+        >
+          <span className="flex flex-col">
+            <span className="text-[11px] font-semibold tracking-[0.66px] text-white/75">TENHO AGORA</span>
+            <span className="text-[11px] text-white/75">
+              Somando {emFoco.ativas.length === 1 ? "a carteira" : `as ${emFoco.ativas.length} carteiras`}
+            </span>
+          </span>
+          <span className={`text-2xl font-extrabold ${tenhoAgora < 0 ? "text-[#f08a7a]" : "text-dourado-claro"}`}>
+            <Valor texto={formatarMoeda(tenhoAgora)} />
+          </span>
+        </button>
+      )}
       <div className="flex items-start gap-2">
         <div className="min-w-0 flex-1">
           <SeletorPeriodoAmplo valor={periodo} aoMudar={setPeriodo} />
@@ -81,7 +104,7 @@ export function ResumoPeriodo() {
         <div className="flex flex-col gap-2">
           <dl className="grid grid-cols-3 rounded-[10px] border border-black/8 bg-white px-3 py-2 text-center shadow-cartao">
             {[
-              { rotulo: "Recebidos", valor: totais.recebidos, cor: "text-recebido" },
+              { rotulo: "Recebidos", valor: totais.recebidosTotal, cor: "text-recebido" },
               { rotulo: "Despesas", valor: totais.despesas, cor: "text-negativo" },
               { rotulo: "Saldo", valor: totais.saldo, cor: totais.saldo < 0 ? "text-negativo" : "text-positivo" },
             ].map(({ rotulo, valor, cor }) => (
@@ -104,11 +127,29 @@ export function ResumoPeriodo() {
           />
           <LinhaValor
             rotulo="Recebidos"
-            valor={moeda(totais.recebidos)}
+            valor={moeda(totais.recebidosTotal)}
             icone="/icones/receita.svg"
             corValor="text-recebido"
-            aoTocar={abrirResumo("receitas", { ...FILTROS_VAZIOS, situacoes: ["pago"] })}
+            aoTocar={abrirResumo("todos")}
+            recuo={{ aberto: recebidosAbertos, aoAlternar: () => abrirRecebidos(!recebidosAbertos) }}
           />
+          {/* Do corre: entregas, corridas e fixo. Pessoais: salário, bolsa, ajuda (outras entradas). */}
+          {recebidosAbertos && (
+            <>
+              <SubLinhaValor
+                rotulo="Do corre"
+                valor={moeda(totais.recebidos)}
+                corValor="text-recebido"
+                aoTocar={abrirResumo("receitas", { ...FILTROS_VAZIOS, situacoes: ["pago"] })}
+              />
+              <SubLinhaValor
+                rotulo="Pessoais"
+                valor={moeda(totais.entradas)}
+                corValor="text-recebido"
+                aoTocar={abrirResumo("todos")}
+              />
+            </>
+          )}
           <LinhaValor
             rotulo="Pendentes"
             valor={moeda(totais.pendentes)}
@@ -122,7 +163,25 @@ export function ResumoPeriodo() {
             icone="/icones/despesa.svg"
             corValor="text-negativo"
             aoTocar={abrirResumo("despesas")}
+            recuo={{ aberto: despesasAbertas, aoAlternar: () => abrirDespesas(!despesasAbertas) }}
           />
+          {/* Do corre e pessoais são partes da despesa, não totais à parte (pedido de quem usa). */}
+          {despesasAbertas && (
+            <>
+              <SubLinhaValor
+                rotulo="Do corre"
+                valor={moeda(totais.despesasCorre)}
+                corValor="text-negativo"
+                aoTocar={abrirResumo("despesas", { ...FILTROS_VAZIOS, gastos: ["corre"] })}
+              />
+              <SubLinhaValor
+                rotulo="Pessoais"
+                valor={moeda(totais.despesasPessoais)}
+                corValor="text-negativo"
+                aoTocar={abrirResumo("despesas", { ...FILTROS_VAZIOS, gastos: ["pessoal"] })}
+              />
+            </>
+          )}
           <LinhaValor
             rotulo="Entregas"
             valor={data ? String(totais.entregas) : "–"}
@@ -140,7 +199,6 @@ export function ResumoPeriodo() {
               .
             </p>
           )}
-          {data && <ForaDoCorre pessoais={totais.pessoais} entradas={entradas} />}
         </div>
       )}
     </section>

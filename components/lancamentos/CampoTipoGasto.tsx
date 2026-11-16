@@ -3,9 +3,9 @@
 import { Alternador } from "@/components/ui/Alternador";
 
 /**
- * "Esse gasto é: Do corre | Pessoal". Do corre desconta do saldo do corre no
- * Início; pessoal sai da carteira, mas fica fora dele. Uma frase curta embaixo
- * explica a escolha atual.
+ * "Esse gasto é: Do corre | Pessoal". Os dois descontam do saldo; a escolha só
+ * diz em qual sublinha de Despesas ele aparece no Início. Uma frase curta
+ * embaixo explica a escolha atual.
  */
 export function CampoTipoGasto({
   doCorre,
@@ -29,8 +29,8 @@ export function CampoTipoGasto({
       />
       <p className="text-[11px] text-cinza-escuro">
         {doCorre
-          ? "Custo do trabalho, como gasolina, peças e diária: desconta do saldo do corre."
-          : "Mercado, contas, lazer: sai da carteira, mas não mexe no saldo do corre."}
+          ? "Custo do trabalho, como gasolina, peças e diária. Aparece em Despesas › Do corre."
+          : "Mercado, contas, lazer. Aparece em Despesas › Pessoais."}
       </p>
     </div>
   );

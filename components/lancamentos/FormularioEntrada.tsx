@@ -25,7 +25,7 @@ type Erros = { descricao?: string; valor?: string; data?: string };
 /**
  * Entrada que não é do corre: bolsa, salário, benefício, ajuda, venda de algo.
  * Vai para a carteira, mas não conta como receita do trabalho nem como entrega,
- * e fica fora do saldo do corre do Início.
+ * e no saldo, mas não é receita do corre: aparece em Recebidos › Pessoais.
  */
 export function FormularioEntrada({ entrada, origem }: { entrada?: Entrada; origem?: Receita }) {
   const router = useRouter();
@@ -99,13 +99,13 @@ export function FormularioEntrada({ entrada, origem }: { entrada?: Entrada; orig
         {origem ? (
           <p className="-mt-1 rounded-[10px] bg-cinza-fundo px-3 py-2 text-xs text-cinza-escuro">
             Esta receita de <b>{origem.clientes?.nome ?? "cliente"}</b> ({formatarMoeda(origem.valor_total ?? 0)}) vai virar outra
-            entrada, na mesma carteira. Ela sai das receitas, das entregas e do saldo do corre.
+            entrada, na mesma carteira. Ela sai das receitas e das entregas e passa a contar como recebido pessoal.
             {origem.status_pagamento === "pendente" && " Ela estava pendente: a entrada conta como dinheiro que já entrou."}
           </p>
         ) : (
           <p className="-mt-1 text-xs text-cinza-escuro">
-            Dinheiro que não vem do corre, como salário, bolsa ou ajuda. Entra na carteira, mas fica fora do saldo do corre e
-            das entregas.
+            Dinheiro que não vem do corre, como salário, bolsa ou ajuda. Entra na carteira e no saldo como recebido pessoal,
+            sem contar como entrega.
           </p>
         )}
         <AvisoErro mensagem={salvar.error?.message ?? excluir.error?.message ?? tirarReceita.error?.message} />

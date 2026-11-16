@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { suave, trecho } from "./animacao";
 import { useTextos } from "./ContextoLanding";
-import { MockupCelular, TelaConta, TelaLancamento, TelaMeta, TelaSaldo } from "./MockupCelular";
+import { MockupCelular, TelaCarteiras, TelaConta, TelaLancamento, TelaMeta, TelaMoto, TelaSaldo } from "./MockupCelular";
 
 /** Telas do celular, na ordem dos textos de idiomas.ts (historia). */
-const TELAS = [TelaSaldo, TelaLancamento, TelaMeta, TelaConta];
+const TELAS = [TelaSaldo, TelaLancamento, TelaMeta, TelaConta, TelaCarteiras, TelaMoto];
 
 /**
  * Celular preso ao lado enquanto os textos passam: a tela troca conforme o
