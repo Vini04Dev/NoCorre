@@ -9,17 +9,27 @@ export type Filtros = {
   clienteId: string;
   formas: Enums<"forma_pagamento">[];
   situacoes: Enums<"status_pagamento">[];
+  /** Despesas do corre, pessoais ou as duas. Ausente em filtros guardados antes deste campo. */
+  gastos?: TipoGasto[];
 };
 
-export const FILTROS_VAZIOS: Filtros = { categorias: [], clienteId: "", formas: [], situacoes: [] };
+export type TipoGasto = "corre" | "pessoal";
+
+export const FILTROS_VAZIOS: Filtros = { categorias: [], clienteId: "", formas: [], situacoes: [], gastos: [] };
 
 export function quantidadeFiltrosAtivos(filtros: Filtros) {
   return (
-    filtros.categorias.length + (filtros.clienteId ? 1 : 0) + filtros.formas.length + filtros.situacoes.length
+    filtros.categorias.length +
+    (filtros.clienteId ? 1 : 0) +
+    filtros.formas.length +
+    filtros.situacoes.length +
+    (filtros.gastos?.length ?? 0)
   );
 }
 
 function receitaPassa(receita: Receita, filtros: Filtros) {
+  // "Do corre" e "pessoal" são da despesa: com esse filtro a receita some.
+  if (filtros.gastos?.length) return false;
   if (filtros.categorias.length && !filtros.categorias.includes(receita.tipo)) return false;
   if (filtros.clienteId && receita.cliente_id !== filtros.clienteId) return false;
   if (filtros.formas.length && !(receita.forma_pagamento && filtros.formas.includes(receita.forma_pagamento))) {
@@ -32,6 +42,7 @@ function receitaPassa(receita: Receita, filtros: Filtros) {
 function despesaPassa(despesa: Despesa, filtros: Filtros) {
   // Despesa não tem cliente, forma de pagamento nem situação: esses filtros a escondem.
   if (filtros.clienteId || filtros.formas.length || filtros.situacoes.length) return false;
+  if (filtros.gastos?.length && !filtros.gastos.includes(despesa.do_corre === false ? "pessoal" : "corre")) return false;
   return !filtros.categorias.length || filtros.categorias.includes(despesa.tipo);
 }
 

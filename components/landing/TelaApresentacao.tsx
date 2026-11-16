@@ -11,6 +11,7 @@ import { HistoriaApp } from "./HistoriaApp";
 import { TEXTOS, type Idioma, type Tema, type Textos } from "./idiomas";
 import { MapaCidade } from "./MapaCidade";
 import { Passos } from "./Passos";
+import { Recursos } from "./Recursos";
 import { Revelar } from "./Revelar";
 import { SeletoresLanding } from "./SeletoresLanding";
 import { Terminal } from "./Terminal";
@@ -380,6 +381,12 @@ export function TelaApresentacao({ logado, idioma, tema }: Props) {
         <Frase texto={t.frase.texto} destaque={t.frase.destaque} />
         <section id="historia" className="scroll-mt-14">
           <HistoriaApp />
+        </section>
+        <section id="recursos" className="scroll-mt-14 py-16 sm:py-24">
+          <div className={`${CONTEUDO} flex flex-col gap-14`}>
+            <Titulo selo={t.recursos.selo} titulo={t.recursos.titulo} texto={t.recursos.texto} />
+            <Recursos t={t} />
+          </div>
         </section>
         <section id="relatorios" className="scroll-mt-14 py-16 sm:py-24">
           <div className={`${CONTEUDO} flex flex-col gap-14`}>

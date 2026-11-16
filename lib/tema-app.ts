@@ -144,6 +144,33 @@ export const TEMAS_APP = [
       sombra: "0px 4px 10px 0px rgba(0, 0, 0, 0.4)",
     },
   },
+  {
+    valor: "natal",
+    nome: "Natal",
+    descricao: "Verde de pinheiro com dourado. Para o corre de fim de ano.",
+    escuro: true,
+    cores: {
+      fundo: "#0f1f1a",
+      superficie: "#183028",
+      cinzaFundo: "#213b32",
+      cinzaClaro: "#2f4d42",
+      painel: "#1c352c",
+      texto: "#eef3ef",
+      cinza: "#9db3a8",
+      cinzaEscuro: "#b3c5bc",
+      textoSegmento: "#eef3ef",
+      destaque: "#e9b949",
+      destaqueClaro: "#ffd97a",
+      destaqueIcone: "#f0c35a",
+      destaqueTexto: "#ffd97a",
+      // Vermelho só para valor negativo: como destaque ele se confundiria com "saiu dinheiro".
+      positivo: "#7bdc3c",
+      recebido: "#9bd95f",
+      pendente: "#ffd84d",
+      negativo: "#ff8080",
+      sombra: "0px 4px 10px 0px rgba(0, 0, 0, 0.45)",
+    },
+  },
 ] as const satisfies readonly { valor: string; nome: string; descricao: string; escuro: boolean; cores: CoresTema }[];
 
 export type TemaApp = (typeof TEMAS_APP)[number]["valor"];

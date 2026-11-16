@@ -4,10 +4,10 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Calendario } from "./Calendario";
 import { ResumoCarteira } from "./ResumoCarteira";
-import { ForaDoCorre } from "@/components/ui/ForaDoCorre";
-import { LinhaValor } from "@/components/ui/LinhaValor";
+import { LinhaValor, SubLinhaValor } from "@/components/ui/LinhaValor";
 import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
 import { useCarteiraEmFoco } from "@/hooks/useCarteiraEmFoco";
+import { useSaldosCarteiras } from "@/hooks/useCarteiras";
 import { gravarEstadoDaTela, useEstadoDaTela } from "@/hooks/useEstadoDaTela";
 import { FILTROS_VAZIOS, type FiltroRapido, type Filtros } from "@/lib/filtros";
 import { useMovimentacoes } from "@/hooks/useMovimentacoes";
@@ -27,13 +27,15 @@ export function ResumoPeriodo() {
   const [visao, setVisao] = useEstadoDaTela<Visao>("home:visao", "lista");
   const { data, isError } = useMovimentacoes(periodo);
   const emFoco = useCarteiraEmFoco();
-  const totais = calcularTotais(data?.receitas ?? [], data?.despesas ?? []);
-  const entradas = (data?.entradas ?? []).reduce((soma, e) => soma + e.valor, 0);
+  // "Quanto eu tenho agora": soma das carteiras (Pro), que não depende do período escolhido.
+  const { data: saldos } = useSaldosCarteiras(emFoco.ativas.length > 0);
+  const tenhoAgora = saldos && emFoco.ativas.reduce((soma, c) => soma + Math.round((saldos.get(c.id) ?? 0) * 100), 0) / 100;
+  const totais = calcularTotais(data?.receitas ?? [], data?.despesas ?? [], data?.entradas ?? []);
   // Enquanto carrega, mostra "–" em vez de um R$ 0,00 que pareceria verdadeiro.
   const moeda = (valor: number) => (!data ? "–" : <Valor texto={formatarMoeda(valor)} />);
 
   // "Hoje" é sempre a lista: um calendário de um quadrado só não diz nada.
-  // Com uma carteira escolhida também: o calendário é do corre inteiro.
+  // Com uma carteira escolhida também: o calendário é de todas as carteiras.
   const permiteCalendario = periodo.tipo !== "dia" && !emFoco.carteira;
   const mostrarCalendario = permiteCalendario && visao === "calendario";
 
@@ -48,6 +50,23 @@ export function ResumoPeriodo() {
 
   return (
     <section className="flex flex-col gap-[21px]">
+      {tenhoAgora !== undefined && !emFoco.carteira && (
+        <button
+          type="button"
+          onClick={() => router.push("/carteiras")}
+          className="flex items-center justify-between gap-3 rounded-[12px] bg-marinho px-3.5 py-3 text-left text-white transition-transform active:scale-[0.99]"
+        >
+          <span className="flex flex-col">
+            <span className="text-[11px] font-semibold tracking-[0.66px] text-white/75">TENHO AGORA</span>
+            <span className="text-[11px] text-white/75">
+              Somando {emFoco.ativas.length === 1 ? "a carteira" : `as ${emFoco.ativas.length} carteiras`}
+            </span>
+          </span>
+          <span className={`text-2xl font-extrabold ${tenhoAgora < 0 ? "text-[#f08a7a]" : "text-dourado-claro"}`}>
+            <Valor texto={formatarMoeda(tenhoAgora)} />
+          </span>
+        </button>
+      )}
       <div className="flex items-start gap-2">
         <div className="min-w-0 flex-1">
           <SeletorPeriodoAmplo valor={periodo} aoMudar={setPeriodo} />
@@ -116,12 +135,35 @@ export function ResumoPeriodo() {
             corValor="text-pendente"
             aoTocar={abrirResumo("pendentes")}
           />
+          {/* Só aparece para quem lança salário, bolsa ou ajuda: quem vive só do corre não vê linha vazia. */}
+          {totais.entradas > 0 && (
+            <LinhaValor
+              rotulo="Outras entradas"
+              valor={moeda(totais.entradas)}
+              icone="/icones/receita.svg"
+              corValor="text-recebido"
+              aoTocar={abrirResumo("todos")}
+            />
+          )}
           <LinhaValor
             rotulo="Despesas"
             valor={moeda(totais.despesas)}
             icone="/icones/despesa.svg"
             corValor="text-negativo"
             aoTocar={abrirResumo("despesas")}
+          />
+          {/* Do corre e pessoais são partes da despesa, não totais à parte (pedido de quem usa). */}
+          <SubLinhaValor
+            rotulo="Do corre"
+            valor={moeda(totais.despesasCorre)}
+            corValor="text-negativo"
+            aoTocar={abrirResumo("despesas", { ...FILTROS_VAZIOS, gastos: ["corre"] })}
+          />
+          <SubLinhaValor
+            rotulo="Pessoais"
+            valor={moeda(totais.despesasPessoais)}
+            corValor="text-negativo"
+            aoTocar={abrirResumo("despesas", { ...FILTROS_VAZIOS, gastos: ["pessoal"] })}
           />
           <LinhaValor
             rotulo="Entregas"
@@ -140,7 +182,16 @@ export function ResumoPeriodo() {
               .
             </p>
           )}
-          {data && <ForaDoCorre pessoais={totais.pessoais} entradas={entradas} />}
+          {/* O que o trabalho rendeu, à parte do bolso: só aparece quando difere do saldo. */}
+          {data && totais.sobrouDoCorre !== totais.saldo && (
+            <p className="text-[11px] leading-snug text-cinza-escuro">
+              O saldo conta tudo o que entrou e saiu. Só do corre (recebidos menos despesas do corre) sobrou{" "}
+              <span className={`font-semibold ${totais.sobrouDoCorre < 0 ? "text-negativo" : "text-positivo"}`}>
+                <Valor texto={formatarMoeda(totais.sobrouDoCorre)} />
+              </span>
+              .
+            </p>
+          )}
         </div>
       )}
     </section>

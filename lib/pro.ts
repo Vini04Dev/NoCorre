@@ -16,7 +16,7 @@ export const RECURSOS_PRO = [
     chave: "tema",
     icone: "/icones/tema.svg",
     titulo: "Tema do app",
-    texto: "Temas completos para o app: Clássico, Neblina (cinza claro com azul), Noturno (escuro com lilás) e Asfalto (cinza com laranja).",
+    texto: "Temas completos para o app: Clássico, Neblina (cinza claro com azul), Noturno (escuro com lilás), Asfalto (cinza com laranja) e Natal (verde com dourado).",
   },
 ] as const;
 
