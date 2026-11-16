@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { PainelLancamento } from "@/components/lancamentos/PainelLancamento";
+import { Gorro } from "@/components/tema/Enfeites";
 import { IconeMenu } from "@/components/ui/Icones";
 
 type ItemNavegacao = {
@@ -81,6 +82,7 @@ export function BarraNavegacao() {
                 <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" />
               </svg>
             </span>
+            <Gorro className="top-0 right-1.5 w-9 rotate-[18deg]" />
           </button>
         </div>
 

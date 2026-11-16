@@ -76,6 +76,7 @@ async function Home() {
               <CartaoModulo
                 href="/agenda"
                 titulo="Agenda"
+                gorro
                 descricao="Crie rotinas e agendamentos e mantenha-se atualizado pra não perder a hora."
                 icone="/icones/agenda.svg"
                 tamanhoIcone={40}
