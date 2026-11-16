@@ -6,7 +6,11 @@
  * pessoa ainda não viu abre sozinha num aviso ao entrar no app.
  */
 
-/** `icone`: caminho de um ícone de linha em /public/icones (nunca emoji). */
+/**
+ * `icone`: caminho de um ícone de linha em /public/icones (nunca emoji). Sempre
+ * no mesmo padrão: 24 x 24, só traço, na cor marinho (#2B2D42), espessura 2.
+ * Ícones coloridos ou preenchidos (receita, despesa, metas) destoam no aviso.
+ */
 export type Destaque = { icone: string; titulo: string; texto: string };
 
 export type Nota = {
@@ -31,14 +35,19 @@ export const NOTAS: Nota[] = [
         texto: "O saldo do Início e do Resumo volta a somar tudo o que entrou e descontar tudo o que saiu, do corre ou não.",
       },
       {
-        icone: "/icones/receita.svg",
+        icone: "/icones/dividir-linha.svg",
         titulo: "Recebidos e despesas em duas partes",
         texto: "Cada um mostra o total e, logo abaixo, quanto foi do corre e quanto foi pessoal. Toque numa parte para ver só ela no Resumo.",
       },
       {
-        icone: "/icones/seta-baixo.svg",
+        icone: "/icones/recolher-linha.svg",
         titulo: "Mostre ou recolha o detalhe",
         texto: "A seta ao lado de Recebidos e de Despesas recolhe as duas partes para quem prefere ver só o total. O app lembra a escolha.",
+      },
+      {
+        icone: "/icones/floco-linha.svg",
+        titulo: "O Natal está chegando",
+        texto: "De 1 a 26 de dezembro, o tema Clássico se enfeita sozinho: pisca-pisca, gorros do Noel e flocos de neve. As cores continuam as mesmas.",
       },
       {
         icone: "/icones/carteira-linha.svg",
@@ -69,7 +78,7 @@ export const NOTAS: Nota[] = [
         texto: "Cada despesa agora é do corre ou pessoal. O saldo mostra só o que o corre deu; mercado, conta de luz e outros gastos pessoais aparecem à parte.",
       },
       {
-        icone: "/icones/receita.svg",
+        icone: "/icones/entrada-linha.svg",
         titulo: "Outra entrada",
         texto: "Salário, bolsa ou ajuda da família entram pelo botão + em Outra entrada, sem misturar com as entregas. Uma receita lançada errado pode ser movida para lá.",
       },
@@ -84,22 +93,22 @@ export const NOTAS: Nota[] = [
         texto: "Tudo em reais, sem porcentagem: quanto recebeu, quanto sobrou, por dia e por entrega, comparado ao mesmo ponto do período anterior.",
       },
       {
-        icone: "/icones/info.svg",
+        icone: "/icones/sino-linha.svg",
         titulo: "Sininho de avisos",
         texto: "No Início, o sininho junta contas para vencer, o próximo compromisso e entregas a receber. O que é urgente aparece numa linha logo abaixo.",
       },
       {
-        icone: "/icones/destaque-usuario.svg",
+        icone: "/icones/cliente-linha.svg",
         titulo: "Quanto fiz em cada cliente",
         texto: "Em Relatórios, os clientes aparecem por entregas ou por valor recebido. Toque num deles para ver só as receitas dele no Resumo.",
       },
       {
-        icone: "/icones/despesa.svg",
+        icone: "/icones/etiqueta-linha.svg",
         titulo: "Categoria Fixo",
         texto: "Para o valor fixo da diária ou do estabelecimento. Entra no que você recebeu, mas não conta como entrega.",
       },
       {
-        icone: "/icones/metas.svg",
+        icone: "/icones/alvo.svg",
         titulo: "Metas mais fáceis de ler",
         texto: "Meta pausada ou encerrada mostra um símbolo no lugar da porcentagem.",
       },
