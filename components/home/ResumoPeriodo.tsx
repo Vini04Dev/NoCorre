@@ -100,7 +100,7 @@ export function ResumoPeriodo() {
         <div className="flex flex-col gap-2">
           <dl className="grid grid-cols-3 rounded-[10px] border border-black/8 bg-white px-3 py-2 text-center shadow-cartao">
             {[
-              { rotulo: "Recebidos", valor: totais.recebidos, cor: "text-recebido" },
+              { rotulo: "Recebidos", valor: totais.recebidosTotal, cor: "text-recebido" },
               { rotulo: "Despesas", valor: totais.despesas, cor: "text-negativo" },
               { rotulo: "Saldo", valor: totais.saldo, cor: totais.saldo < 0 ? "text-negativo" : "text-positivo" },
             ].map(({ rotulo, valor, cor }) => (
@@ -123,10 +123,23 @@ export function ResumoPeriodo() {
           />
           <LinhaValor
             rotulo="Recebidos"
-            valor={moeda(totais.recebidos)}
+            valor={moeda(totais.recebidosTotal)}
             icone="/icones/receita.svg"
             corValor="text-recebido"
+            aoTocar={abrirResumo("todos")}
+          />
+          {/* Do corre: entregas, corridas e fixo. Pessoais: salário, bolsa, ajuda (outras entradas). */}
+          <SubLinhaValor
+            rotulo="Do corre"
+            valor={moeda(totais.recebidos)}
+            corValor="text-recebido"
             aoTocar={abrirResumo("receitas", { ...FILTROS_VAZIOS, situacoes: ["pago"] })}
+          />
+          <SubLinhaValor
+            rotulo="Pessoais"
+            valor={moeda(totais.entradas)}
+            corValor="text-recebido"
+            aoTocar={abrirResumo("todos")}
           />
           <LinhaValor
             rotulo="Pendentes"
@@ -135,16 +148,6 @@ export function ResumoPeriodo() {
             corValor="text-pendente"
             aoTocar={abrirResumo("pendentes")}
           />
-          {/* Só aparece para quem lança salário, bolsa ou ajuda: quem vive só do corre não vê linha vazia. */}
-          {totais.entradas > 0 && (
-            <LinhaValor
-              rotulo="Outras entradas"
-              valor={moeda(totais.entradas)}
-              icone="/icones/receita.svg"
-              corValor="text-recebido"
-              aoTocar={abrirResumo("todos")}
-            />
-          )}
           <LinhaValor
             rotulo="Despesas"
             valor={moeda(totais.despesas)}
@@ -178,16 +181,6 @@ export function ResumoPeriodo() {
               Quando os pendentes forem pagos, o saldo vai para{" "}
               <span className={`font-semibold ${totais.saldo + totais.pendentes < 0 ? "text-negativo" : "text-positivo"}`}>
                 <Valor texto={formatarMoeda(totais.saldo + totais.pendentes)} />
-              </span>
-              .
-            </p>
-          )}
-          {/* O que o trabalho rendeu, à parte do bolso: só aparece quando difere do saldo. */}
-          {data && totais.sobrouDoCorre !== totais.saldo && (
-            <p className="text-[11px] leading-snug text-cinza-escuro">
-              O saldo conta tudo o que entrou e saiu. Só do corre (recebidos menos despesas do corre) sobrou{" "}
-              <span className={`font-semibold ${totais.sobrouDoCorre < 0 ? "text-negativo" : "text-positivo"}`}>
-                <Valor texto={formatarMoeda(totais.sobrouDoCorre)} />
               </span>
               .
             </p>

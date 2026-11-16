@@ -44,6 +44,8 @@ export function calcularTotais(receitas: ReceitaTotal[], despesas: DespesaTotal[
   return {
     saldo: (recebidos + outras - doCorre - pessoais) / 100,
     recebidos: recebidos / 100,
+    /** Tudo o que entrou: receitas pagas (do corre) mais outras entradas (pessoais). */
+    recebidosTotal: (recebidos + outras) / 100,
     pendentes: pendentes / 100,
     entradas: outras / 100,
     despesas: (doCorre + pessoais) / 100,

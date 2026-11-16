@@ -95,7 +95,7 @@ export function CartaoSaldo({ nomePeriodo, totais, carteira, filtro }: Props) {
       <hr className="border-black/8" />
       <dl className="grid grid-cols-3 gap-2">
         {[
-          { rotulo: "Recebidos", valor: totais?.recebidos, cor: "text-recebido" },
+          { rotulo: "Recebidos", valor: totais?.recebidosTotal, cor: "text-recebido" },
           { rotulo: "Pendentes", valor: totais?.pendentes, cor: "text-pendente" },
           { rotulo: "Despesas", valor: totais?.despesas, cor: "text-negativo" },
         ].map(({ rotulo, valor, cor }) => (
@@ -111,7 +111,8 @@ export function CartaoSaldo({ nomePeriodo, totais, carteira, filtro }: Props) {
           {/* Detalhe do saldo: de onde veio a despesa e quanto o corre rendeu sozinho. */}
           <dl className="flex flex-col gap-1 text-[11px]">
             {[
-              ...(totais.entradas > 0 ? [{ rotulo: "Outras entradas", valor: totais.entradas, cor: "text-recebido" }] : []),
+              { rotulo: "Recebidos do corre", valor: totais.recebidos, cor: "text-recebido" },
+              { rotulo: "Recebidos pessoais", valor: totais.entradas, cor: "text-recebido" },
               { rotulo: "Despesas do corre", valor: totais.despesasCorre, cor: "text-negativo" },
               { rotulo: "Despesas pessoais", valor: totais.despesasPessoais, cor: "text-negativo" },
               {
