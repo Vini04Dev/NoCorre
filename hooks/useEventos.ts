@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { criarClienteNavegador } from "@/lib/supabase/cliente";
 import { traduzirErroBanco } from "@/lib/supabase/erros-banco";
-import { comHora, diasDaRepeticao, type Repeticao } from "@/lib/repeticao";
+import { comHora, diasDaRepeticao, type DiaSemana, type RegraRepeticao } from "@/lib/repeticao";
 import type { Tables, TablesInsert } from "@/types/database";
 
 export type Evento = Tables<"eventos">;
@@ -13,12 +13,12 @@ export type DadosEvento = Omit<TablesInsert<"eventos">, "id" | "usuario_id" | "c
 export type EventoParaSalvar = {
   descricao: string;
   cor: DadosEvento["cor"];
-  /** Dia do evento (ou do primeiro, numa série nova). */
+  /** Data escolhida: o evento, ou o começo da repetição. */
   dia: Date;
   horaInicio: string;
   horaFim: string;
   /** null: não repete. */
-  repeticao: Repeticao | null;
+  repeticao: RegraRepeticao | null;
   /** Último dia da repetição (inclusive). */
   ate: Date | null;
 };
@@ -77,8 +77,12 @@ export function useDescricoesEventos() {
   });
 }
 
-/** Último dia de uma série, para o campo "Até" ao editar. */
-export function useFimDaSerie(serieId: string | null | undefined) {
+/**
+ * Como a série está hoje, para abrir a edição já preenchida: o último dia (o
+ * "Até") e os dias da semana em que ela cai. Os dias saem dos próprios eventos,
+ * sem coluna à parte.
+ */
+export function useSerie(serieId: string | null | undefined) {
   return useQuery({
     queryKey: [...CHAVE, "serie", serieId],
     enabled: Boolean(serieId),
@@ -87,11 +91,13 @@ export function useFimDaSerie(serieId: string | null | undefined) {
         .from("eventos")
         .select("data_hora_inicial")
         .eq("serie_id", serieId!)
-        .order("data_hora_inicial", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .order("data_hora_inicial");
       if (error) throw new Error(traduzirErroBanco(error));
-      return data ? new Date(data.data_hora_inicial) : null;
+      const datas = data.map((linha) => new Date(linha.data_hora_inicial));
+      return {
+        fim: datas.at(-1) ?? null,
+        diasSemana: [...new Set(datas.map((d) => d.getDay() as DiaSemana))],
+      };
     },
   });
 }
@@ -105,7 +111,7 @@ function linhasDaSerie(e: EventoParaSalvar, serieId: string | null) {
     data_hora_inicial: comHora(dia, e.horaInicio).toISOString(),
     data_hora_final: comHora(dia, e.horaFim).toISOString(),
     serie_id: e.repeticao ? serieId : null,
-    repeticao: e.repeticao,
+    repeticao: e.repeticao?.tipo ?? null,
   }));
 }
 

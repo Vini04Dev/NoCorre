@@ -172,7 +172,7 @@ function ListaDoDia({ dia, eventos }: { dia: Date; eventos: Evento[] }) {
                     {evento.repeticao && (
                       <span className="flex items-center gap-1">
                         · <Image src="/icones/repetir.svg" alt="" width={12} height={12} />
-                        {fraseRepeticao(evento.repeticao)}
+                        {fraseRepeticao(evento.repeticao, new Date(evento.data_hora_inicial))}
                       </span>
                     )}
                   </span>

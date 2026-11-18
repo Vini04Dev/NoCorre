@@ -13,14 +13,14 @@ import { EscolherEscopo } from "./EscolherEscopo";
 import {
   useDescricoesEventos,
   useExcluirEvento,
-  useFimDaSerie,
   useSalvarEvento,
+  useSerie,
   type Escopo,
   type Evento,
 } from "@/hooks/useEventos";
 import { CORES_EVENTO, corDoEvento, deCampoData, paraCampoData, type CorEvento } from "@/lib/agenda";
 import { dataHoraParaCampos } from "@/lib/data";
-import { diasDaRepeticao, fimPadrao, fraseRepeticao, type Repeticao } from "@/lib/repeticao";
+import { diasDaRepeticao, fimPadrao, fraseRegra, type DiaSemana, type RegraRepeticao, type Repeticao } from "@/lib/repeticao";
 import { contarUsos } from "@/lib/sugestoes";
 
 type Erros = { descricao?: string; data?: string; horario?: string; ate?: string };
@@ -45,28 +45,30 @@ export function FormularioEvento({ evento, dataInicial }: { evento?: Evento; dat
   const [horaInicio, setHoraInicio] = useState(inicio?.hora ?? "18:00");
   const [horaFim, setHoraFim] = useState(fim?.hora ?? "22:00");
   const [cor, setCor] = useState<CorEvento>(evento?.cor ?? "amarelo");
-  const repeticaoInicial = (evento?.repeticao as Repeticao | null) ?? "nunca";
-  const [repeticao, setRepeticao] = useState<Repeticao | "nunca">(repeticaoInicial);
-  // "Até" só vira estado quando a pessoa mexe; antes disso vale o fim da série (edição) ou o padrão.
+  const tipoInicial = (evento?.repeticao as Repeticao | null) ?? "nunca";
+  const [tipo, setTipo] = useState<Repeticao | "nunca">(tipoInicial);
+  // "Até" e os dias só viram estado quando a pessoa mexe. Antes disso valem os da
+  // série (na edição) ou o padrão: o dia da semana da data escolhida.
   const [ateEscolhido, setAteEscolhido] = useState<string | null>(null);
-  const { data: fimDaSerie } = useFimDaSerie(evento?.serie_id);
+  const [diasEscolhidos, setDiasEscolhidos] = useState<DiaSemana[] | null>(null);
+  const { data: serie } = useSerie(evento?.serie_id);
   const [erros, setErros] = useState<Erros>({});
   const [confirmando, setConfirmando] = useState(false);
   const [perguntando, setPerguntando] = useState<"salvar" | "excluir" | null>(null);
 
   const dia = deCampoData(data);
-  const repete = repeticao !== "nunca";
+  const repete = tipo !== "nunca";
+  const mesmaRegra = tipo === tipoInicial && Boolean(serie);
+  const diasSemana: DiaSemana[] =
+    diasEscolhidos ?? (mesmaRegra && serie ? serie.diasSemana : dia ? [dia.getDay() as DiaSemana] : []);
   const ate =
     ateEscolhido ??
-    (repete && repeticao === repeticaoInicial && fimDaSerie
-      ? paraCampoData(fimDaSerie)
-      : repete && dia
-        ? paraCampoData(fimPadrao(dia, repeticao))
-        : "");
+    (mesmaRegra && serie?.fim ? paraCampoData(serie.fim) : repete && dia ? paraCampoData(fimPadrao(dia, tipo)) : "");
   const dataAte = deCampoData(ate);
-  const quantos = repete && dia && dataAte ? diasDaRepeticao(dia, repeticao, dataAte).length : 1;
+  const regra: RegraRepeticao | null = repete ? { tipo, diasSemana } : null;
+  const quantos = regra && dia && dataAte ? diasDaRepeticao(dia, regra, dataAte).length : 1;
   // Mudar a regra só faz sentido "deste em diante": "Só este" não é oferecido.
-  const mudouRepeticao = repeticao !== repeticaoInicial || ateEscolhido !== null;
+  const mudouRepeticao = tipo !== tipoInicial || ateEscolhido !== null || diasEscolhidos !== null;
 
   function validar() {
     const novos: Erros = {};
@@ -90,8 +92,8 @@ export function FormularioEvento({ evento, dataInicial }: { evento?: Evento; dat
           dia,
           horaInicio,
           horaFim,
-          repeticao: repete ? repeticao : null,
-          ate: repete ? dataAte : null,
+          repeticao: regra,
+          ate: regra ? dataAte : null,
         },
       },
       { onSuccess: () => router.push("/agenda") },
@@ -132,7 +134,7 @@ export function FormularioEvento({ evento, dataInicial }: { evento?: Evento; dat
         </div>
 
         <CampoTexto
-          rotulo={repete && !evento ? "Primeiro dia" : "Data"}
+          rotulo={repete && !evento ? "A partir de" : "Data"}
           type="date"
           value={data}
           onChange={(e) => setData(e.target.value)}
@@ -150,11 +152,13 @@ export function FormularioEvento({ evento, dataInicial }: { evento?: Evento; dat
         </div>
 
         <CampoRepeticao
-          valor={repeticao}
-          aoMudar={(valor) => {
-            setRepeticao(valor);
+          tipo={tipo}
+          aoMudarTipo={(valor) => {
+            setTipo(valor);
             setAteEscolhido(null);
           }}
+          diasSemana={diasSemana}
+          aoMudarDias={setDiasEscolhidos}
           ate={ate}
           aoMudarAte={setAteEscolhido}
           inicio={dia}
@@ -195,7 +199,7 @@ export function FormularioEvento({ evento, dataInicial }: { evento?: Evento; dat
           <span className="block truncate text-sm font-bold">
             {descricao.trim() || "Seu compromisso"} · {horaInicio} – {horaFim}
           </span>
-          {repete && <span className="block text-[11px] text-cinza-escuro">{fraseRepeticao(repeticao)}</span>}
+          {regra && <span className="block text-[11px] text-cinza-escuro">{fraseRegra(regra, dia ?? undefined)}{ate && dataAte ? ` até ${dataAte.toLocaleDateString("pt-BR")}` : ""}</span>}
         </div>
       </div>
 
