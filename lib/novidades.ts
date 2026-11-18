@@ -24,6 +24,19 @@ export type Nota = {
 
 export const NOTAS: Nota[] = [
   {
+    versao: "0.0.6",
+    data: "2026-11-18",
+    titulo: "Compromissos que se repetem",
+    resumo: "Na Agenda, um compromisso pode se repetir nos dias da semana que você escolher.",
+    destaques: [
+      {
+        icone: "/icones/repetir.svg",
+        titulo: "Repetir na Agenda",
+        texto: "Ao criar um evento, escolha Repetição: toque nos dias da semana (por exemplo, toda sexta) ou em Todo mês, e até quando. Para mudar ou excluir, escolha só aquele dia ou ele e os próximos.",
+      },
+    ],
+  },
+  {
     versao: "0.0.5",
     data: "2026-11-16",
     titulo: "Saldo de tudo, com o detalhe à mão",
