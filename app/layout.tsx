@@ -1,20 +1,30 @@
 import type { Metadata, Viewport } from "next";
 import { CSS_TEMAS_APP, SCRIPT_TEMA_APP } from "@/lib/tema-app";
-import { Inter, Poppins } from "next/font/google";
+import localFont from "next/font/local";
 import { Provedores } from "./provedores";
 import "./globals.css";
 
-const poppins = Poppins({
+// Fontes guardadas no projeto (app/fontes, licença OFL, baixadas do Google
+// Fonts, só o alfabeto latino). Assim o build não depende de baixar fonte na
+// hora, o que já derrubou um deploy na Vercel.
+const poppins = localFont({
   variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "800", "900"],
+  display: "swap",
+  src: [
+    { path: "./fontes/poppins-400.woff2", weight: "400", style: "normal" },
+    { path: "./fontes/poppins-500.woff2", weight: "500", style: "normal" },
+    { path: "./fontes/poppins-600.woff2", weight: "600", style: "normal" },
+    { path: "./fontes/poppins-800.woff2", weight: "800", style: "normal" },
+    { path: "./fontes/poppins-900.woff2", weight: "900", style: "normal" },
+  ],
 });
 
 // Usada só no seletor Dia / Semana / Mês, como no Figma.
-const inter = Inter({
+const inter = localFont({
   variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["600"],
+  display: "swap",
+  src: "./fontes/inter-latin.woff2",
+  weight: "100 900",
 });
 
 export const metadata: Metadata = {
