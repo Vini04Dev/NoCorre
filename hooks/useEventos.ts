@@ -3,10 +3,28 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { criarClienteNavegador } from "@/lib/supabase/cliente";
 import { traduzirErroBanco } from "@/lib/supabase/erros-banco";
+import { comHora, diasDaRepeticao, type Repeticao } from "@/lib/repeticao";
 import type { Tables, TablesInsert } from "@/types/database";
 
 export type Evento = Tables<"eventos">;
-export type DadosEvento = Omit<TablesInsert<"eventos">, "id" | "usuario_id" | "created_at">;
+export type DadosEvento = Omit<TablesInsert<"eventos">, "id" | "usuario_id" | "created_at" | "serie_id" | "repeticao">;
+
+/** O que o formulário manda salvar: o evento, os horários e a repetição escolhida. */
+export type EventoParaSalvar = {
+  descricao: string;
+  cor: DadosEvento["cor"];
+  /** Dia do evento (ou do primeiro, numa série nova). */
+  dia: Date;
+  horaInicio: string;
+  horaFim: string;
+  /** null: não repete. */
+  repeticao: Repeticao | null;
+  /** Último dia da repetição (inclusive). */
+  ate: Date | null;
+};
+
+/** Numa série, a mudança vale só para este dia ou para ele e os seguintes. */
+export type Escopo = "este" | "proximos";
 
 const CHAVE = ["eventos"] as const;
 
@@ -59,6 +77,38 @@ export function useDescricoesEventos() {
   });
 }
 
+/** Último dia de uma série, para o campo "Até" ao editar. */
+export function useFimDaSerie(serieId: string | null | undefined) {
+  return useQuery({
+    queryKey: [...CHAVE, "serie", serieId],
+    enabled: Boolean(serieId),
+    queryFn: async () => {
+      const { data, error } = await criarClienteNavegador()
+        .from("eventos")
+        .select("data_hora_inicial")
+        .eq("serie_id", serieId!)
+        .order("data_hora_inicial", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw new Error(traduzirErroBanco(error));
+      return data ? new Date(data.data_hora_inicial) : null;
+    },
+  });
+}
+
+/** As linhas de um evento em cada dia da repetição (ou só a do dia, sem repetição). */
+function linhasDaSerie(e: EventoParaSalvar, serieId: string | null) {
+  const dias = e.repeticao && e.ate ? diasDaRepeticao(e.dia, e.repeticao, e.ate) : [e.dia];
+  return dias.map((dia) => ({
+    descricao: e.descricao,
+    cor: e.cor,
+    data_hora_inicial: comHora(dia, e.horaInicio).toISOString(),
+    data_hora_final: comHora(dia, e.horaFim).toISOString(),
+    serie_id: e.repeticao ? serieId : null,
+    repeticao: e.repeticao,
+  }));
+}
+
 function useMutacaoEvento<T>(executar: (variaveis: T) => Promise<void>) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -69,17 +119,63 @@ function useMutacaoEvento<T>(executar: (variaveis: T) => Promise<void>) {
   });
 }
 
+/**
+ * Salva um evento novo (com as repetições, se houver) ou uma edição.
+ *
+ * Numa edição de série, `escopo` decide o alcance:
+ * - "este": muda só este dia; ele continua na série.
+ * - "proximos": muda este dia e refaz os seguintes pela regra escolhida (apaga
+ *   os próximos da série e gera de novo). Os anteriores ficam como estão.
+ *   Escolher "Nunca" aqui para a série neste dia.
+ * Um evento avulso que ganha repetição vira o primeiro de uma série nova.
+ */
 export function useSalvarEvento() {
-  return useMutacaoEvento(async ({ id, dados }: { id?: string; dados: DadosEvento }) => {
-    const tabela = criarClienteNavegador().from("eventos");
-    const { error } = id ? await tabela.update(dados).eq("id", id) : await tabela.insert(dados);
+  return useMutacaoEvento(async ({ evento, dados, escopo = "este" }: { evento?: Evento; dados: EventoParaSalvar; escopo?: Escopo }) => {
+    const supabase = criarClienteNavegador();
+    const tabela = () => supabase.from("eventos");
+
+    if (!evento) {
+      const linhas = linhasDaSerie(dados, dados.repeticao ? crypto.randomUUID() : null);
+      const { error } = await tabela().insert(linhas);
+      if (error) throw new Error(traduzirErroBanco(error));
+      return;
+    }
+
+    const [esteDia, ...seguintes] = linhasDaSerie(dados, evento.serie_id ?? crypto.randomUUID());
+    if (escopo === "este") {
+      // Só este dia: mantém a série e a regra que ele já tinha.
+      const { error } = await tabela()
+        .update({ ...esteDia, serie_id: evento.serie_id, repeticao: evento.repeticao })
+        .eq("id", evento.id);
+      if (error) throw new Error(traduzirErroBanco(error));
+      return;
+    }
+
+    // Este e os próximos: apaga os seguintes da série, atualiza este e gera os novos.
+    if (evento.serie_id) {
+      const { error } = await tabela()
+        .delete()
+        .eq("serie_id", evento.serie_id)
+        .gt("data_hora_inicial", evento.data_hora_inicial);
+      if (error) throw new Error(traduzirErroBanco(error));
+    }
+    const { error } = await tabela().update(esteDia).eq("id", evento.id);
     if (error) throw new Error(traduzirErroBanco(error));
+    if (seguintes.length) {
+      const { error: erroNovos } = await tabela().insert(seguintes);
+      if (erroNovos) throw new Error(traduzirErroBanco(erroNovos));
+    }
   });
 }
 
+/** Exclui só este dia ou, numa série, este e os seguintes. */
 export function useExcluirEvento() {
-  return useMutacaoEvento(async (id: string) => {
-    const { error } = await criarClienteNavegador().from("eventos").delete().eq("id", id);
+  return useMutacaoEvento(async ({ evento, escopo = "este" }: { evento: Evento; escopo?: Escopo }) => {
+    const tabela = criarClienteNavegador().from("eventos");
+    const { error } =
+      escopo === "proximos" && evento.serie_id
+        ? await tabela.delete().eq("serie_id", evento.serie_id).gte("data_hora_inicial", evento.data_hora_inicial)
+        : await tabela.delete().eq("id", evento.id);
     if (error) throw new Error(traduzirErroBanco(error));
   });
 }

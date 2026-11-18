@@ -8,17 +8,29 @@ import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
 import { CampoSugestoes } from "@/components/ui/CampoSugestoes";
 import { CampoTexto } from "@/components/ui/CampoTexto";
 import { ConfirmarExclusao } from "@/components/ui/ConfirmarExclusao";
-import { useDescricoesEventos, useExcluirEvento, useSalvarEvento, type Evento } from "@/hooks/useEventos";
-import { CORES_EVENTO, corDoEvento, paraCampoData, type CorEvento } from "@/lib/agenda";
-import { camposParaDataHora, dataHoraParaCampos } from "@/lib/data";
+import { CampoRepeticao } from "./CampoRepeticao";
+import { EscolherEscopo } from "./EscolherEscopo";
+import {
+  useDescricoesEventos,
+  useExcluirEvento,
+  useFimDaSerie,
+  useSalvarEvento,
+  type Escopo,
+  type Evento,
+} from "@/hooks/useEventos";
+import { CORES_EVENTO, corDoEvento, deCampoData, paraCampoData, type CorEvento } from "@/lib/agenda";
+import { dataHoraParaCampos } from "@/lib/data";
+import { diasDaRepeticao, fimPadrao, fraseRepeticao, type Repeticao } from "@/lib/repeticao";
 import { contarUsos } from "@/lib/sugestoes";
 
-type Erros = { descricao?: string; data?: string; horario?: string };
+type Erros = { descricao?: string; data?: string; horario?: string; ate?: string };
 
 /**
  * Novo evento ou, recebendo `evento`, edição. Um evento é de um dia só, com
- * início e fim (o banco também garante fim >= início). A prévia mostra como ele
- * vai aparecer na Agenda.
+ * início e fim (o banco também garante fim >= início), e pode se repetir (regras
+ * em lib/repeticao.ts). Num evento que se repete, salvar e excluir perguntam se
+ * vale só para este dia ou para ele e os próximos. A prévia mostra como ele vai
+ * aparecer na Agenda.
  */
 export function FormularioEvento({ evento, dataInicial }: { evento?: Evento; dataInicial?: string }) {
   const router = useRouter();
@@ -33,30 +45,70 @@ export function FormularioEvento({ evento, dataInicial }: { evento?: Evento; dat
   const [horaInicio, setHoraInicio] = useState(inicio?.hora ?? "18:00");
   const [horaFim, setHoraFim] = useState(fim?.hora ?? "22:00");
   const [cor, setCor] = useState<CorEvento>(evento?.cor ?? "amarelo");
+  const repeticaoInicial = (evento?.repeticao as Repeticao | null) ?? "nunca";
+  const [repeticao, setRepeticao] = useState<Repeticao | "nunca">(repeticaoInicial);
+  // "Até" só vira estado quando a pessoa mexe; antes disso vale o fim da série (edição) ou o padrão.
+  const [ateEscolhido, setAteEscolhido] = useState<string | null>(null);
+  const { data: fimDaSerie } = useFimDaSerie(evento?.serie_id);
   const [erros, setErros] = useState<Erros>({});
   const [confirmando, setConfirmando] = useState(false);
+  const [perguntando, setPerguntando] = useState<"salvar" | "excluir" | null>(null);
 
-  function enviar(e: React.FormEvent) {
-    e.preventDefault();
+  const dia = deCampoData(data);
+  const repete = repeticao !== "nunca";
+  const ate =
+    ateEscolhido ??
+    (repete && repeticao === repeticaoInicial && fimDaSerie
+      ? paraCampoData(fimDaSerie)
+      : repete && dia
+        ? paraCampoData(fimPadrao(dia, repeticao))
+        : "");
+  const dataAte = deCampoData(ate);
+  const quantos = repete && dia && dataAte ? diasDaRepeticao(dia, repeticao, dataAte).length : 1;
+  // Mudar a regra só faz sentido "deste em diante": "Só este" não é oferecido.
+  const mudouRepeticao = repeticao !== repeticaoInicial || ateEscolhido !== null;
+
+  function validar() {
     const novos: Erros = {};
     if (!descricao.trim()) novos.descricao = "Descreva o compromisso.";
-    if (!data) novos.data = "Escolha a data.";
+    if (!dia) novos.data = "Escolha a data.";
     if (!horaInicio || !horaFim || horaFim < horaInicio) novos.horario = "O fim precisa ser igual ou depois do início.";
+    if (repete && (!dataAte || (dia && dataAte < dia))) novos.ate = "Escolha um dia igual ou depois da data do evento.";
     setErros(novos);
-    if (Object.keys(novos).length > 0) return;
+    return Object.keys(novos).length === 0;
+  }
 
+  function salvarCom(escopo: Escopo) {
+    if (!dia) return;
     salvar.mutate(
       {
-        id: evento?.id,
+        evento,
+        escopo,
         dados: {
           descricao: descricao.trim(),
-          data_hora_inicial: camposParaDataHora(data, horaInicio),
-          data_hora_final: camposParaDataHora(data, horaFim),
           cor,
+          dia,
+          horaInicio,
+          horaFim,
+          repeticao: repete ? repeticao : null,
+          ate: repete ? dataAte : null,
         },
       },
       { onSuccess: () => router.push("/agenda") },
     );
+  }
+
+  function enviar(e: React.FormEvent) {
+    e.preventDefault();
+    if (!validar()) return;
+    if (evento?.serie_id) return setPerguntando("salvar");
+    // Evento avulso que ganhou repetição: ele vira o primeiro da série.
+    salvarCom(evento && repete ? "proximos" : "este");
+  }
+
+  function excluirCom(escopo: Escopo) {
+    if (!evento) return;
+    excluir.mutate({ evento, escopo }, { onSuccess: () => router.push("/agenda") });
   }
 
   const destaque = corDoEvento(cor);
@@ -79,7 +131,13 @@ export function FormularioEvento({ evento, dataInicial }: { evento?: Evento; dat
           {erros.descricao && <span className="text-[11px] text-negativo">{erros.descricao}</span>}
         </div>
 
-        <CampoTexto rotulo="Data" type="date" value={data} onChange={(e) => setData(e.target.value)} erro={erros.data} />
+        <CampoTexto
+          rotulo={repete && !evento ? "Primeiro dia" : "Data"}
+          type="date"
+          value={data}
+          onChange={(e) => setData(e.target.value)}
+          erro={erros.data}
+        />
 
         <div className="flex flex-col gap-1">
           <div className="grid grid-cols-2 gap-2.5">
@@ -90,6 +148,19 @@ export function FormularioEvento({ evento, dataInicial }: { evento?: Evento; dat
             O fim precisa ser igual ou depois do início.
           </span>
         </div>
+
+        <CampoRepeticao
+          valor={repeticao}
+          aoMudar={(valor) => {
+            setRepeticao(valor);
+            setAteEscolhido(null);
+          }}
+          ate={ate}
+          aoMudarAte={setAteEscolhido}
+          inicio={dia}
+          quantos={quantos}
+          erroAte={erros.ate}
+        />
 
         <fieldset className="flex flex-col gap-2">
           <legend className="mb-2 text-xs font-semibold">Cor</legend>
@@ -124,6 +195,7 @@ export function FormularioEvento({ evento, dataInicial }: { evento?: Evento; dat
           <span className="block truncate text-sm font-bold">
             {descricao.trim() || "Seu compromisso"} · {horaInicio} – {horaFim}
           </span>
+          {repete && <span className="block text-[11px] text-cinza-escuro">{fraseRepeticao(repeticao)}</span>}
         </div>
       </div>
 
@@ -132,7 +204,7 @@ export function FormularioEvento({ evento, dataInicial }: { evento?: Evento; dat
           {salvar.isPending ? "Salvando..." : evento ? "Salvar alterações" : "Salvar evento"}
         </Botao>
         {evento && (
-          <Botao type="button" variante="perigo" onClick={() => setConfirmando(true)}>
+          <Botao type="button" variante="perigo" onClick={() => (evento.serie_id ? setPerguntando("excluir") : setConfirmando(true))}>
             Excluir evento
           </Botao>
         )}
@@ -144,7 +216,17 @@ export function FormularioEvento({ evento, dataInicial }: { evento?: Evento; dat
           mensagem={`"${evento.descricao}" sai da sua agenda.`}
           excluindo={excluir.isPending}
           aoCancelar={() => setConfirmando(false)}
-          aoConfirmar={() => excluir.mutate(evento.id, { onSuccess: () => router.push("/agenda") })}
+          aoConfirmar={() => excluirCom("este")}
+        />
+      )}
+
+      {perguntando && (
+        <EscolherEscopo
+          acao={perguntando}
+          soProximos={perguntando === "salvar" && mudouRepeticao}
+          ocupado={salvar.isPending || excluir.isPending}
+          aoEscolher={(escopo) => (perguntando === "salvar" ? salvarCom(escopo) : excluirCom(escopo))}
+          aoCancelar={() => setPerguntando(null)}
         />
       )}
     </form>

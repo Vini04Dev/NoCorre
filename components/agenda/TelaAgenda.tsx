@@ -1,9 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
 import { useEstadoDaTela } from "@/hooks/useEstadoDaTela";
 import { useEventos, type Evento } from "@/hooks/useEventos";
+import { fraseRepeticao } from "@/lib/repeticao";
 import {
   CORES_EVENTO,
   corDoEvento,
@@ -165,8 +167,14 @@ function ListaDoDia({ dia, eventos }: { dia: Date; eventos: Evento[] }) {
               >
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className="truncate text-sm font-semibold">{evento.descricao}</span>
-                  <span className="text-xs text-cinza-escuro">
+                  <span className="flex items-center gap-1.5 text-xs text-cinza-escuro">
                     {horaCurta(new Date(evento.data_hora_inicial))} – {horaCurta(new Date(evento.data_hora_final))}
+                    {evento.repeticao && (
+                      <span className="flex items-center gap-1">
+                        · <Image src="/icones/repetir.svg" alt="" width={12} height={12} />
+                        {fraseRepeticao(evento.repeticao)}
+                      </span>
+                    )}
                   </span>
                 </span>
                 <span aria-hidden className="text-lg text-cinza">
