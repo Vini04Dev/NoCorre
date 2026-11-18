@@ -252,6 +252,8 @@ export type Database = {
           data_hora_inicial: string
           descricao: string
           id: string
+          repeticao: string | null
+          serie_id: string | null
           usuario_id: string
         }
         Insert: {
@@ -261,6 +263,8 @@ export type Database = {
           data_hora_inicial: string
           descricao: string
           id?: string
+          repeticao?: string | null
+          serie_id?: string | null
           usuario_id?: string
         }
         Update: {
@@ -270,6 +274,8 @@ export type Database = {
           data_hora_inicial?: string
           descricao?: string
           id?: string
+          repeticao?: string | null
+          serie_id?: string | null
           usuario_id?: string
         }
         Relationships: []

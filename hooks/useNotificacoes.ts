@@ -64,6 +64,8 @@ function exemplo(agora: Date): Notificacao[] {
         cor: "azul",
         data_hora_inicial: inicio.toISOString(),
         data_hora_final: new Date(inicio.getTime() + 5 * HORA).toISOString(),
+        serie_id: null,
+        repeticao: null,
       },
     },
     { tipo: "conta", id: "ex-2", urgente: false, conta: conta("ex-2", "Plano de celular", 49.9, 20, false), situacao: { tipo: "vence", dias: 2 } },
