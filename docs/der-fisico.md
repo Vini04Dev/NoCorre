@@ -171,9 +171,15 @@ o banco.
 | `data_hora_final`   | `timestamptz`  | not null, `>= data_hora_inicial`        |
 | `descricao`         | `varchar(200)` | not null                                |
 | `cor`               | `cor_evento`   | not null, default `amarelo`             |
+| `serie_id`          | `uuid`         | opcional; igual em todas as repetições  |
+| `repeticao`         | `varchar(10)`  | opcional: `semanal` ou `mensal`         |
 | `created_at`        | `timestamptz`  |                                         |
 
 - Índice em `(usuario_id, data_hora_inicial)`.
+- `serie_id` e `repeticao` vêm juntos ou ficam os dois vazios (evento avulso).
+  Cada repetição é uma linha; as regras de geração ficam em `lib/repeticao.ts`.
+  Os dias da semana de uma série semanal saem das datas dos próprios eventos.
+- Índice parcial em `(usuario_id, serie_id, data_hora_inicial)` quando há série.
 
 ### metas
 
