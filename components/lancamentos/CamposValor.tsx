@@ -69,12 +69,17 @@ export function validarValores(valores: Valores) {
   return erros;
 }
 
-/** Valores de um lançamento existente ou, para um novo, agora com quantidade 1. */
+/**
+ * Valores de um lançamento existente ou, para um novo, agora com quantidade 1.
+ * `dataInicial` ("2026-11-15", vinda do calendário do Início) troca só o dia.
+ */
 export function valoresIniciais(
   lancamento?: { data_hora: string; quantidade: number; valor_unitario: number },
+  dataInicial?: string,
 ): Valores {
   if (!lancamento) {
-    return { ...dataHoraParaCampos(new Date()), quantidade: "1", centavos: 0 };
+    const agora = dataHoraParaCampos(new Date());
+    return { ...agora, data: dataInicial ?? agora.data, quantidade: "1", centavos: 0 };
   }
   return {
     ...dataHoraParaCampos(new Date(lancamento.data_hora)),

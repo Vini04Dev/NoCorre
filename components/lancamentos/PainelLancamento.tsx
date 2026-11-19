@@ -30,10 +30,12 @@ function ConteudoOpcao({ icone, fundo, titulo, descricao }: { icone: string; fun
 
 /**
  * Painel do botão (+): Receita, Despesa e Outra entrada (dinheiro que não é
- * do corre, como salário e bolsa), no mesmo formato.
+ * do corre, como salário e bolsa), no mesmo formato. Com `dia` (toque num dia
+ * vazio do calendário do Início), o formulário já abre com aquela data.
  */
-export function PainelLancamento({ aoFechar }: { aoFechar: () => void }) {
+export function PainelLancamento({ aoFechar, dia }: { aoFechar: () => void; dia?: string }) {
   const router = useRouter();
+  const naData = dia ? `?data=${dia}` : "";
   const { data: clientes } = useClientes();
   const [semCliente, setSemCliente] = useState(false);
 
@@ -43,7 +45,7 @@ export function PainelLancamento({ aoFechar }: { aoFechar: () => void }) {
       return;
     }
     aoFechar();
-    router.push("/novo/receita");
+    router.push(`/novo/receita${naData}`);
   }
 
   if (semCliente) {
@@ -60,7 +62,9 @@ export function PainelLancamento({ aoFechar }: { aoFechar: () => void }) {
         <h2 id="painel-lancamento-titulo" className="text-lg font-extrabold">
           O que você quer lançar?
         </h2>
-        <p className="text-xs text-cinza-escuro">Escolha o tipo de registro</p>
+        <p className="text-xs text-cinza-escuro">
+          {dia ? `Para ${dia.split("-").reverse().join("/")}. Escolha o tipo de registro` : "Escolha o tipo de registro"}
+        </p>
       </div>
       <button type="button" onClick={escolherReceita} className={CLASSE_OPCAO}>
         <ConteudoOpcao
@@ -70,7 +74,7 @@ export function PainelLancamento({ aoFechar }: { aoFechar: () => void }) {
           descricao="Entrega, corrida, gorjeta"
         />
       </button>
-      <Link href="/novo/despesa" onClick={aoFechar} className={CLASSE_OPCAO}>
+      <Link href={`/novo/despesa${naData}`} onClick={aoFechar} className={CLASSE_OPCAO}>
         <ConteudoOpcao
           icone="/icones/seta-despesa.svg"
           fundo="bg-negativo/12"
@@ -78,7 +82,7 @@ export function PainelLancamento({ aoFechar }: { aoFechar: () => void }) {
           descricao="Combustível, peças, diária, mercado, contas"
         />
       </Link>
-      <Link href="/novo/entrada" onClick={aoFechar} className={CLASSE_OPCAO}>
+      <Link href={`/novo/entrada${naData}`} onClick={aoFechar} className={CLASSE_OPCAO}>
         <ConteudoOpcao
           icone="/icones/saldo-linha.svg"
           fundo="bg-cinza-fundo"

@@ -29,7 +29,7 @@ import { EmBreve } from "./EmBreveMoto";
 const somenteNumeros = (texto: string) => texto.replace(/\D/g, "").slice(0, 7);
 
 /** Atualizar o odômetro (valor do painel) ou somar os km rodados desde a última vez. */
-function PainelKm({ atual, aoFechar }: { atual: number; aoFechar: () => void }) {
+export function PainelKm({ atual, aoFechar }: { atual: number; aoFechar: () => void }) {
   const registrar = useRegistrarKm();
   const [modo, setModo] = useState<"somar" | "odometro">("somar");
   const [valor, setValor] = useState("");

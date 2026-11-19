@@ -20,7 +20,8 @@ import {
   type FiltroRapido,
   type Filtros,
 } from "@/lib/filtros";
-import { ehDaCarteira, movimentoDaCarteira } from "@/lib/carteiras";
+import { ehDaCarteira } from "@/lib/carteiras";
+import { Valor } from "@/components/ui/Valor";
 import { formatarMoeda } from "@/lib/formatar";
 import { intervaloDoPeriodo, nomeDoPeriodo, type FiltroPeriodo } from "@/lib/periodo";
 import { calcularTotais } from "@/lib/totais";
@@ -113,12 +114,19 @@ export function TelaResumo({ dia }: { dia?: string }) {
         nomePeriodo={nomeDoPeriodo(periodo)}
         totais={totais}
         filtro={totaisFiltro ? { titulo: nomeCliente ?? "Com os filtros", ...totaisFiltro } : undefined}
-        carteira={
-          focada && dados && transferencias
-            ? { nome: focada.nome, saldo: saldos?.get(focada.id), ...movimentoDaCarteira(dados, transferencias, focada.id, emFoco.principalId) }
-            : undefined
-        }
       />
+      {/* Mesma leitura de "Todas as carteiras", só com o que passou por ela. */}
+      {focada && (
+        <p className="-mt-1.5 text-[11px] leading-snug text-cinza-escuro">
+          Mostrando só <b className="text-marinho">{focada.nome}</b>
+          {saldos?.has(focada.id) && (
+            <>
+              , que tem <Valor texto={formatarMoeda(saldos.get(focada.id)!)} /> hoje
+            </>
+          )}
+          {transferencias?.length ? ". Transferências entre carteiras ficam na tela Carteiras." : "."}
+        </p>
+      )}
 
       <div role="radiogroup" aria-label="Mostrar" className="-mx-[17px] flex gap-2 overflow-x-auto px-[17px] lg:mx-0 lg:flex-wrap lg:px-0">
         {RAPIDOS.map(({ valor, rotulo }) => {

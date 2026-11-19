@@ -44,3 +44,8 @@ export function dataHoraCompleta(data: Date) {
   const dia = `${doisDigitos(data.getDate())}/${doisDigitos(data.getMonth() + 1)}/${data.getFullYear()}`;
   return `${DIAS_SEMANA[data.getDay()]}, ${dia} · ${horaCurta(data)}`;
 }
+
+/** Data vinda da URL (?data=2026-11-15, do calendário do Início): só aceita esse formato. */
+export function dataDaUrl(valor: unknown) {
+  return typeof valor === "string" && /^\d{4}-\d{2}-\d{2}$/.test(valor) ? valor : undefined;
+}

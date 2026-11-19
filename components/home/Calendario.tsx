@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Valor } from "@/components/ui/Valor";
-import type { Despesa, Receita } from "@/hooks/useMovimentacoes";
+import { useArrastarLados } from "@/hooks/useArrastarLados";
+import type { Despesa, Entrada, Receita } from "@/hooks/useMovimentacoes";
 import { dataHoraParaCampos } from "@/lib/data";
 
 /** Semana começando na segunda, como no resto do app. */
@@ -12,6 +13,11 @@ type Props = {
   fim: Date;
   receitas: Receita[];
   despesas: Despesa[];
+  entradas: Entrada[];
+  /** Arrastar para os lados: próximo (1) ou anterior (-1) período. */
+  aoPassar: (passo: 1 | -1) => void;
+  /** Toque num dia sem nada lançado ("2026-11-15"): atalho para lançar nele. */
+  aoTocarDiaVazio: (dia: string) => void;
 };
 
 function somarDias(data: Date, dias: number) {
@@ -19,11 +25,15 @@ function somarDias(data: Date, dias: number) {
 }
 
 /**
- * Visão de calendário da Home: um quadrado por dia, com a receita recebida
- * (dourado) e a despesa (cinza) daquele dia. Tocar num dia com lançamentos abre
- * o Resumo filtrado nele. Dias de fora do período aparecem apagados.
+ * Visão de calendário da Home: um quadrado por dia, com o que entrou (dourado:
+ * receitas pagas e outras entradas, as mesmas da linha Recebidos) e a despesa
+ * (cinza) daquele dia. Somando os dias dá o Recebidos e o Despesas de cima.
+ * Tocar num dia com lançamentos abre o Resumo filtrado nele; num dia vazio,
+ * abre o painel para lançar já naquele dia. Arrastar para os lados troca o
+ * período. Dias de fora do período aparecem apagados.
  */
-export function Calendario({ inicio, fim, receitas, despesas }: Props) {
+export function Calendario({ inicio, fim, receitas, despesas, entradas, aoPassar, aoTocarDiaVazio }: Props) {
+  const arrastar = useArrastarLados(aoPassar);
   const somas = new Map<string, { receita: number; despesa: number }>();
   const somar = (dataHora: string, campo: "receita" | "despesa", valor: number | null) => {
     const chave = dataHoraParaCampos(new Date(dataHora)).data;
@@ -33,6 +43,7 @@ export function Calendario({ inicio, fim, receitas, despesas }: Props) {
   };
   // Mesma regra do saldo: receita só conta quando paga.
   receitas.filter((r) => r.status_pagamento === "pago").forEach((r) => somar(r.data_hora, "receita", r.valor_total));
+  entradas.forEach((e) => somar(e.data_hora, "receita", e.valor));
   despesas.forEach((d) => somar(d.data_hora, "despesa", d.valor_total));
 
   // Grade completa: da segunda da primeira semana ao domingo da última.
@@ -44,7 +55,7 @@ export function Calendario({ inicio, fim, receitas, despesas }: Props) {
   const hoje = dataHoraParaCampos(new Date()).data;
 
   return (
-    <div className="overflow-hidden rounded-[10px] border border-black/8 bg-white shadow-cartao">
+    <div {...arrastar} className="overflow-hidden rounded-[10px] border border-black/8 bg-white shadow-cartao transition-transform">
       <div className="grid grid-cols-7 border-b border-black/8 bg-cinza-fundo">
         {CABECALHO.map((nome) => (
           <span key={nome} className="py-1 text-center text-[11px] font-semibold text-cinza-escuro">
@@ -87,6 +98,15 @@ export function Calendario({ inicio, fim, receitas, despesas }: Props) {
                 >
                   {conteudo}
                 </Link>
+              ) : dentro ? (
+                <button
+                  type="button"
+                  onClick={() => aoTocarDiaVazio(chave)}
+                  aria-label={`${dia.getDate()}: lançar neste dia`}
+                  className={`${classe} w-full`}
+                >
+                  {conteudo}
+                </button>
               ) : (
                 <div className={classe}>{conteudo}</div>
               )}

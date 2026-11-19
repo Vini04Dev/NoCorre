@@ -37,7 +37,7 @@ const SITUACOES: { valor: StatusPagamento; rotulo: string; cor: string }[] = [
 type Erros = { cliente?: string; categoria?: string; quantidade?: string; valor?: string };
 
 /** Lança uma receita nova ou, recebendo `receita`, edita a existente. */
-export function FormularioReceita({ receita }: { receita?: Receita }) {
+export function FormularioReceita({ receita, dataInicial }: { receita?: Receita; dataInicial?: string }) {
   const router = useRouter();
   const idCliente = useId();
   const { data: clientes, isPending: carregandoClientes } = useClientes();
@@ -51,7 +51,7 @@ export function FormularioReceita({ receita }: { receita?: Receita }) {
   const { data: categoriaDoCliente } = useCategoriaPorCliente();
   const [categoriaEscolhida, setCategoria] = useState<string | null>(receita?.tipo ?? null);
   const categoria = categoriaEscolhida ?? categoriaDoCliente?.get(clienteId) ?? CATEGORIAS_PADRAO.receita[0];
-  const [valores, setValores] = useState<Valores>(() => valoresIniciais(receita));
+  const [valores, setValores] = useState<Valores>(() => valoresIniciais(receita, dataInicial));
   const [forma, setForma] = useState<FormaPagamento | null>(receita?.forma_pagamento ?? null);
   const [situacao, setSituacao] = useState<StatusPagamento>(receita?.status_pagamento ?? "pago");
   const [observacao, setObservacao] = useState(receita?.observacao ?? "");
