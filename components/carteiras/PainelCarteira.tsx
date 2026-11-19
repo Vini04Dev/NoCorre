@@ -46,6 +46,8 @@ export function PainelCarteira({
   const [mexeuSaldo, setMexeuSaldo] = useState(false);
   const [cor, setCor] = useState<CorEvento>(carteira?.cor ?? "azul");
   const [padrao, setPadrao] = useState(carteira?.padrao ?? primeira);
+  // Toda conta tem uma principal: ela não é arquivada nem excluída.
+  const ehPrincipal = Boolean(carteira?.padrao);
   const [erroNome, setErroNome] = useState<string>();
 
   function enviar(evento: React.FormEvent) {
@@ -144,20 +146,24 @@ export function PainelCarteira({
         <input
           type="checkbox"
           checked={padrao}
+          // A principal não é desmarcada aqui: para trocar, marca-se outra (sempre há uma).
+          disabled={ehPrincipal}
           onChange={(e) => setPadrao(e.target.checked)}
           className="mt-0.5 size-4 shrink-0 accent-marinho"
         />
         <span>
           <strong className="font-semibold">Carteira principal</strong>
           <span className="block text-[11px] text-cinza-escuro">
-            Os lançamentos em que você não escolhe carteira entram nela.
+            {ehPrincipal
+              ? "Os lançamentos em que você não escolhe carteira entram nela. Para trocar, marque outra carteira como principal."
+              : "Os lançamentos em que você não escolhe carteira entram nela."}
           </span>
         </span>
       </label>
       <Botao type="submit" disabled={salvar.isPending}>
         {salvar.isPending ? "Salvando..." : "Salvar carteira"}
       </Botao>
-      {carteira && (
+      {carteira && !ehPrincipal && (
         <div className="grid grid-cols-2 gap-2">
           <Botao type="button" variante="contorno" onClick={arquivar} disabled={salvar.isPending}>
             {carteira.arquivada ? "Desarquivar" : "Arquivar"}
