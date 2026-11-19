@@ -2,9 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
+import { OrdenarPeriodos } from "@/components/ui/OrdenarPeriodos";
 import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
 import { useEstadoDaTela } from "@/hooks/useEstadoDaTela";
 import { useEventos, type Evento } from "@/hooks/useEventos";
+import { useOrdemPeriodos } from "@/hooks/useOrdemPeriodos";
 import { fraseRepeticao } from "@/lib/repeticao";
 import {
   CORES_EVENTO,
@@ -195,7 +198,11 @@ function ListaDoDia({ dia, eventos }: { dia: Date; eventos: Evento[] }) {
  * dia escolhido ficam guardados enquanto o app está aberto.
  */
 export function TelaAgenda() {
-  const [visao, setVisao] = useEstadoDaTela<Visao>("agenda:visao", "dia");
+  const [ordem, , ordemEscolhida] = useOrdemPeriodos();
+  // Sem ordem escolhida, a Agenda abre no Dia como sempre; com ela, no primeiro da ordem.
+  const visoes = ordemEscolhida ? ordem.map((v) => VISOES.find((o) => o.valor === v)!) : VISOES;
+  const [visao, setVisao] = useEstadoDaTela<Visao>("agenda:visao", visoes[0].valor);
+  const [ordenando, setOrdenando] = useState(false);
   const [campoData, setCampoData] = useEstadoDaTela("agenda:data", paraCampoData(new Date()));
   const escolhido = deCampoData(campoData) ?? inicioDoDia(new Date());
   const escolher = (dia: Date) => setCampoData(paraCampoData(dia));
@@ -238,20 +245,31 @@ export function TelaAgenda() {
         }
       />
 
-      <div role="tablist" className="flex rounded-[10px] bg-cinza-fundo p-1 lg:max-w-sm">
-        {VISOES.map(({ valor, rotulo }) => (
-          <button
-            key={valor}
-            type="button"
-            role="tab"
-            aria-selected={visao === valor}
-            onClick={() => setVisao(valor)}
-            className={`flex-1 rounded-lg py-1.5 text-[13px] ${visao === valor ? "bg-white font-semibold shadow-cartao" : "font-medium"}`}
-          >
-            {rotulo}
-          </button>
-        ))}
+      <div className="flex items-center gap-2 lg:max-w-sm">
+        <div role="tablist" className="flex flex-1 rounded-[10px] bg-cinza-fundo p-1">
+          {visoes.map(({ valor, rotulo }) => (
+            <button
+              key={valor}
+              type="button"
+              role="tab"
+              aria-selected={visao === valor}
+              onClick={() => setVisao(valor)}
+              className={`flex-1 rounded-lg py-1.5 text-[13px] ${visao === valor ? "bg-white font-semibold shadow-cartao" : "font-medium"}`}
+            >
+              {rotulo}
+            </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => setOrdenando(true)}
+          aria-label="Mudar a ordem de Dia, Semana e Mês"
+          className="grid size-[38px] shrink-0 place-items-center rounded-[10px] bg-cinza-fundo"
+        >
+          <Image src="/icones/ordenar.svg" alt="" width={18} height={18} />
+        </button>
       </div>
+      {ordenando && <OrdenarPeriodos aoFechar={() => setOrdenando(false)} />}
 
       <div className="flex items-center justify-between">
         <button type="button" onClick={() => andar(-1)} aria-label="Anterior" className="px-2 py-1 text-xl font-semibold">

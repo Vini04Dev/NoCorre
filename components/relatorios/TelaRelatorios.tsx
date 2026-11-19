@@ -10,6 +10,7 @@ import { Botao } from "@/components/ui/Botao";
 import { PainelInferior } from "@/components/ui/PainelInferior";
 import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
 import { useClientes } from "@/hooks/useClientes";
+import { useOrdemPeriodos } from "@/hooks/useOrdemPeriodos";
 import { useEstadoDaTela } from "@/hooks/useEstadoDaTela";
 import { useHistoricoMeses, usePendentes, useRelatorio } from "@/hooks/useMovimentacoes";
 import { comparadoCom, quandoFoi, type FiltroPeriodo } from "@/lib/periodo";
@@ -35,7 +36,8 @@ import { Tendencias } from "./Tendencias";
  * despesas por categoria, onde mais trabalho e avisos. Filtros por período e cliente.
  */
 export function TelaRelatorios() {
-  const [periodo, setPeriodo] = useEstadoDaTela<FiltroPeriodo>("relatorios:periodo", { tipo: "semana" });
+  const [ordem] = useOrdemPeriodos();
+  const [periodo, setPeriodo] = useEstadoDaTela<FiltroPeriodo>("relatorios:periodo", { tipo: ordem[0] });
   const [clienteId, setClienteId] = useEstadoDaTela("relatorios:cliente", "");
   const [painelAberto, setPainelAberto] = useState(false);
   const { data: clientes } = useClientes();

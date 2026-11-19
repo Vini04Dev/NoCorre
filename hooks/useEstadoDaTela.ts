@@ -12,7 +12,7 @@ const PREFIXO = "nocorre:tela:";
 const ouvintes = new Set<() => void>();
 // Cache do texto lido para devolver o mesmo objeto enquanto nada muda
 // (useSyncExternalStore re-renderiza em loop se o snapshot muda a cada leitura).
-const cache = new Map<string, { texto: string | null; valor: unknown }>();
+const cache = new Map<string, { texto: string | null; inicial: string | null; valor: unknown }>();
 
 function ler<T>(chave: string, inicial: T): T {
   let texto: string | null = null;
@@ -21,8 +21,11 @@ function ler<T>(chave: string, inicial: T): T {
   } catch {
     return inicial;
   }
+  // Sem nada guardado vale o inicial, que pode mudar (ex.: a ordem dos períodos
+  // escolhida pela pessoa): por isso o inicial também entra na comparação.
+  const textoInicial = texto === null ? JSON.stringify(inicial) : null;
   const guardado = cache.get(chave);
-  if (guardado && guardado.texto === texto) return guardado.valor as T;
+  if (guardado && guardado.texto === texto && guardado.inicial === textoInicial) return guardado.valor as T;
   let valor: T = inicial;
   if (texto !== null) {
     try {
@@ -31,7 +34,7 @@ function ler<T>(chave: string, inicial: T): T {
       valor = inicial;
     }
   }
-  cache.set(chave, { texto, valor });
+  cache.set(chave, { texto, inicial: textoInicial, valor });
   return valor;
 }
 
