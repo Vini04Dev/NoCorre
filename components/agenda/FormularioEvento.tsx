@@ -51,6 +51,7 @@ export function FormularioEvento({ evento, dataInicial }: { evento?: Evento; dat
   // série (na edição) ou o padrão: o dia da semana da data escolhida.
   const [ateEscolhido, setAteEscolhido] = useState<string | null>(null);
   const [diasEscolhidos, setDiasEscolhidos] = useState<DiaSemana[] | null>(null);
+  const [diasMesEscolhidos, setDiasMesEscolhidos] = useState<number[] | null>(null);
   const { data: serie } = useSerie(evento?.serie_id);
   const [erros, setErros] = useState<Erros>({});
   const [confirmando, setConfirmando] = useState(false);
@@ -61,14 +62,16 @@ export function FormularioEvento({ evento, dataInicial }: { evento?: Evento; dat
   const mesmaRegra = tipo === tipoInicial && Boolean(serie);
   const diasSemana: DiaSemana[] =
     diasEscolhidos ?? (mesmaRegra && serie ? serie.diasSemana : dia ? [dia.getDay() as DiaSemana] : []);
+  const diasMes: number[] =
+    diasMesEscolhidos ?? (mesmaRegra && serie?.diasMes.length ? serie.diasMes : dia ? [dia.getDate()] : []);
   const ate =
     ateEscolhido ??
     (mesmaRegra && serie?.fim ? paraCampoData(serie.fim) : repete && dia ? paraCampoData(fimPadrao(dia, tipo)) : "");
   const dataAte = deCampoData(ate);
-  const regra: RegraRepeticao | null = repete ? { tipo, diasSemana } : null;
+  const regra: RegraRepeticao | null = repete ? { tipo, diasSemana, diasMes } : null;
   const quantos = regra && dia && dataAte ? diasDaRepeticao(dia, regra, dataAte).length : 1;
   // Mudar a regra só faz sentido "deste em diante": "Só este" não é oferecido.
-  const mudouRepeticao = tipo !== tipoInicial || ateEscolhido !== null || diasEscolhidos !== null;
+  const mudouRepeticao = tipo !== tipoInicial || ateEscolhido !== null || diasEscolhidos !== null || diasMesEscolhidos !== null;
 
   function validar() {
     const novos: Erros = {};
@@ -159,6 +162,8 @@ export function FormularioEvento({ evento, dataInicial }: { evento?: Evento; dat
           }}
           diasSemana={diasSemana}
           aoMudarDias={setDiasEscolhidos}
+          diasMes={diasMes}
+          aoMudarDiasMes={setDiasMesEscolhidos}
           ate={ate}
           aoMudarAte={setAteEscolhido}
           inicio={dia}
