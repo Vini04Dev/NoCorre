@@ -270,6 +270,11 @@ Migration `20261111110000_carteiras`. Separa o dinheiro por onde ele está
   `on delete no action` (carteira com lançamentos não é excluída; arquiva-se).
   Lançamento sem carteira conta na principal.
 - RLS: ler e excluir os próprios; criar e editar só com `eh_pro()`.
+- Migration `20261119090000_carteira_principal_para_todos`: toda conta tem uma
+  carteira principal, sendo Pro ou não. Contas antigas ganharam a "Principal"
+  (ou a mais antiga ativa foi marcada); `criar_perfil()` cria a principal junto
+  com o perfil no cadastro. A principal não pode ser excluída (RLS de delete
+  com `not padrao`); para trocar, marca-se outra como principal.
 - `public.saldos_carteiras()` (security invoker): saldo inicial + receitas
   pagas − despesas ± transferências, por carteira.
 - **Para desfazer** (se o recurso não for adiante):
