@@ -60,3 +60,24 @@ test("frases da regra", () => {
   assert.equal(fraseRegra({ tipo: "semanal", diasSemana: [1, 2, 3, 4, 5] }), "De segunda a sexta");
   assert.equal(fraseRegra({ tipo: "semanal", diasSemana: [0, 1, 2, 3, 4, 5, 6] }), "Todo dia");
 });
+
+test("todo mês em dias sortidos (4, 15, 22 e 31)", () => {
+  const dias = diasDaRepeticao(dia("2026-11-10"), { tipo: "mensal", diasSemana: [], diasMes: [31, 4, 22, 15] }, dia("2027-02-28")).map(texto);
+  assert.deepEqual(dias, [
+    "2026-11-15", "2026-11-22", "2026-11-30",
+    "2026-12-04", "2026-12-15", "2026-12-22", "2026-12-31",
+    "2027-01-04", "2027-01-15", "2027-01-22", "2027-01-31",
+    "2027-02-04", "2027-02-15", "2027-02-22", "2027-02-28",
+  ]);
+});
+
+test("30 e 31 num mês de 30 dias entram uma vez só", () => {
+  const dias = diasDaRepeticao(dia("2026-11-01"), { tipo: "mensal", diasSemana: [], diasMes: [30, 31] }, dia("2026-12-31")).map(texto);
+  assert.deepEqual(dias, ["2026-11-30", "2026-12-30", "2026-12-31"]);
+});
+
+test("frases do todo mês", () => {
+  assert.equal(fraseRegra({ tipo: "mensal", diasSemana: [], diasMes: [15] }), "Todo mês, dia 15");
+  assert.equal(fraseRegra({ tipo: "mensal", diasSemana: [], diasMes: [22, 4, 15] }), "Todo mês, dias 4, 15 e 22");
+  assert.equal(fraseRegra({ tipo: "mensal", diasSemana: [] }, dia("2026-11-09")), "Todo mês, dia 9");
+});

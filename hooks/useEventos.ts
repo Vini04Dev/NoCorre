@@ -79,8 +79,9 @@ export function useDescricoesEventos() {
 
 /**
  * Como a série está hoje, para abrir a edição já preenchida: o último dia (o
- * "Até") e os dias da semana em que ela cai. Os dias saem dos próprios eventos,
- * sem coluna à parte.
+ * "Até") e os dias da semana e do mês em que ela cai. Os dias saem dos próprios
+ * eventos, sem coluna à parte. O 30 de abril que veio de um "31" (o mês não
+ * tem 31) não conta como dia 30 marcado.
  */
 export function useSerie(serieId: string | null | undefined) {
   return useQuery({
@@ -97,6 +98,16 @@ export function useSerie(serieId: string | null | undefined) {
       return {
         fim: datas.at(-1) ?? null,
         diasSemana: [...new Set(datas.map((d) => d.getDay() as DiaSemana))],
+        diasMes: [
+          ...new Set(
+            datas
+              .filter((d) => {
+                const ultimo = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+                return d.getDate() < ultimo || ultimo === 31;
+              })
+              .map((d) => d.getDate()),
+          ),
+        ].sort((a, b) => a - b),
       };
     },
   });
