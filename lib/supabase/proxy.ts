@@ -42,8 +42,16 @@ export async function atualizarSessao(request: NextRequest) {
   // getClaims valida a assinatura do token. Não trocar por getSession, que só lê o
   // cookie e não deve ser usado para decidir acesso no servidor.
   // Repete uma vez se a falha for de rede, para não tratar quem está logado como visitante.
-  const logado = Boolean(await validarClaims(supabase));
   const caminho = request.nextUrl.pathname;
+  const logado = Boolean(
+    await validarClaims(supabase, (codigo) => {
+      // Tinha cookie de login e a sessão caiu: fica no log da Vercel para achar a
+      // causa de quedas (ex.: no iPhone depois de uma atualização). Só o código
+      // do erro e o tipo de aparelho, nada da pessoa.
+      const aparelho = /iPhone|iPad/.test(request.headers.get("user-agent") ?? "") ? "ios" : "outro";
+      console.warn(`[sessao] sessão perdida: ${codigo} (${aparelho}, ${caminho})`);
+    }),
+  );
 
   // A landing morava em /apresentacao; agora é "/" (app/(app)/page.tsx escolhe entre
   // landing e Home). Links antigos continuam funcionando.
