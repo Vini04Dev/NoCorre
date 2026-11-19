@@ -27,7 +27,7 @@ type Erros = { descricao?: string; valor?: string; data?: string };
  * Vai para a carteira, mas não conta como receita do trabalho nem como entrega,
  * e no saldo, mas não é receita do corre: aparece em Recebidos › Pessoais.
  */
-export function FormularioEntrada({ entrada, origem }: { entrada?: Entrada; origem?: Receita }) {
+export function FormularioEntrada({ entrada, origem, dataInicial }: { entrada?: Entrada; origem?: Receita; dataInicial?: string }) {
   const router = useRouter();
   const salvar = useSalvarEntrada();
   const excluir = useExcluirEntrada();
@@ -36,7 +36,7 @@ export function FormularioEntrada({ entrada, origem }: { entrada?: Entrada; orig
   const [tipo, setTipo] = useState(entrada?.tipo ?? TIPOS_ENTRADA[0]);
   const [descricao, setDescricao] = useState(entrada?.descricao ?? origem?.observacao ?? "");
   const [centavos, setCentavos] = useState(Math.round((entrada?.valor ?? origem?.valor_total ?? 0) * 100));
-  const [data, setData] = useState(inicio.data);
+  const [data, setData] = useState(entrada || origem ? inicio.data : (dataInicial ?? inicio.data));
   // undefined = ninguém mexeu (não manda a coluna); null = carteira principal.
   const [carteiraId, setCarteiraId] = useState<string | null | undefined>(
     entrada ? entrada.carteira_id : origem ? origem.carteira_id : undefined,

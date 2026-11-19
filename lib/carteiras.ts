@@ -57,6 +57,34 @@ export function ehDaCarteira(carteiraDoLancamento: string | null, carteiraId: st
   return carteiraDoLancamento === carteiraId || (carteiraDoLancamento === null && carteiraId === principalId);
 }
 
+/**
+ * Só os lançamentos de uma carteira (sem carteira contam na principal). Com
+ * isso o Início e o Resumo mostram uma carteira com as mesmas linhas e os
+ * mesmos nomes de "Todas as carteiras".
+ */
+export function lancamentosDaCarteira<
+  R extends { carteira_id: string | null },
+  D extends { carteira_id: string | null },
+  E extends { carteira_id: string | null },
+>(dados: { receitas: R[]; despesas: D[]; entradas: E[] }, carteiraId: string, principalId: string | null) {
+  const daqui = (id: string | null) => ehDaCarteira(id, carteiraId, principalId);
+  return {
+    receitas: dados.receitas.filter((r) => daqui(r.carteira_id)),
+    despesas: dados.despesas.filter((d) => daqui(d.carteira_id)),
+    entradas: dados.entradas.filter((e) => daqui(e.carteira_id)),
+  };
+}
+
+/** Transferências do período para uma carteira: o que chegou menos o que saiu, em reais. */
+export function saldoTransferencias(transferencias: { origem_id: string; destino_id: string; valor: number }[], carteiraId: string) {
+  let centavos = 0;
+  for (const t of transferencias) {
+    if (t.destino_id === carteiraId) centavos += Math.round(t.valor * 100);
+    if (t.origem_id === carteiraId) centavos -= Math.round(t.valor * 100);
+  }
+  return centavos / 100;
+}
+
 type Movimentos = {
   receitas: { tipo: string; carteira_id: string | null; valor_total: number | null; quantidade: number; status_pagamento: "pago" | "pendente" }[];
   despesas: { carteira_id: string | null; valor_total: number | null }[];
