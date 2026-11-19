@@ -10,6 +10,7 @@ import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
 import { useSaldosCarteiras, useTransferenciasDoPeriodo } from "@/hooks/useCarteiras";
 import { useCarteiraEmFoco } from "@/hooks/useCarteiraEmFoco";
 import { useClientes } from "@/hooks/useClientes";
+import { useOrdemPeriodos } from "@/hooks/useOrdemPeriodos";
 import { useEstadoDaTela } from "@/hooks/useEstadoDaTela";
 import { useMovimentacoes, usePendentes } from "@/hooks/useMovimentacoes";
 import {
@@ -34,7 +35,8 @@ const RAPIDOS: { valor: FiltroRapido; rotulo: string }[] = [
 /** Extrato: saldo do período, filtros rápidos, painel de filtros e lista de movimentações. */
 export function TelaResumo({ dia }: { dia?: string }) {
   // Vindo do calendário da Home (?dia=), vale o dia clicado e o período salvo fica intacto.
-  const [periodoSalvo, setPeriodoSalvo] = useEstadoDaTela<FiltroPeriodo>("resumo:periodo", { tipo: "semana" });
+  const [ordem] = useOrdemPeriodos();
+  const [periodoSalvo, setPeriodoSalvo] = useEstadoDaTela<FiltroPeriodo>("resumo:periodo", { tipo: ordem[0] });
   const [periodoDoDia, setPeriodoDoDia] = useState<FiltroPeriodo | null>(
     dia ? { tipo: "personalizado", de: dia, ate: dia } : null,
   );

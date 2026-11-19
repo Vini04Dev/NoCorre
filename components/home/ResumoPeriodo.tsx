@@ -8,6 +8,7 @@ import { LinhaValor, SubLinhaValor } from "@/components/ui/LinhaValor";
 import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
 import { useCarteiraEmFoco } from "@/hooks/useCarteiraEmFoco";
 import { useSaldosCarteiras } from "@/hooks/useCarteiras";
+import { useOrdemPeriodos } from "@/hooks/useOrdemPeriodos";
 import { gravarEstadoDaTela, useEstadoDaTela } from "@/hooks/useEstadoDaTela";
 import { usePreferencia } from "@/hooks/usePreferencia";
 import { FILTROS_VAZIOS, type FiltroRapido, type Filtros } from "@/lib/filtros";
@@ -24,7 +25,8 @@ type Visao = "lista" | "calendario";
  * troca as linhas de totais pelo calendário com receita e despesa de cada dia.
  */
 export function ResumoPeriodo() {
-  const [periodo, setPeriodo] = useEstadoDaTela<FiltroPeriodo>("home:periodo", { tipo: "semana" });
+  const [ordem] = useOrdemPeriodos();
+  const [periodo, setPeriodo] = useEstadoDaTela<FiltroPeriodo>("home:periodo", { tipo: ordem[0] });
   const [visao, setVisao] = useEstadoDaTela<Visao>("home:visao", "lista");
   const { data, isError } = useMovimentacoes(periodo);
   const emFoco = useCarteiraEmFoco();
