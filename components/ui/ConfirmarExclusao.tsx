@@ -8,10 +8,12 @@ type Props = {
   excluindo?: boolean;
   aoCancelar: () => void;
   aoConfirmar: () => void;
+  /** Texto do botão vermelho, quando não é "Excluir" (ex.: "Zerar"). */
+  rotuloConfirmar?: string;
 };
 
 /** Pergunta "Tem certeza?" antes de qualquer exclusão, sobre o fundo escurecido. */
-export function ConfirmarExclusao({ titulo, mensagem, excluindo, aoCancelar, aoConfirmar }: Props) {
+export function ConfirmarExclusao({ titulo, mensagem, excluindo, aoCancelar, aoConfirmar, rotuloConfirmar = "Excluir" }: Props) {
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 px-[25px] backdrop-blur-[2px]">
       <div
@@ -32,7 +34,7 @@ export function ConfirmarExclusao({ titulo, mensagem, excluindo, aoCancelar, aoC
             Cancelar
           </Botao>
           <Botao variante="perigoCheio" onClick={aoConfirmar} disabled={excluindo}>
-            {excluindo ? "Excluindo..." : "Excluir"}
+            {excluindo ? "Aguarde..." : rotuloConfirmar}
           </Botao>
         </div>
       </div>
