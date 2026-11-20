@@ -14,6 +14,12 @@ export type SituacaoConta =
   | { tipo: "paga" }
   /** Ainda falta, e o vencimento está longe: não avisa. */
   | { tipo: "em_dia"; dias: number }
+  /**
+   * Cadastrada depois do vencimento deste mês (ex.: hoje é 20, vence dia 5):
+   * a primeira conta é a do mês que vem, então não está atrasada nem falta
+   * pagar neste mês.
+   */
+  | { tipo: "proximo"; dias: number; vencimento: Date }
   /** Vence em até DIAS_AVISO dias (0 = hoje). */
   | { tipo: "vence"; dias: number }
   /** Passou do dia e não foi paga. */
@@ -33,14 +39,24 @@ function inicioDoDia(data: Date) {
   return new Date(data.getFullYear(), data.getMonth(), data.getDate());
 }
 
+/** Vencimento deste mês já tinha passado quando a conta foi cadastrada? */
+export function comecaNoProximoMes(dia: number, cadastro: Date, hoje = new Date()) {
+  const vencimento = vencimentoNoMes(dia, hoje.getFullYear(), hoje.getMonth());
+  return vencimento < inicioDoDia(cadastro);
+}
+
 export function situacaoDaConta(
-  conta: { dia_vencimento: number; automatico: boolean },
+  conta: { dia_vencimento: number; automatico: boolean; created_at?: string },
   pagaNoMes: boolean,
   hoje = new Date(),
 ): SituacaoConta {
   if (pagaNoMes) return { tipo: "paga" };
   const vencimento = vencimentoNoMes(conta.dia_vencimento, hoje.getFullYear(), hoje.getMonth());
   const dias = Math.round((vencimento.getTime() - inicioDoDia(hoje).getTime()) / MS_DIA);
+  if (conta.created_at && comecaNoProximoMes(conta.dia_vencimento, new Date(conta.created_at), hoje)) {
+    const proximo = vencimentoNoMes(conta.dia_vencimento, hoje.getFullYear(), hoje.getMonth() + 1);
+    return { tipo: "proximo", dias: Math.round((proximo.getTime() - inicioDoDia(hoje).getTime()) / MS_DIA), vencimento: proximo };
+  }
   if (dias > DIAS_AVISO) return { tipo: "em_dia", dias };
   if (dias > 0) return { tipo: "vence", dias };
   if (conta.automatico) return { tipo: "debito", dias };
@@ -54,6 +70,8 @@ export function textoSituacao(situacao: SituacaoConta, dia: number) {
       return "Paga neste mês";
     case "em_dia":
       return `Vence dia ${dia}`;
+    case "proximo":
+      return `Primeira vence em ${String(situacao.vencimento.getDate()).padStart(2, "0")}/${String(situacao.vencimento.getMonth() + 1).padStart(2, "0")}`;
     case "vence":
       return situacao.dias === 0 ? "Vence hoje" : situacao.dias === 1 ? "Vence amanhã" : `Vence em ${situacao.dias} dias`;
     case "atrasada":

@@ -11,6 +11,7 @@ import { formatarMoeda } from "@/lib/formatar";
 const COR_SITUACAO: Record<SituacaoConta["tipo"], string> = {
   paga: "text-positivo",
   em_dia: "text-cinza-escuro",
+  proximo: "text-cinza-escuro",
   vence: "text-pendente",
   atrasada: "text-negativo",
   debito: "text-pendente",
@@ -22,7 +23,7 @@ export type PainelConta = { conta?: ContaFixa } | null;
 /** Ação do mês: pagar (abre a despesa preenchida) ou confirmar o débito automático. */
 function AcaoDoMes({ conta, situacao }: { conta: ContaFixa; situacao: SituacaoConta }) {
   const confirmar = useConfirmarDebito();
-  if (situacao.tipo === "paga" || !conta.ativa) return null;
+  if (situacao.tipo === "paga" || situacao.tipo === "proximo" || !conta.ativa) return null;
   if (situacao.tipo === "debito") {
     return (
       <button
@@ -66,7 +67,7 @@ export function ContasDoMes({ painel, setPainel }: { painel: PainelConta; setPai
   // Parcelada quitada não entra nos totais do mês (e não tem mais o que pagar).
   const ativas = lista.filter((item) => item.conta.ativa && !item.parcelas?.quitada);
   const totalMes = ativas.reduce((soma, item) => soma + item.conta.valor, 0);
-  const faltaPagar = ativas.filter((item) => item.situacao.tipo !== "paga").reduce((soma, item) => soma + item.conta.valor, 0);
+  const faltaPagar = ativas.filter((item) => item.situacao.tipo !== "paga" && item.situacao.tipo !== "proximo").reduce((soma, item) => soma + item.conta.valor, 0);
 
   return (
     <div className="flex flex-col gap-3.5 lg:max-w-3xl">
