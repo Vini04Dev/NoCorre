@@ -41,7 +41,7 @@ export function FormularioEntrada({ entrada, origem, dataInicial }: { entrada?: 
   const [carteiraId, setCarteiraId] = useState<string | null | undefined>(
     entrada ? entrada.carteira_id : origem ? origem.carteira_id : undefined,
   );
-  // Lançamento novo sem escolha: a carteira em foco no Início (à vista no campo Carteira).
+  // Lançamento novo sem escolha: a carteira marcada no botão de carteira, quando é uma só (à vista no campo Carteira).
   const { carteira: emFoco } = useCarteiraEmFoco();
   const carteiraEfetiva = carteiraId !== undefined ? carteiraId : emFoco?.id;
   const [erros, setErros] = useState<Erros>({});

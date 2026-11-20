@@ -27,6 +27,9 @@ begin
   if nome_txt is distinct from 'Ana' then raise exception 'FALHA 1a: %', nome_txt; end if;
   select nome into nome_txt from public.perfis where id = bia;
   if nome_txt is distinct from 'bia' then raise exception 'FALHA 1b: %', nome_txt; end if;
+  -- toda conta nasce com a carteira principal (Pro ou não)
+  select count(*) into n from public.carteiras where usuario_id in (ana, bia) and padrao and nome = 'Principal';
+  if n <> 2 then raise exception 'FALHA 1c: carteira principal no cadastro (%)', n; end if;
   log := log || '1 trigger ok; ';
 
   -- como Ana
@@ -208,9 +211,17 @@ begin
   reset role;
   update public.perfis set plano = 'pro' where id = ana;
   set local role authenticated;
-  insert into public.carteiras (nome, saldo_inicial, padrao) values ('Banco', 100, true) returning id into conta;
+  insert into public.carteiras (nome, saldo_inicial) values ('Banco', 100) returning id into conta;
   select count(*) into n from public.saldos_carteiras();
-  if n <> 1 then raise exception 'FALHA 16b: saldos_carteiras'; end if;
+  if n <> 2 then raise exception 'FALHA 16b: saldos_carteiras (%)', n; end if;
+  -- a principal não sai: o delete não acha a linha (RLS) e ela continua lá
+  delete from public.carteiras where padrao;
+  select count(*) into n from public.carteiras where padrao;
+  if n <> 1 then raise exception 'FALHA 16f: excluiu a carteira principal'; end if;
+  -- escolha de carteiras do Início (coluna editável do próprio perfil)
+  update public.perfis set carteiras_visiveis = array[conta] where id = ana;
+  select count(*) into n from public.perfis where id = ana and carteiras_visiveis = array[conta];
+  if n <> 1 then raise exception 'FALHA 16g: não salvou carteiras_visiveis'; end if;
   ok := false;
   begin
     update public.perfis set plano = 'gratis' where id = ana;
@@ -220,8 +231,9 @@ begin
   reset role;
   perform set_config('request.jwt.claims', json_build_object('sub', bia, 'role', 'authenticated')::text, true);
   set local role authenticated;
+  -- Bia só vê a própria principal
   select count(*) into n from public.carteiras;
-  if n <> 0 then raise exception 'FALHA 16d: viu carteira alheia'; end if;
+  if n <> 1 then raise exception 'FALHA 16d: viu carteira alheia (%)', n; end if;
   ok := false;
   begin
     insert into public.despesas (tipo, valor_unitario, carteira_id) values ('X', 1, conta);

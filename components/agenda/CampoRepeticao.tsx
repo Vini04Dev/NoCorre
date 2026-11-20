@@ -33,8 +33,7 @@ type Props = {
   erroAte?: string;
 };
 
-const CAMPO =
-  "rounded-[10px] border border-cinza-claro bg-white px-[14px] py-[11px] text-[13px] outline-none focus:border-dourado";
+const CAMPO = "rounded-[10px] border border-cinza-claro bg-white px-[14px] py-[11px] text-[13px] outline-none focus:border-dourado";
 
 /**
  * "Repetição" em cima e a escolha embaixo, ocupando a largura toda (o texto ao
@@ -65,18 +64,13 @@ export function CampoRepeticao({
     const marcado = diasSemana.includes(dia);
     // Sempre fica pelo menos um dia marcado.
     if (marcado && diasSemana.length === 1) return;
-    aoMudarDias(
-      marcado ? diasSemana.filter((d) => d !== dia) : [...diasSemana, dia],
-    );
+    aoMudarDias(marcado ? diasSemana.filter((d) => d !== dia) : [...diasSemana, dia]);
   }
 
   return (
     <div className="flex flex-col gap-1">
       {/* Rótulo fora do quadro, como Data e Horário: dentro dele parecia parte do botão. */}
-      <label
-        htmlFor={idRepeticao}
-        className="flex items-center gap-1.5 text-xs font-semibold"
-      >
+      <label htmlFor={idRepeticao} className="flex items-center gap-1.5 text-xs font-semibold">
         <Image src="/icones/repetir.svg" alt="" width={14} height={14} />
         Repetição
       </label>
@@ -95,11 +89,7 @@ export function CampoRepeticao({
         </select>
 
         {tipo === "semanal" && (
-          <div
-            role="group"
-            aria-labelledby={`${idRepeticao}-dias`}
-            className="flex flex-col gap-2 border-t border-cinza-claro pt-2.5"
-          >
+          <div role="group" aria-labelledby={`${idRepeticao}-dias`} className="flex flex-col gap-2 border-t border-cinza-claro pt-2.5">
             <span id={`${idRepeticao}-dias`} className="text-xs font-semibold">
               Repetir em
             </span>
@@ -114,9 +104,7 @@ export function CampoRepeticao({
                     aria-label={nome}
                     onClick={() => alternarDia(valor)}
                     className={`grid size-9 place-items-center rounded-full text-[13px] font-bold transition-colors ${
-                      ativo
-                        ? "bg-marinho text-white"
-                        : "border border-cinza-claro bg-white text-cinza-escuro"
+                      ativo ? "bg-marinho text-white" : "border border-cinza-claro bg-white text-cinza-escuro"
                     }`}
                   >
                     {curto}
@@ -129,11 +117,7 @@ export function CampoRepeticao({
 
         {tipo === "mensal" && inicio && (
           <div className="border-t border-cinza-claro pt-2.5">
-            <CalendarioDatas
-              inicio={inicio}
-              datas={datas}
-              aoMudar={aoMudarDatas}
-            />
+            <CalendarioDatas inicio={inicio} datas={datas} aoMudar={aoMudarDatas} />
           </div>
         )}
 
@@ -156,9 +140,7 @@ export function CampoRepeticao({
                 />
               </div>
             )}
-            <p
-              className={`text-[11px] ${erroAte ? "text-negativo" : "text-cinza-escuro"}`}
-            >
+            <p className={`text-[11px] ${erroAte ? "text-negativo" : "text-cinza-escuro"}`}>
               {erroAte ?? (
                 <>
                   <b className="text-marinho">
