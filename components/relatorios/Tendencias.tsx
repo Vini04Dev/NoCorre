@@ -1,82 +1,32 @@
+import { Comparacao } from "./Comparacao";
 import { Valor } from "@/components/ui/Valor";
 import { formatarMoeda } from "@/lib/formatar";
 import type { NumerosCorre } from "@/lib/relatorio";
 
-type Previsao = { receita: number; despesa: number; saldo: number; diasRestantes: number } | null;
-
 const CARTAO = "rounded-[12px] border border-cinza-claro bg-white px-3.5 py-3";
 
 /**
- * Diferença contra o período anterior, em reais ou em quantidade:
- * "R$ 30 a mais que na semana passada". Verde quando é bom, vermelho quando
- * é ruim, cinza quando não dá para comparar.
+ * "O corre": só o trabalho (sem salário e outras rendas, que ficam em "Seu
+ * dinheiro"). O que recebeu e o que sobrou tirando os custos do corre, e os
+ * números de ritmo: entregas, por dia, por entrega e quanto foi para custos.
+ * Cada um com a diferença para o período anterior, em reais ou quantidade.
  */
-function Comparacao({
-  atual,
-  antes,
-  dinheiro = true,
-  comparado,
-  unidade,
-}: {
-  atual: number;
-  antes: number;
-  dinheiro?: boolean;
-  comparado: string;
-  unidade?: [string, string];
-}) {
-  if (antes === 0) return <span className="text-[11px] text-cinza-escuro">Sem dados {comparado.replace(/^que /, "")} para comparar</span>;
-  const diferenca = Math.round((atual - antes) * 100) / 100;
-  if (diferenca === 0) return <span className="text-[11px] text-cinza-escuro">O mesmo {comparado}</span>;
-  const mais = diferenca > 0;
-  const valor = Math.abs(diferenca);
-  return (
-    <span className={`text-[11px] ${mais ? "text-recebido" : "text-negativo"}`}>
-      <b>
-        {dinheiro ? (
-          <Valor texto={formatarMoeda(valor)} />
-        ) : (
-          `${valor.toLocaleString("pt-BR")}${unidade ? ` ${valor === 1 ? unidade[0] : unidade[1]}` : ""}`
-        )}{" "}
-        a {mais ? "mais" : "menos"}
-      </b>{" "}
-      <span className="text-cinza-escuro">{comparado}</span>
-    </span>
-  );
-}
-
-/**
- * "Como foi o corre": o período em frases simples e em reais, com a diferença
- * para o período anterior (sem porcentagem, que confunde). No mês atual, o
- * ritmo até o fim do mês.
- */
-export function Tendencias({
-  atual,
-  anterior,
-  comparado,
-  nomePeriodo,
-  previsao,
-}: {
-  atual: NumerosCorre;
-  anterior: NumerosCorre;
-  comparado: string;
-  nomePeriodo: string;
-  previsao: Previsao;
-}) {
+export function Tendencias({ atual, anterior, comparado }: { atual: NumerosCorre; anterior: NumerosCorre; comparado: string }) {
   return (
     <section className="flex flex-col gap-2.5">
-      <h2 className="text-[11px] font-semibold tracking-[0.66px] text-cinza">COMO FOI O CORRE</h2>
+      <h2 className="text-[11px] font-semibold tracking-[0.66px] text-cinza">O CORRE</h2>
       <div className="grid grid-cols-2 gap-2 lg:gap-3 xl:grid-cols-4">
-        <div className={`${CARTAO} col-span-2 flex flex-col gap-2 sm:flex-row sm:gap-6 xl:col-span-4`}>
-          <div className="flex flex-1 flex-col gap-0.5">
-            <span className="text-[11px] text-cinza-escuro">Você recebeu {nomePeriodo}</span>
-            <span className="text-2xl font-extrabold text-recebido">
+        <div className={`${CARTAO} col-span-2 grid grid-cols-2 gap-3 xl:col-span-4`}>
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <span className="text-[11px] text-cinza-escuro">Recebeu no corre</span>
+            <span className="text-xl font-extrabold text-recebido">
               <Valor texto={formatarMoeda(atual.recebido)} />
             </span>
             <Comparacao atual={atual.recebido} antes={anterior.recebido} comparado={comparado} />
           </div>
-          <div className="flex flex-1 flex-col gap-0.5 border-t border-cinza-claro pt-2 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-6">
-            <span className="text-[11px] text-cinza-escuro">Sobrou, tirando os custos do corre</span>
-            <span className={`text-2xl font-extrabold ${atual.sobrou < 0 ? "text-negativo" : "text-positivo"}`}>
+          <div className="flex min-w-0 flex-col gap-0.5 border-l border-cinza-claro pl-3">
+            <span className="text-[11px] text-cinza-escuro">Sobrou do corre</span>
+            <span className={`text-xl font-extrabold ${atual.sobrou < 0 ? "text-negativo" : "text-positivo"}`}>
               <Valor texto={formatarMoeda(atual.sobrou)} />
             </span>
             <Comparacao atual={atual.sobrou} antes={anterior.sobrou} comparado={comparado} />
@@ -105,43 +55,16 @@ export function Tendencias({
           <Comparacao atual={atual.porEntrega} antes={anterior.porEntrega} comparado={comparado} />
         </div>
         <div className={`${CARTAO} flex flex-col gap-0.5`}>
-          <span className="text-[11px] text-cinza-escuro">Custo do corre</span>
-          <span className="text-lg font-extrabold">
-            <Valor texto={formatarMoeda(atual.custoACada100)} />
+          <span className="text-[11px] text-cinza-escuro">Custos do corre</span>
+          <span className="text-lg font-extrabold text-negativo">
+            <Valor texto={formatarMoeda(atual.custo)} />
           </span>
           <span className="text-[11px] text-cinza-escuro">
-            de cada <Valor texto="R$ 100" /> recebidos
+            {atual.custoPercentual}% do que recebeu
             {atual.maiorCusto && `, mais em ${atual.maiorCusto.toLowerCase()}`}
           </span>
         </div>
       </div>
-
-      {previsao && (
-        // Fundo marinho próprio (não o branco do CARTAO, que venceria e apagaria o texto).
-        <div className="flex flex-col gap-2 rounded-[12px] bg-marinho px-3.5 py-3 text-white">
-          <div>
-            <p className="text-xs font-bold">Se continuar nesse ritmo até o fim do mês</p>
-            <p className="text-[11px] text-white/75">
-              Uma estimativa pelo que você fez até agora. Faltam {previsao.diasRestantes}{" "}
-              {previsao.diasRestantes === 1 ? "dia" : "dias"}.
-            </p>
-          </div>
-          <dl className="grid grid-cols-2 gap-2">
-            <div className="flex flex-col">
-              <dt className="text-[11px] text-white/75">Vai receber cerca de</dt>
-              <dd className="text-lg font-extrabold text-dourado-claro">
-                <Valor texto={formatarMoeda(previsao.receita)} />
-              </dd>
-            </div>
-            <div className="flex flex-col">
-              <dt className="text-[11px] text-white/75">Deve sobrar do corre</dt>
-              <dd className={`text-lg font-extrabold ${previsao.saldo < 0 ? "text-[#f08a7a]" : "text-[#9be15d]"}`}>
-                <Valor texto={formatarMoeda(previsao.saldo)} />
-              </dd>
-            </div>
-          </dl>
-        </div>
-      )}
     </section>
   );
 }

@@ -7,15 +7,16 @@ import { AvisoErro } from "@/components/ui/AvisoErro";
 import { Botao } from "@/components/ui/Botao";
 import { CabecalhoTela } from "@/components/ui/CabecalhoTela";
 import { CampoTexto } from "@/components/ui/CampoTexto";
+import { ConfirmarExclusao } from "@/components/ui/ConfirmarExclusao";
 import { PainelInferior } from "@/components/ui/PainelInferior";
-import { useComponentes, useQuilometragem, useRegistrarKm, useSalvarComponente, type Componente } from "@/hooks/useMoto";
+import { useComponentes, useQuilometragem, useRegistrarKm, useSalvarComponente, useZerarMoto, type Componente } from "@/hooks/useMoto";
 import { usePerfil } from "@/hooks/usePerfil";
 import { usePlano } from "@/hooks/usePlano";
 import {
   COR_SITUACAO,
   desgaste,
-  ehCg160,
   formatarKm,
+  fotosDaMoto,
   parteDo,
   ROTULO_SITUACAO,
   type CalorParte,
@@ -29,7 +30,7 @@ import { EmBreve } from "./EmBreveMoto";
 const somenteNumeros = (texto: string) => texto.replace(/\D/g, "").slice(0, 7);
 
 /** Atualizar o odômetro (valor do painel) ou somar os km rodados desde a última vez. */
-function PainelKm({ atual, aoFechar }: { atual: number; aoFechar: () => void }) {
+export function PainelKm({ atual, aoFechar }: { atual: number; aoFechar: () => void }) {
   const registrar = useRegistrarKm();
   const [modo, setModo] = useState<"somar" | "odometro">("somar");
   const [valor, setValor] = useState("");
@@ -129,7 +130,8 @@ export function TelaMoto() {
   const { data: perfil } = usePerfil();
   const quilometragem = useQuilometragem(ehPro);
   const componentes = useComponentes(ehPro);
-  const [painel, setPainel] = useState<{ tipo: "km" } | { tipo: "componente"; componente: Componente } | null>(null);
+  const [painel, setPainel] = useState<{ tipo: "km" } | { tipo: "componente"; componente: Componente } | { tipo: "zerar" } | null>(null);
+  const zerar = useZerarMoto();
 
   const cabecalho = <CabecalhoTela titulo="Saúde da moto" voltarPara="/" tituloGrande acao={<SeloPro />} />;
   const casca = (conteudo: React.ReactNode) => (
@@ -157,6 +159,7 @@ export function TelaMoto() {
   const descricaoDesenho = calculados.map((i) => `${i.componente.nome}: ${ROTULO_SITUACAO[i.situacao]}`).join("; ");
   const urgentes = calculados.filter((i) => i.situacao === "trocar" || i.situacao === "vencido").length;
   const modelo = perfil?.veiculo ?? "Sua moto";
+  const pasta = fotosDaMoto(perfil?.veiculo);
 
   return casca(
     <>
@@ -173,9 +176,9 @@ export function TelaMoto() {
             <span className="text-lg font-extrabold">{formatarKm(kmAtual)}</span>
           </button>
         </div>
-        {ehCg160(perfil?.veiculo) ? (
+        {pasta ? (
           <>
-            <CarrosselMoto partes={calor} descricao={descricaoDesenho} />
+            <CarrosselMoto pasta={pasta} partes={calor} descricao={descricaoDesenho} />
             <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-[10px] text-cinza-escuro">
               {(Object.keys(COR_SITUACAO) as Situacao[]).map((s) => (
                 <span key={s} className="flex items-center gap-1">
@@ -229,7 +232,25 @@ export function TelaMoto() {
         </p>
       </section>
 
+      {/* Trocou de moto ou cadastrou errado: recomeça pela primeira visita. */}
+      <button type="button" onClick={() => setPainel({ tipo: "zerar" })} className="self-center py-1 text-xs font-semibold text-negativo">
+        Zerar dados e configurar do zero
+      </button>
+
       {painel?.tipo === "km" && <PainelKm atual={kmAtual} aoFechar={() => setPainel(null)} />}
+      {painel?.tipo === "zerar" && (
+        <ConfirmarExclusao
+          titulo="Zerar a Saúde da moto?"
+          mensagem={
+            zerar.error?.message ??
+            "Apaga a quilometragem e o estado de todas as peças. Depois o app pergunta tudo de novo, como na primeira vez. Não tem como desfazer."
+          }
+          rotuloConfirmar="Zerar"
+          excluindo={zerar.isPending}
+          aoCancelar={() => setPainel(null)}
+          aoConfirmar={() => zerar.mutate(undefined, { onSuccess: () => setPainel(null) })}
+        />
+      )}
       {painel?.tipo === "componente" && (
         <PainelComponente componente={painel.componente} kmAtual={kmAtual} aoFechar={() => setPainel(null)} />
       )}

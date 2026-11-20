@@ -24,6 +24,54 @@ export type Nota = {
 
 export const NOTAS: Nota[] = [
   {
+    versao: "0.0.7",
+    data: "2026-11-20",
+    titulo: "Início do seu jeito",
+    resumo: "Você escolhe o período que abre primeiro e quais carteiras contam, lança direto pelo calendário e vê toda a sua renda nos Relatórios.",
+    destaques: [
+      {
+        icone: "/icones/ordenar.svg",
+        titulo: "Dia, Semana e Mês na sua ordem",
+        texto: "No seletor de período, toque em Mudar a ordem e arraste. O primeiro da lista é o que abre quando você entra no app.",
+      },
+      {
+        icone: "/icones/calendario-linha.svg",
+        titulo: "Calendário que anda e lança",
+        texto: "No calendário do Início, arraste para o lado para ver outros meses ou semanas. Toque num dia vazio para lançar já com aquela data.",
+      },
+      {
+        icone: "/icones/saldo-linha.svg",
+        titulo: "Salário e outras entradas no calendário",
+        texto: "O calendário do Início agora mostra também o que entra fora do corre, e a soma dos dias bate com os totais de cima.",
+      },
+      {
+        icone: "/icones/entrada-linha.svg",
+        titulo: "Relatórios com toda a sua renda",
+        texto: "Os Relatórios começam pelo que entrou, saiu e sobrou, e mostram de onde veio o dinheiro: o corre, o salário, a bolsa e as outras rendas.",
+      },
+      {
+        icone: "/icones/carteira-linha.svg",
+        titulo: "Escolha quais carteiras contam",
+        texto: "No botão de carteira, marque uma, várias ou todas. O Início e o Resumo somam só as marcadas, e a escolha fica salva na sua conta.",
+      },
+      {
+        icone: "/icones/repetir.svg",
+        titulo: "Repetir nos dias que você escolher",
+        texto: "Na Agenda, em Repetição, escolha Dias escolhidos no calendário e marque as datas exatas, passando de mês em mês.",
+      },
+      {
+        icone: "/icones/conta-fixa.svg",
+        titulo: "Conta fixa cadastrada depois do vencimento",
+        texto: "Se o vencimento deste mês já passou quando você cadastra a conta, ela começa a contar no mês que vem, sem aparecer como atrasada.",
+      },
+      {
+        icone: "/icones/moto-linha.svg",
+        titulo: "Quilometragem no Início",
+        texto: "Quem usa a Saúde da moto atualiza o km direto do Início. Trocou de moto? Na Saúde da moto dá para zerar e configurar de novo.",
+      },
+    ],
+  },
+  {
     versao: "0.0.6",
     data: "2026-11-18",
     titulo: "Compromissos que se repetem",

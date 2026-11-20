@@ -1,4 +1,4 @@
-import { contaComoEntrega } from "./categorias-padrao";
+export { ehDaCarteira, ehDasCarteiras, lancamentosDasCarteiras, nomesCarteiras, saldoTransferencias } from "./filtro-carteiras";
 
 /**
  * Tipos de carteira. A coluna no banco é texto livre (como o tipo de receitas e
@@ -50,53 +50,4 @@ type CarteiraBase = { id: string; padrao: boolean; created_at: string };
  */
 export function principalEntre<T extends CarteiraBase>(carteiras: T[]): T | undefined {
   return [...carteiras].sort((a, b) => Number(b.padrao) - Number(a.padrao) || a.created_at.localeCompare(b.created_at))[0];
-}
-
-/** O lançamento é desta carteira? Sem carteira (null) conta na principal. */
-export function ehDaCarteira(carteiraDoLancamento: string | null, carteiraId: string, principalId: string | null) {
-  return carteiraDoLancamento === carteiraId || (carteiraDoLancamento === null && carteiraId === principalId);
-}
-
-type Movimentos = {
-  receitas: { tipo: string; carteira_id: string | null; valor_total: number | null; quantidade: number; status_pagamento: "pago" | "pendente" }[];
-  despesas: { carteira_id: string | null; valor_total: number | null }[];
-  entradas: { carteira_id: string | null; valor: number }[];
-};
-
-/**
- * O que passou por uma carteira no período: entrou (receitas pagas, outras
- * entradas e transferências recebidas), saiu (despesas e transferências
- * enviadas), pendentes e entregas. Usado no Início e no Resumo com uma
- * carteira escolhida. Em centavos para não acumular erro de arredondamento.
- */
-export function movimentoDaCarteira(
-  dados: Movimentos,
-  transferencias: { origem_id: string; destino_id: string; valor: number }[],
-  carteiraId: string,
-  principalId: string | null,
-) {
-  const c = (valor: number | null) => Math.round((valor ?? 0) * 100);
-  const daqui = (id: string | null) => ehDaCarteira(id, carteiraId, principalId);
-  let recebidos = 0, pendentes = 0, entregas = 0, despesas = 0, entradas = 0, chegou = 0, enviado = 0;
-  for (const r of dados.receitas) {
-    if (!daqui(r.carteira_id)) continue;
-    if (r.status_pagamento === "pago") recebidos += c(r.valor_total);
-    else pendentes += c(r.valor_total);
-    if (contaComoEntrega(r.tipo)) entregas += r.quantidade;
-  }
-  for (const d of dados.despesas) if (daqui(d.carteira_id)) despesas += c(d.valor_total);
-  for (const e of dados.entradas) if (daqui(e.carteira_id)) entradas += c(e.valor);
-  for (const t of transferencias) {
-    if (t.destino_id === carteiraId) chegou += c(t.valor);
-    if (t.origem_id === carteiraId) enviado += c(t.valor);
-  }
-  return {
-    entrou: (recebidos + entradas + chegou) / 100,
-    saiu: (despesas + enviado) / 100,
-    pendentes: pendentes / 100,
-    entregas,
-    entradas: entradas / 100,
-    chegou: chegou / 100,
-    enviado: enviado / 100,
-  };
 }

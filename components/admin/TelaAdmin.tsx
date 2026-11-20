@@ -265,7 +265,7 @@ export function TelaAdmin({ metricas, erro }: { metricas: MetricasAdmin | null; 
                 { href: "/?aviso=convite-pro", rotulo: "Convite do Pro", quando: "depois da nota de atualização, para quem é grátis" },
                 { href: "/?aviso=primeiro-uso", rotulo: "Aviso de primeiro cliente", quando: "abre no Início enquanto não há cliente" },
                 { href: "/?aviso=vencimento", rotulo: "Notificações", quando: "sininho do Início com contas, compromisso, entregas a receber e moto" },
-                { href: "/admin/previa/moto", rotulo: "Primeira visita da moto", quando: "Pro, ao abrir a Saúde da moto pela primeira vez" },
+                { href: "/admin/previa/moto", rotulo: "Saúde da moto (modelos)", quando: "fotos de cada moto, inclusive as ainda não liberadas, e a primeira visita" },
                 { href: "/?enfeite=natal", rotulo: "Enfeites de Natal", quando: "sozinhos no tema Clássico, de 1 a 26 de dezembro" },
                 { href: "/admin/previa/exportar", rotulo: "Exportar e importar (desenho)", quando: "módulo ainda sem função, para discutir o fluxo" },
                 { href: "/admin/previa/confirmacao", rotulo: "Confirme seu email", quando: "logo depois de criar a conta" },

@@ -36,7 +36,10 @@ export function AlternarMeuPlano() {
       <div className="flex items-center justify-between gap-3">
         <span className="flex flex-col">
           <span className="text-[11px] text-cinza-escuro">Minha conta está no plano</span>
-          <span className="text-base font-extrabold">{carregando ? "–" : ehPro ? "Pro" : "Grátis"}</span>
+          {/* O servidor desenha "–" e o navegador, que às vezes já tem o perfil, o plano: só este texto muda. */}
+          <span suppressHydrationWarning className="text-base font-extrabold">
+            {carregando ? "–" : ehPro ? "Pro" : "Grátis"}
+          </span>
         </span>
         <button
           type="button"

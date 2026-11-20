@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { cookies, headers } from "next/headers";
 import { Suspense } from "react";
+import { AtalhoMoto } from "@/components/home/AtalhoMoto";
 import { AvisoPrimeiroUso } from "@/components/home/AvisoPrimeiroUso";
 import { AvisoProChegou } from "@/components/pro/AvisoProChegou";
 import { CabecalhoHome } from "@/components/home/CabecalhoHome";
@@ -66,14 +67,21 @@ async function Home() {
           <Suspense>
             <LinhaUrgente />
           </Suspense>
+          {/* Em cima do saldo: atualizar o km é a primeira coisa do dia de quem roda. */}
+          <AtalhoMoto />
           <Secao titulo="MEU SALDO">
             <ResumoPeriodo />
           </Secao>
         </div>
         <div className="flex flex-col gap-7">
           <Secao titulo="MÓDULOS">
-            <nav aria-label="Módulos" className="flex flex-col gap-4">
+            {/* No celular a lista rola para o lado (teste pedido por quem usa); no computador, em coluna. */}
+            <nav
+              aria-label="Módulos"
+              className="-mx-[17px] flex snap-x snap-mandatory scroll-px-[17px] gap-3 overflow-x-auto px-[17px] pb-2 [scrollbar-width:none] lg:mx-0 lg:snap-none lg:flex-col lg:gap-4 lg:overflow-visible lg:px-0 lg:pb-0"
+            >
               <CartaoModulo
+                faixa
                 href="/agenda"
                 titulo="Agenda"
                 descricao="Crie rotinas e agendamentos e mantenha-se atualizado pra não perder a hora."
@@ -81,6 +89,7 @@ async function Home() {
                 tamanhoIcone={40}
               />
               <CartaoModulo
+                faixa
                 href="/metas"
                 titulo="Metas"
                 descricao="Defina metas, acompanhe o progresso e não esqueça as contas que vencem todo mês."
@@ -89,6 +98,7 @@ async function Home() {
               />
               {perfil?.plano === "pro" && (
                 <CartaoModulo
+                  faixa
                   href="/carteiras"
                   titulo="Carteiras"
                   descricao="Separe o dinheiro do banco, da mão e do salário, cada um com seu saldo."
@@ -97,6 +107,7 @@ async function Home() {
                 />
               )}
               <CartaoModulo
+                faixa
                 href="/cadastro"
                 titulo="Cadastro"
                 descricao="Crie cadastro de Comércios e Clientes."
@@ -105,6 +116,7 @@ async function Home() {
               />
               {perfil?.plano === "pro" && (
                 <CartaoModulo
+                  faixa
                   href="/moto"
                   titulo="Saúde da moto"
                   descricao="Quilometragem, troca de óleo, pneus, relação e freios no tempo certo."
@@ -112,8 +124,10 @@ async function Home() {
                   tamanhoIcone={38}
                 />
               )}
-              <p className="text-center text-xs text-cinza-escuro">Mais módulos em breve.</p>
             </nav>
+            <p className="text-center text-xs text-cinza-escuro">
+              <span className="lg:hidden">Arraste para o lado para ver todos. </span>Mais módulos em breve.
+            </p>
           </Secao>
           {/* Só para o e-mail em ADMIN_EMAIL. No computador o atalho também fica no menu lateral. */}
           {admin && (

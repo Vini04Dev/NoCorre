@@ -2,88 +2,113 @@
 
 import Image from "next/image";
 import { useId, useState } from "react";
+import { ComparativoMensal } from "./ComparativoMensal";
 import { GraficoBarras } from "./GraficoBarras";
 import { ListaAvisos } from "./ListaAvisos";
+import { MapaDoCorre } from "./MapaDoCorre";
 import { RankingClientes } from "./RankingClientes";
-import { CORES_DESPESA, CORES_RECEITA, Rosca } from "./Rosca";
+import { ResumoDinheiro, type Dinheiro } from "./ResumoDinheiro";
+import { CORES_DESPESA, Rosca } from "./Rosca";
+import { Tendencias } from "./Tendencias";
+import { PrevisaoMes } from "@/components/contas/PrevisaoMes";
 import { Botao } from "@/components/ui/Botao";
 import { PainelInferior } from "@/components/ui/PainelInferior";
 import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
+import { Valor } from "@/components/ui/Valor";
 import { useClientes } from "@/hooks/useClientes";
 import { useEstadoDaTela } from "@/hooks/useEstadoDaTela";
-import { useHistoricoMeses, usePendentes, useRelatorio } from "@/hooks/useMovimentacoes";
+import { useHistoricoMeses, usePendentes, useRelatorio, type Despesa, type Entrada, type Receita } from "@/hooks/useMovimentacoes";
+import { useOrdemPeriodos } from "@/hooks/useOrdemPeriodos";
+import { formatarMoeda } from "@/lib/formatar";
 import { comparadoCom, quandoFoi, type FiltroPeriodo } from "@/lib/periodo";
 import {
   gerarAvisos,
   mapaDoCorre,
+  numerosDoCorre,
   porCategoria,
-  porMes,
-  previsaoDoMes,
   rankingClientes,
   receitaPorDia,
-  numerosDoCorre,
   type CriterioRanking,
 } from "@/lib/relatorio";
-import { ComparativoMensal } from "./ComparativoMensal";
-import { PrevisaoMes } from "@/components/contas/PrevisaoMes";
-import { EvolucaoSaldo } from "./EvolucaoSaldo";
-import { MapaDoCorre } from "./MapaDoCorre";
-import { Tendencias } from "./Tendencias";
+import { fontesDeRenda, porMes } from "@/lib/renda";
+import { calcularTotais } from "@/lib/totais";
+
+/** Entrou, saiu e sobrou com as mesmas contas do saldo do Início. */
+function dinheiroDe(dados: { receitas: Receita[]; despesas: Despesa[]; entradas: Entrada[] }): Dinheiro {
+  const t = calcularTotais(dados.receitas, dados.despesas, dados.entradas);
+  return { entrou: t.recebidosTotal, saiu: t.despesas, sobrou: t.saldo };
+}
 
 /**
- * Relatórios: não repete os números da Home. Mostra receita por dia, receitas e
- * despesas por categoria, onde mais trabalho e avisos. Filtros por período e cliente.
+ * Relatórios: não repete o Início, explica o período. Cada bloco responde uma
+ * pergunta, sem repetir número de outro:
+ * - Seu dinheiro: quanto entrou (do corre e de fora dele), saiu e sobrou, e de onde veio a renda.
+ * - O corre: o trabalho em si (por dia, por entrega, custos), a receita por dia e o mapa de horários.
+ * - Últimos 6 meses: a mesma conta, mês a mês.
+ * - Fim do mês (mês atual): quanto deve sobrar.
+ * - Onde mais entrego, para onde foi o dinheiro e o que pede atenção.
+ * O filtro de cliente vale para o que é do corre; salário e outras rendas não
+ * têm cliente, então os blocos de dinheiro total somem com ele.
  */
 export function TelaRelatorios() {
-  const [periodo, setPeriodo] = useEstadoDaTela<FiltroPeriodo>("relatorios:periodo", { tipo: "semana" });
+  const [ordem] = useOrdemPeriodos();
+  const [periodo, setPeriodo] = useEstadoDaTela<FiltroPeriodo>("relatorios:periodo", { tipo: ordem[0] });
   const [clienteId, setClienteId] = useEstadoDaTela("relatorios:cliente", "");
   const [painelAberto, setPainelAberto] = useState(false);
+  const [criterioRanking, setCriterioRanking] = useEstadoDaTela<CriterioRanking>("relatorios:ranking", "entregas");
   const { data: clientes } = useClientes();
   const relatorio = useRelatorio(periodo);
   const pendentes = usePendentes();
+  const historico = useHistoricoMeses(6);
 
   const nomeCliente = clientes?.find((c) => c.id === clienteId)?.nome;
   const doCliente = <T extends { cliente_id: string }>(lista: T[]) =>
     clienteId ? lista.filter((r) => r.cliente_id === clienteId) : lista;
+  const doCorre = <T extends { do_corre?: boolean }>(lista: T[]) => lista.filter((d) => d.do_corre !== false);
 
   const dados = relatorio.data;
   const receitas = dados ? doCliente(dados.atual.receitas) : [];
   const despesas = dados?.atual.despesas ?? [];
-  // Tendências, comparativo e acumulado falam do corre, como o saldo do Início;
-  // a rosca de categorias mostra todas as despesas (para onde vai o dinheiro).
-  const doCorre = <T extends { do_corre?: boolean }>(lista: T[]) => lista.filter((d) => d.do_corre !== false);
-  const categoriasReceita = porCategoria(receitas.filter((r) => r.status_pagamento === "pago"));
-  const categoriasDespesa = porCategoria(despesas);
-  const [criterioRanking, setCriterioRanking] = useEstadoDaTela<CriterioRanking>("relatorios:ranking", "entregas");
-  const ranking = rankingClientes(receitas, criterioRanking);
-  const historico = useHistoricoMeses(6);
-  const meses = historico.data
-    ? porMes(
-        clienteId ? historico.data.receitas.filter((r) => r.cliente_id === clienteId) : historico.data.receitas,
-        doCorre(historico.data.despesas),
-        historico.data.inicio,
-        6,
-      )
-    : [];
+  const entradas = dados?.atual.entradas ?? [];
+
   // Período ainda correndo (esta semana, este mês): o anterior entra só até o
   // mesmo ponto, senão metade do mês sempre parece pior que o mês inteiro.
   const [agora] = useState(() => Date.now());
   const emAndamento = Boolean(dados && agora < dados.fim.getTime());
-  const limiteAnterior = dados ? dados.inicio.getTime() - (dados.fim.getTime() - dados.inicio.getTime()) + (Math.min(agora, dados.fim.getTime()) - dados.inicio.getTime()) : 0;
+  const limiteAnterior = dados
+    ? dados.inicio.getTime() - (dados.fim.getTime() - dados.inicio.getTime()) + (Math.min(agora, dados.fim.getTime()) - dados.inicio.getTime())
+    : 0;
   const ateMesmoPonto = <T extends { data_hora: string }>(lista: T[]) =>
     emAndamento ? lista.filter((item) => new Date(item.data_hora).getTime() < limiteAnterior) : lista;
-  const anteriorComparavel = dados
-    ? { receitas: ateMesmoPonto(doCliente(dados.anterior.receitas)), despesas: ateMesmoPonto(dados.anterior.despesas) }
+  const anterior = dados
+    ? {
+        receitas: ateMesmoPonto(doCliente(dados.anterior.receitas)),
+        despesas: ateMesmoPonto(dados.anterior.despesas),
+        entradas: ateMesmoPonto(dados.anterior.entradas),
+      }
     : null;
+  const comparado = comparadoCom(periodo, emAndamento);
+  const semAnterior = Boolean(anterior && !anterior.receitas.length && !anterior.despesas.length && !anterior.entradas.length);
+
   const numeros = dados ? numerosDoCorre({ receitas, despesas: doCorre(despesas) }) : null;
-  const numerosAntes = anteriorComparavel
-    ? numerosDoCorre({ receitas: anteriorComparavel.receitas, despesas: doCorre(anteriorComparavel.despesas) })
-    : null;
-  // O ritmo até o fim do mês só faz sentido olhando o mês que ainda está correndo.
-  const previsao = periodo.tipo === "mes" && numeros ? previsaoDoMes(numeros.recebido, numeros.recebido - numeros.sobrou) : null;
-  const avisos = dados
-    ? gerarAvisos({ receitas, despesas }, { despesas: anteriorComparavel!.despesas }, doCliente(pendentes.data ?? []))
+  const numerosAntes = anterior ? numerosDoCorre({ receitas: anterior.receitas, despesas: doCorre(anterior.despesas) }) : null;
+  const renda = fontesDeRenda(receitas, entradas);
+  const gastos = porCategoria(despesas);
+  const totaisGastos = calcularTotais([], despesas);
+  const ranking = rankingClientes(receitas, criterioRanking);
+  const meses = historico.data
+    ? porMes(
+        {
+          receitas: clienteId ? historico.data.receitas.filter((r) => r.cliente_id === clienteId) : historico.data.receitas,
+          // Com cliente, só o corre dele: despesas e outras rendas não têm cliente.
+          despesas: clienteId ? [] : historico.data.despesas,
+          entradas: clienteId ? [] : historico.data.entradas,
+        },
+        historico.data.inicio,
+        6,
+      )
     : [];
+  const avisos = dados && anterior ? gerarAvisos({ despesas }, { despesas: anterior.despesas }, doCliente(pendentes.data ?? [])) : [];
 
   return (
     <main className="flex flex-col gap-[18px] px-[17px] pt-[calc(env(safe-area-inset-top)+12px)] pb-4 lg:px-0 lg:pt-2">
@@ -105,9 +130,9 @@ export function TelaRelatorios() {
       </div>
 
       {nomeCliente && (
-        <p className="-mt-2 flex items-center justify-between rounded-[10px] bg-dourado-claro/40 px-3 py-2 text-xs">
+        <p className="-mt-2 flex items-center justify-between gap-3 rounded-[10px] bg-dourado-claro/40 px-3 py-2 text-xs">
           <span>
-            Receitas de <strong>{nomeCliente}</strong>. Despesas não têm cliente e aparecem todas.
+            Só o corre de <strong>{nomeCliente}</strong>. Salário, outras rendas e despesas não têm cliente e ficam de fora.
           </span>
           <button type="button" onClick={() => setClienteId("")} className="font-semibold">
             Limpar
@@ -115,31 +140,36 @@ export function TelaRelatorios() {
         </p>
       )}
 
+      {/* Um aviso só, em vez de "sem dados para comparar" embaixo de cada número. */}
+      {semAnterior && (
+        <p className="-mt-2 text-[11px] text-cinza-escuro">
+          Nada lançado {comparado.replace(/^que /, "")}, então ainda não há comparação.
+        </p>
+      )}
+
       {relatorio.isPending && <p className="py-6 text-center text-[13px] text-cinza-escuro">Carregando...</p>}
       {relatorio.isError && <p className="py-6 text-center text-[13px] text-negativo">{relatorio.error.message}</p>}
 
-      {dados && numeros && numerosAntes && (
+      {dados && anterior && numeros && numerosAntes && (
         <div className="flex flex-col gap-[18px] lg:grid lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)] lg:items-start lg:gap-8">
-          {/* Esquerda: como foi o corre e os gráficos do tempo. */}
+          {/* Esquerda: o dinheiro do período e o corre, do geral para o detalhe. */}
           <div className="flex flex-col gap-[18px]">
-            <Tendencias
-              atual={numeros}
-              anterior={numerosAntes}
-              comparado={comparadoCom(periodo, emAndamento)}
-              nomePeriodo={quandoFoi(periodo)}
-              previsao={previsao}
-            />
+            {!clienteId && (
+              <ResumoDinheiro
+                nomePeriodo={quandoFoi(periodo)}
+                comparado={comparado}
+                atual={dinheiroDe(dados.atual)}
+                anterior={dinheiroDe(anterior)}
+                fontes={renda.fontes}
+              />
+            )}
+            <Tendencias atual={numeros} anterior={numerosAntes} comparado={comparado} />
             <GraficoBarras barras={receitaPorDia(receitas, dados.inicio, dados.fim)} />
             <MapaDoCorre celulas={mapaDoCorre(receitas)} />
-            {meses.length > 0 && (
-              <div className="flex flex-col gap-[18px] xl:grid xl:grid-cols-2 xl:items-start xl:gap-6">
-                <ComparativoMensal meses={meses} />
-                <EvolucaoSaldo meses={meses} />
-              </div>
-            )}
+            {meses.length > 0 && <ComparativoMensal meses={meses} />}
           </div>
 
-          {/* Direita: o bolso do mês, para onde vai o dinheiro, clientes e avisos. */}
+          {/* Direita: o mês que está correndo, clientes, gastos e avisos. */}
           <div className="flex flex-col gap-[18px] lg:sticky lg:top-6">
             {/* Saldo do mês inteiro: sem sentido com filtro de cliente ou outro período. */}
             {periodo.tipo === "mes" && !clienteId && <PrevisaoMes />}
@@ -150,40 +180,34 @@ export function TelaRelatorios() {
               aoMudarCriterio={setCriterioRanking}
               periodo={periodo}
             />
-            <section className="flex flex-col gap-2.5">
-              <div className="flex items-center justify-between text-[11px] font-semibold">
-                <h2 className="tracking-[0.66px] text-cinza">POR CATEGORIA</h2>
-                <span>Receitas · Despesas</span>
-              </div>
-              <div className="flex gap-3">
-                <Rosca
-                  titulo="Receitas pagas por categoria"
-                  total={categoriasReceita.total}
-                  fatias={categoriasReceita.fatias}
-                  cores={CORES_RECEITA}
-                  vazio="Sem receitas pagas."
-                />
+            {!clienteId && (
+              <section className="flex flex-col gap-2.5">
+                <h2 className="text-[11px] font-semibold tracking-[0.66px] text-cinza">PARA ONDE FOI O DINHEIRO</h2>
                 <Rosca
                   titulo="Despesas por categoria"
-                  total={categoriasDespesa.total}
-                  fatias={categoriasDespesa.fatias}
+                  total={gastos.total}
+                  fatias={gastos.fatias}
                   cores={CORES_DESPESA}
-                  vazio="Sem despesas."
+                  vazio="Sem despesas no período."
+                  rodape={
+                    <p className="flex justify-between border-t border-cinza-claro pt-2 text-[11px] text-cinza-escuro">
+                      <span>
+                        Do corre <Valor className="font-semibold text-marinho" texto={formatarMoeda(totaisGastos.despesasCorre)} />
+                      </span>
+                      <span>
+                        Pessoais <Valor className="font-semibold text-marinho" texto={formatarMoeda(totaisGastos.despesasPessoais)} />
+                      </span>
+                    </p>
+                  }
                 />
-              </div>
-            </section>
+              </section>
+            )}
             <ListaAvisos avisos={avisos} />
           </div>
         </div>
       )}
 
-      {painelAberto && (
-        <PainelCliente
-          clienteId={clienteId}
-          aoAplicar={setClienteId}
-          aoFechar={() => setPainelAberto(false)}
-        />
-      )}
+      {painelAberto && <PainelCliente clienteId={clienteId} aoAplicar={setClienteId} aoFechar={() => setPainelAberto(false)} />}
     </main>
   );
 }

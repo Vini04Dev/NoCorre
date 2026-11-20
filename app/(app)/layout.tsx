@@ -1,6 +1,7 @@
 import { BarraNavegacao } from "@/components/navegacao/BarraNavegacao";
 import { FaixaStatus } from "@/components/navegacao/FaixaStatus";
 import { MenuLateral } from "@/components/navegacao/MenuLateral";
+import { PreviaEnfeite } from "@/components/tema/PreviaEnfeite";
 import { GuardaTema } from "@/components/tema/TelaTema";
 import { Suspense } from "react";
 import { AvisoNovidades } from "@/components/novidades/AvisoNovidades";
@@ -27,9 +28,10 @@ export default async function LayoutApp({ children }: LayoutProps<"/">) {
       </div>
       <BarraNavegacao />
       <GuardaTema />
-      {/* useSearchParams (?aviso=) precisa de Suspense em volta. */}
+      {/* useSearchParams (?aviso=, ?enfeite=) precisa de Suspense em volta. */}
       <Suspense>
         <AvisoNovidades />
+        <PreviaEnfeite />
       </Suspense>
     </div>
   );

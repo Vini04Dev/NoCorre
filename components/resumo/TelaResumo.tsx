@@ -10,6 +10,7 @@ import { SeletorPeriodoAmplo } from "@/components/ui/SeletorPeriodoAmplo";
 import { useSaldosCarteiras, useTransferenciasDoPeriodo } from "@/hooks/useCarteiras";
 import { useCarteiraEmFoco } from "@/hooks/useCarteiraEmFoco";
 import { useClientes } from "@/hooks/useClientes";
+import { useOrdemPeriodos } from "@/hooks/useOrdemPeriodos";
 import { useEstadoDaTela } from "@/hooks/useEstadoDaTela";
 import { useMovimentacoes, usePendentes } from "@/hooks/useMovimentacoes";
 import {
@@ -19,7 +20,8 @@ import {
   type FiltroRapido,
   type Filtros,
 } from "@/lib/filtros";
-import { ehDaCarteira, movimentoDaCarteira } from "@/lib/carteiras";
+import { ehDasCarteiras, nomesCarteiras } from "@/lib/carteiras";
+import { Valor } from "@/components/ui/Valor";
 import { formatarMoeda } from "@/lib/formatar";
 import { intervaloDoPeriodo, nomeDoPeriodo, type FiltroPeriodo } from "@/lib/periodo";
 import { calcularTotais } from "@/lib/totais";
@@ -34,7 +36,8 @@ const RAPIDOS: { valor: FiltroRapido; rotulo: string }[] = [
 /** Extrato: saldo do período, filtros rápidos, painel de filtros e lista de movimentações. */
 export function TelaResumo({ dia }: { dia?: string }) {
   // Vindo do calendário da Home (?dia=), vale o dia clicado e o período salvo fica intacto.
-  const [periodoSalvo, setPeriodoSalvo] = useEstadoDaTela<FiltroPeriodo>("resumo:periodo", { tipo: "semana" });
+  const [ordem] = useOrdemPeriodos();
+  const [periodoSalvo, setPeriodoSalvo] = useEstadoDaTela<FiltroPeriodo>("resumo:periodo", { tipo: ordem[0] });
   const [periodoDoDia, setPeriodoDoDia] = useState<FiltroPeriodo | null>(
     dia ? { tipo: "personalizado", de: dia, ate: dia } : null,
   );
@@ -50,11 +53,12 @@ export function TelaResumo({ dia }: { dia?: string }) {
 
   // Carteira em foco (botão no topo): o extrato mostra só o que passou por ela.
   const emFoco = useCarteiraEmFoco();
-  const focada = emFoco.carteira;
-  const daqui = (id: string | null) => !focada || ehDaCarteira(id, focada.id, emFoco.principalId);
+  const filtro = emFoco.filtro;
+  const daqui = (id: string | null) => !filtro || ehDasCarteiras(id, filtro, emFoco.principalId);
   const { inicio, fim } = intervaloDoPeriodo(periodo);
-  const { data: transferencias } = useTransferenciasDoPeriodo(inicio, fim, Boolean(focada));
-  const { data: saldos } = useSaldosCarteiras(Boolean(focada));
+  const { data: transferencias } = useTransferenciasDoPeriodo(inicio, fim, Boolean(filtro));
+  const { data: saldos } = useSaldosCarteiras(Boolean(filtro));
+  const somaHoje = filtro && saldos ? emFoco.escolhidas.reduce((total, c) => total + (saldos.get(c.id) ?? 0), 0) : null;
   const dados = movimentacoes.data && {
     receitas: movimentacoes.data.receitas.filter((r) => daqui(r.carteira_id)),
     despesas: movimentacoes.data.despesas.filter((d) => daqui(d.carteira_id)),
@@ -111,12 +115,19 @@ export function TelaResumo({ dia }: { dia?: string }) {
         nomePeriodo={nomeDoPeriodo(periodo)}
         totais={totais}
         filtro={totaisFiltro ? { titulo: nomeCliente ?? "Com os filtros", ...totaisFiltro } : undefined}
-        carteira={
-          focada && dados && transferencias
-            ? { nome: focada.nome, saldo: saldos?.get(focada.id), ...movimentoDaCarteira(dados, transferencias, focada.id, emFoco.principalId) }
-            : undefined
-        }
       />
+      {/* Mesma leitura de "Todas as carteiras", só com o que passou por ela. */}
+      {filtro && (
+        <p className="-mt-1.5 text-[11px] leading-snug text-cinza-escuro">
+          Mostrando só <b className="text-marinho">{nomesCarteiras(emFoco.escolhidas.map((c) => c.nome))}</b>
+          {somaHoje !== null && (
+            <>
+              , {filtro.length > 1 ? "que somam" : "que tem"} <Valor texto={formatarMoeda(somaHoje)} /> hoje
+            </>
+          )}
+          {transferencias?.length ? ". Transferências entre carteiras ficam na tela Carteiras." : "."}
+        </p>
+      )}
 
       <div role="radiogroup" aria-label="Mostrar" className="-mx-[17px] flex gap-2 overflow-x-auto px-[17px] lg:mx-0 lg:flex-wrap lg:px-0">
         {RAPIDOS.map(({ valor, rotulo }) => {

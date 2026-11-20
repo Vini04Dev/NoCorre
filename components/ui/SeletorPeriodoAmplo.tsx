@@ -1,30 +1,46 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useState } from "react";
+import { OrdenarPeriodos } from "./OrdenarPeriodos";
+import { useOrdemPeriodos } from "@/hooks/useOrdemPeriodos";
 import { dataHoraParaCampos } from "@/lib/data";
-import type { FiltroPeriodo } from "@/lib/periodo";
+import type { FiltroPeriodo, Periodo } from "@/lib/periodo";
 
-const OPCOES: { valor: FiltroPeriodo["tipo"]; rotulo: string }[] = [
-  { valor: "dia", rotulo: "Hoje" },
-  { valor: "semana", rotulo: "Esta semana" },
-  { valor: "mes", rotulo: "Este mês" },
+const ROTULOS: Record<Periodo, string> = { dia: "Hoje", semana: "Esta semana", mes: "Este mês" };
+const EXTRAS: { valor: FiltroPeriodo["tipo"]; rotulo: string }[] = [
   { valor: "mes-passado", rotulo: "Mês passado" },
   { valor: "personalizado", rotulo: "Escolher datas..." },
 ];
+/** Opção que não é período: abre o painel da ordem. */
+const ORDENAR = "ordenar";
 
 const CLASSE_CAMPO =
   "min-w-0 rounded-[10px] border border-cinza-claro bg-white px-3 py-[9px] text-[13px] outline-none focus:border-dourado";
 
-type Props = { valor: FiltroPeriodo; aoMudar: (valor: FiltroPeriodo) => void };
+type Props = {
+  valor: FiltroPeriodo;
+  aoMudar: (valor: FiltroPeriodo) => void;
+  /** No Início o calendário anda de mês em mês pelas setas, então "Mês passado" sobra. */
+  semMesPassado?: boolean;
+};
 
 /**
- * Período do Resumo e dos Relatórios: atalhos num select e, em "Escolher datas",
- * um intervalo livre de/até.
+ * Período do Início, do Resumo e dos Relatórios: atalhos num select e, em
+ * "Escolher datas", um intervalo livre de/até. Dia, Semana e Mês aparecem na
+ * ordem que a pessoa escolheu ("Mudar a ordem...", no fim da lista).
  */
-export function SeletorPeriodoAmplo({ valor, aoMudar }: Props) {
+export function SeletorPeriodoAmplo({ valor, aoMudar, semMesPassado }: Props) {
   const id = useId();
+  const [ordem] = useOrdemPeriodos();
+  const [ordenando, setOrdenando] = useState(false);
+  const extras = semMesPassado ? EXTRAS.filter((e) => e.valor !== "mes-passado") : EXTRAS;
+  const opcoes = [...ordem.map((p) => ({ valor: p as FiltroPeriodo["tipo"], rotulo: ROTULOS[p] })), ...extras];
 
-  function escolher(tipo: FiltroPeriodo["tipo"]) {
+  function escolher(tipo: FiltroPeriodo["tipo"] | typeof ORDENAR) {
+    if (tipo === ORDENAR) {
+      setOrdenando(true);
+      return;
+    }
     if (tipo !== "personalizado") {
       aoMudar({ tipo });
       return;
@@ -46,15 +62,17 @@ export function SeletorPeriodoAmplo({ valor, aoMudar }: Props) {
       <select
         id={id}
         value={valor.tipo}
-        onChange={(evento) => escolher(evento.target.value as FiltroPeriodo["tipo"])}
+        onChange={(evento) => escolher(evento.target.value as FiltroPeriodo["tipo"] | typeof ORDENAR)}
         className="h-[38px] appearance-none rounded-[10px] bg-cinza-fundo bg-[url('/icones/seta-baixo.svg')] bg-[right_14px_center] bg-no-repeat px-[14px] font-inter text-[13px] font-semibold text-texto-segmento shadow-segmento outline-none focus:ring-1 focus:ring-dourado"
       >
-        {OPCOES.map((opcao) => (
+        {opcoes.map((opcao) => (
           <option key={opcao.valor} value={opcao.valor}>
             {opcao.rotulo}
           </option>
         ))}
+        <option value={ORDENAR}>Mudar a ordem...</option>
       </select>
+      {ordenando && <OrdenarPeriodos aoFechar={() => setOrdenando(false)} />}
 
       {valor.tipo === "personalizado" && (
         <div className="grid grid-cols-2 gap-2.5">

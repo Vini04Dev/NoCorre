@@ -55,7 +55,22 @@ export function formatarKm(km: number) {
   return `${Math.round(km).toLocaleString("pt-BR")} km`;
 }
 
-/** CG 160 (Fan, Start, Titan): a única moto com fotos por enquanto; as outras mostram "Em breve". */
-export function ehCg160(modelo: string | null | undefined) {
-  return /\b(fan|cg\s*-?\s*160)\b/i.test(modelo ?? "");
+/**
+ * Motos com fotos no app; as outras mostram "Em breve". O modelo vem do texto
+ * livre do Perfil ("Honda CG 160 Fan", "Honda CG 150"), por isso a busca é por
+ * padrão. As fotos de todas seguem o mesmo enquadramento (950 × 466, mesmos
+ * ângulos), então as manchas do mapa de calor servem para todas.
+ *
+ * `liberado: false` deixa o modelo só na prévia do Painel do sistema, para
+ * conferir antes de aparecer para quem tem essa moto.
+ */
+const MODELOS_COM_FOTOS = [
+  { pasta: "/moto/fan160", padrao: /\b(fan|cg\s*-?\s*160)\b/i, liberado: true },
+  { pasta: "/moto/titan150", padrao: /\b(titan|cg)\s*-?\s*150\b/i, liberado: true },
+];
+
+/** Pasta das fotos da moto, ou null quando o modelo ainda não tem fotos (ou não foi liberado). */
+export function fotosDaMoto(modelo: string | null | undefined, previa = false) {
+  const achado = MODELOS_COM_FOTOS.find((m) => m.padrao.test(modelo ?? ""));
+  return achado && (achado.liberado || previa) ? achado.pasta : null;
 }

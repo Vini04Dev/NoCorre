@@ -60,3 +60,28 @@ test("frases da regra", () => {
   assert.equal(fraseRegra({ tipo: "semanal", diasSemana: [1, 2, 3, 4, 5] }), "De segunda a sexta");
   assert.equal(fraseRegra({ tipo: "semanal", diasSemana: [0, 1, 2, 3, 4, 5, 6] }), "Todo dia");
 });
+
+test("dias escolhidos: exatamente as datas marcadas, em ordem e sem repetir", () => {
+  const datas = ["2027-01-07", "2026-11-20", "2026-12-05", "2026-12-05", "2026-12-17"];
+  const dias = diasDaRepeticao(dia("2026-11-20"), { tipo: "mensal", diasSemana: [], datas }, dia("2026-11-20")).map(texto);
+  assert.deepEqual(dias, ["2026-11-20", "2026-12-05", "2026-12-17", "2027-01-07"]);
+});
+
+test("dias escolhidos ignoram datas antes do início e depois de 1 ano", () => {
+  const datas = ["2026-11-10", "2026-11-20", "2027-11-20", "2027-11-21"];
+  const dias = diasDaRepeticao(dia("2026-11-20"), { tipo: "mensal", diasSemana: [], datas }, dia("2027-12-31")).map(texto);
+  assert.deepEqual(dias, ["2026-11-20", "2027-11-20"]);
+});
+
+test("frases dos dias escolhidos", () => {
+  assert.equal(fraseRegra({ tipo: "mensal", diasSemana: [], datas: ["2026-12-05"] }), "Só em 05/12");
+  assert.equal(
+    fraseRegra({ tipo: "mensal", diasSemana: [], datas: ["2027-01-09", "2026-11-20", "2026-12-05"] }),
+    "Nos dias 20/11, 05/12 e 09/01",
+  );
+  assert.equal(
+    fraseRegra({ tipo: "mensal", diasSemana: [], datas: ["2026-11-20", "2026-11-27", "2026-12-05", "2026-12-18", "2027-01-08"] }),
+    "5 dias escolhidos, de 20/11 a 08/01",
+  );
+  assert.equal(fraseRegra({ tipo: "mensal", diasSemana: [] }, dia("2026-11-09")), "Todo mês, dia 9");
+});

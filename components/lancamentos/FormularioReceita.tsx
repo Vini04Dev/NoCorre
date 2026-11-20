@@ -37,7 +37,7 @@ const SITUACOES: { valor: StatusPagamento; rotulo: string; cor: string }[] = [
 type Erros = { cliente?: string; categoria?: string; quantidade?: string; valor?: string };
 
 /** Lança uma receita nova ou, recebendo `receita`, edita a existente. */
-export function FormularioReceita({ receita }: { receita?: Receita }) {
+export function FormularioReceita({ receita, dataInicial }: { receita?: Receita; dataInicial?: string }) {
   const router = useRouter();
   const idCliente = useId();
   const { data: clientes, isPending: carregandoClientes } = useClientes();
@@ -51,13 +51,13 @@ export function FormularioReceita({ receita }: { receita?: Receita }) {
   const { data: categoriaDoCliente } = useCategoriaPorCliente();
   const [categoriaEscolhida, setCategoria] = useState<string | null>(receita?.tipo ?? null);
   const categoria = categoriaEscolhida ?? categoriaDoCliente?.get(clienteId) ?? CATEGORIAS_PADRAO.receita[0];
-  const [valores, setValores] = useState<Valores>(() => valoresIniciais(receita));
+  const [valores, setValores] = useState<Valores>(() => valoresIniciais(receita, dataInicial));
   const [forma, setForma] = useState<FormaPagamento | null>(receita?.forma_pagamento ?? null);
   const [situacao, setSituacao] = useState<StatusPagamento>(receita?.status_pagamento ?? "pago");
   const [observacao, setObservacao] = useState(receita?.observacao ?? "");
   // undefined = ninguém mexeu (não manda a coluna); null = carteira principal.
   const [carteiraId, setCarteiraId] = useState<string | null | undefined>(receita?.carteira_id);
-  // Lançamento novo sem escolha: a carteira em foco no Início (à vista no campo Carteira).
+  // Lançamento novo sem escolha: a carteira marcada no botão de carteira, quando é uma só (à vista no campo Carteira).
   const { carteira: emFoco } = useCarteiraEmFoco();
   const carteiraEfetiva = carteiraId !== undefined ? carteiraId : emFoco?.id;
   const [erros, setErros] = useState<Erros>({});

@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { criarClienteNavegador } from "@/lib/supabase/cliente";
 import { traduzirErroBanco } from "@/lib/supabase/erros-banco";
+import { paraCampoData } from "@/lib/agenda";
 import { comHora, diasDaRepeticao, type DiaSemana, type RegraRepeticao } from "@/lib/repeticao";
 import type { Tables, TablesInsert } from "@/types/database";
 
@@ -79,8 +80,8 @@ export function useDescricoesEventos() {
 
 /**
  * Como a série está hoje, para abrir a edição já preenchida: o último dia (o
- * "Até") e os dias da semana em que ela cai. Os dias saem dos próprios eventos,
- * sem coluna à parte.
+ * "Até"), os dias da semana em que ela cai e as datas exatas. Tudo sai dos
+ * próprios eventos, sem coluna à parte.
  */
 export function useSerie(serieId: string | null | undefined) {
   return useQuery({
@@ -97,6 +98,8 @@ export function useSerie(serieId: string | null | undefined) {
       return {
         fim: datas.at(-1) ?? null,
         diasSemana: [...new Set(datas.map((d) => d.getDay() as DiaSemana))],
+        // Datas exatas (AAAA-MM-DD), para o calendário de dias escolhidos.
+        datas: datas.map(paraCampoData),
       };
     },
   });

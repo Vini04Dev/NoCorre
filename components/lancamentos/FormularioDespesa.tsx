@@ -33,10 +33,12 @@ type Props = {
   contaInicial?: string;
   /** Conta fixa sendo paga: vem preenchida e a despesa fica ligada a ela. */
   fixa?: ContaFixa;
+  /** Dia tocado no calendário do Início ("2026-11-15"). */
+  dataInicial?: string;
 };
 
 /** Lança uma despesa nova ou, recebendo `despesa`, edita a existente. */
-export function FormularioDespesa({ despesa, contaInicial, fixa }: Props) {
+export function FormularioDespesa({ despesa, contaInicial, fixa, dataInicial }: Props) {
   const router = useRouter();
   const salvar = useSalvarDespesa();
   const { data: contas } = useContasEmAberto();
@@ -59,7 +61,7 @@ export function FormularioDespesa({ despesa, contaInicial, fixa }: Props) {
     setDoCorreEscolhido(null);
   }
   const [valores, setValores] = useState<Valores>(() =>
-    valoresIniciais(despesa ?? (fixa && { data_hora: new Date().toISOString(), quantidade: 1, valor_unitario: fixa.valor })),
+    valoresIniciais(despesa ?? (fixa && { data_hora: new Date().toISOString(), quantidade: 1, valor_unitario: fixa.valor }), dataInicial),
   );
   const [contaId, setContaId] = useState<string | null>(despesa?.meta_id ?? contaInicial ?? null);
   const [erros, setErros] = useState<Erros>({});
@@ -67,7 +69,7 @@ export function FormularioDespesa({ despesa, contaInicial, fixa }: Props) {
   const [carteiraId, setCarteiraId] = useState<string | null | undefined>(
     despesa ? despesa.carteira_id : fixa ? fixa.carteira_id : undefined,
   );
-  // Lançamento novo sem escolha: a carteira em foco no Início (à vista no campo Carteira).
+  // Lançamento novo sem escolha: a carteira marcada no botão de carteira, quando é uma só (à vista no campo Carteira).
   const { carteira: emFoco } = useCarteiraEmFoco();
   const carteiraEfetiva = carteiraId !== undefined ? carteiraId : emFoco?.id;
 

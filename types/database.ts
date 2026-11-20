@@ -153,15 +153,23 @@ export type Database = {
           usuario_id?: string
           valor?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "contas_fixas_carteira_id_usuario_id_fkey"
+            columns: ["carteira_id", "usuario_id"]
+            isOneToOne: false
+            referencedRelation: "carteiras"
+            referencedColumns: ["id", "usuario_id"]
+          },
+        ]
       }
       despesas: {
         Row: {
           carteira_id: string | null
           conta_fixa_id: string | null
-          do_corre: boolean
           created_at: string
           data_hora: string
+          do_corre: boolean
           id: string
           meta_id: string | null
           observacao: string | null
@@ -174,9 +182,9 @@ export type Database = {
         Insert: {
           carteira_id?: string | null
           conta_fixa_id?: string | null
-          do_corre?: boolean
           created_at?: string
           data_hora?: string
+          do_corre?: boolean
           id?: string
           meta_id?: string | null
           observacao?: string | null
@@ -189,9 +197,9 @@ export type Database = {
         Update: {
           carteira_id?: string | null
           conta_fixa_id?: string | null
-          do_corre?: boolean
           created_at?: string
           data_hora?: string
+          do_corre?: boolean
           id?: string
           meta_id?: string | null
           observacao?: string | null
@@ -202,6 +210,20 @@ export type Database = {
           valor_unitario?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "despesas_carteira_id_usuario_id_fkey"
+            columns: ["carteira_id", "usuario_id"]
+            isOneToOne: false
+            referencedRelation: "carteiras"
+            referencedColumns: ["id", "usuario_id"]
+          },
+          {
+            foreignKeyName: "despesas_conta_fixa_id_usuario_id_fkey"
+            columns: ["conta_fixa_id", "usuario_id"]
+            isOneToOne: false
+            referencedRelation: "contas_fixas"
+            referencedColumns: ["id", "usuario_id"]
+          },
           {
             foreignKeyName: "despesas_meta_fk"
             columns: ["meta_id", "usuario_id"]
@@ -242,7 +264,15 @@ export type Database = {
           usuario_id?: string
           valor?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "entradas_carteira_id_usuario_id_fkey"
+            columns: ["carteira_id", "usuario_id"]
+            isOneToOne: false
+            referencedRelation: "carteiras"
+            referencedColumns: ["id", "usuario_id"]
+          },
+        ]
       }
       eventos: {
         Row: {
@@ -396,6 +426,7 @@ export type Database = {
       perfis: {
         Row: {
           ano_veiculo: number | null
+          carteiras_visiveis: string[] | null
           created_at: string
           foto: string | null
           id: string
@@ -408,6 +439,7 @@ export type Database = {
         }
         Insert: {
           ano_veiculo?: number | null
+          carteiras_visiveis?: string[] | null
           created_at?: string
           foto?: string | null
           id: string
@@ -420,6 +452,7 @@ export type Database = {
         }
         Update: {
           ano_veiculo?: number | null
+          carteiras_visiveis?: string[] | null
           created_at?: string
           foto?: string | null
           id?: string
@@ -484,6 +517,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "receitas_carteira_id_usuario_id_fkey"
+            columns: ["carteira_id", "usuario_id"]
+            isOneToOne: false
+            referencedRelation: "carteiras"
+            referencedColumns: ["id", "usuario_id"]
+          },
+          {
             foreignKeyName: "receitas_cliente_id_usuario_id_fkey"
             columns: ["cliente_id", "usuario_id"]
             isOneToOne: false
@@ -523,7 +563,22 @@ export type Database = {
           usuario_id?: string
           valor?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "transferencias_destino_id_usuario_id_fkey"
+            columns: ["destino_id", "usuario_id"]
+            isOneToOne: false
+            referencedRelation: "carteiras"
+            referencedColumns: ["id", "usuario_id"]
+          },
+          {
+            foreignKeyName: "transferencias_origem_id_usuario_id_fkey"
+            columns: ["origem_id", "usuario_id"]
+            isOneToOne: false
+            referencedRelation: "carteiras"
+            referencedColumns: ["id", "usuario_id"]
+          },
+        ]
       }
     }
     Views: {
@@ -532,9 +587,15 @@ export type Database = {
     Functions: {
       eh_pro: { Args: never; Returns: boolean }
       excluir_minha_conta: { Args: never; Returns: undefined }
-      saldos_carteiras: { Args: never; Returns: { carteira_id: string; saldo: number }[] }
       metricas_admin: { Args: never; Returns: Json }
       metricas_usuario_admin: { Args: { p_usuario: string }; Returns: Json }
+      saldos_carteiras: {
+        Args: never
+        Returns: {
+          carteira_id: string
+          saldo: number
+        }[]
+      }
     }
     Enums: {
       cor_evento: "amarelo" | "verde" | "vermelho" | "azul" | "roxo" | "cinza"

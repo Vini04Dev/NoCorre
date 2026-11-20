@@ -51,6 +51,7 @@ export function FormularioEvento({ evento, dataInicial }: { evento?: Evento; dat
   // série (na edição) ou o padrão: o dia da semana da data escolhida.
   const [ateEscolhido, setAteEscolhido] = useState<string | null>(null);
   const [diasEscolhidos, setDiasEscolhidos] = useState<DiaSemana[] | null>(null);
+  const [datasEscolhidas, setDatasEscolhidas] = useState<string[] | null>(null);
   const { data: serie } = useSerie(evento?.serie_id);
   const [erros, setErros] = useState<Erros>({});
   const [confirmando, setConfirmando] = useState(false);
@@ -61,14 +62,21 @@ export function FormularioEvento({ evento, dataInicial }: { evento?: Evento; dat
   const mesmaRegra = tipo === tipoInicial && Boolean(serie);
   const diasSemana: DiaSemana[] =
     diasEscolhidos ?? (mesmaRegra && serie ? serie.diasSemana : dia ? [dia.getDay() as DiaSemana] : []);
-  const ate =
-    ateEscolhido ??
-    (mesmaRegra && serie?.fim ? paraCampoData(serie.fim) : repete && dia ? paraCampoData(fimPadrao(dia, tipo)) : "");
+  // Dias escolhidos: na edição, as datas da série deste dia em diante; a data do evento sempre entra.
+  const datas: string[] = (() => {
+    const base = datasEscolhidas ?? (mesmaRegra && serie ? serie.datas : []);
+    return dia ? [...new Set([data, ...base.filter((d) => d >= data)])].sort() : base;
+  })();
+  const porDatas = tipo === "mensal";
+  const ate = porDatas
+    ? (datas.at(-1) ?? "")
+    : (ateEscolhido ??
+      (mesmaRegra && serie?.fim ? paraCampoData(serie.fim) : repete && dia ? paraCampoData(fimPadrao(dia, tipo)) : ""));
   const dataAte = deCampoData(ate);
-  const regra: RegraRepeticao | null = repete ? { tipo, diasSemana } : null;
+  const regra: RegraRepeticao | null = repete ? { tipo, diasSemana, datas: porDatas ? datas : undefined } : null;
   const quantos = regra && dia && dataAte ? diasDaRepeticao(dia, regra, dataAte).length : 1;
   // Mudar a regra só faz sentido "deste em diante": "Só este" não é oferecido.
-  const mudouRepeticao = tipo !== tipoInicial || ateEscolhido !== null || diasEscolhidos !== null;
+  const mudouRepeticao = tipo !== tipoInicial || ateEscolhido !== null || diasEscolhidos !== null || datasEscolhidas !== null;
 
   function validar() {
     const novos: Erros = {};
@@ -159,6 +167,8 @@ export function FormularioEvento({ evento, dataInicial }: { evento?: Evento; dat
           }}
           diasSemana={diasSemana}
           aoMudarDias={setDiasEscolhidos}
+          datas={datas}
+          aoMudarDatas={setDatasEscolhidas}
           ate={ate}
           aoMudarAte={setAteEscolhido}
           inicio={dia}

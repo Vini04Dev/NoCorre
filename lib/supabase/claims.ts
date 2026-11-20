@@ -6,10 +6,17 @@ import { isAuthRetryableFetchError, type SupabaseClient } from "@supabase/supaba
  * tratada como visitante naquela requisição: via a landing ou ia para Entrar,
  * mesmo com o cookie de login intacto. Erro de token inválido não é repetido.
  */
-export async function validarClaims(supabase: { auth: Pick<SupabaseClient["auth"], "getClaims"> }) {
+export async function validarClaims(
+  supabase: { auth: Pick<SupabaseClient["auth"], "getClaims"> },
+  /** Recebe o código do erro quando a sessão não vale (diagnóstico, sem dados da pessoa). */
+  aoFalhar?: (codigo: string) => void,
+) {
   for (let tentativa = 0; ; tentativa += 1) {
     const { data, error } = await supabase.auth.getClaims();
-    if (!error || !isAuthRetryableFetchError(error) || tentativa >= 1) return data?.claims ?? null;
+    if (!error || !isAuthRetryableFetchError(error) || tentativa >= 1) {
+      if (error) aoFalhar?.(error.code ?? error.name);
+      return data?.claims ?? null;
+    }
     await new Promise((pronto) => setTimeout(pronto, 150));
   }
 }
