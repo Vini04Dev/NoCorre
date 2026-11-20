@@ -2,11 +2,12 @@ import { contaComoEntrega } from "./categorias-padrao";
 import type { Despesa, Receita } from "@/hooks/useMovimentacoes";
 
 /*
- * Cálculos da tela de Relatórios. Funções puras: recebem as listas já buscadas
- * e devolvem o que cada bloco desenha. Valores em reais, somados em centavos.
+ * Cálculos do corre na tela de Relatórios (a renda total e o mês a mês ficam em
+ * lib/renda.ts). Funções puras: recebem as listas já buscadas e devolvem o que
+ * cada bloco desenha. Valores em reais, somados em centavos.
  *
- * Regra 1: dinheiro (barras, rosca de receitas, horário rentável) usa só receitas
- * pagas. Contagem de trabalho (ranking de clientes) usa todas, como na Home.
+ * Regra 1: dinheiro (barras, mapa do corre) usa só receitas pagas. Contagem de
+ * trabalho (ranking de clientes, entregas) usa todas, como no Início.
  */
 
 const centavos = (valor: number | null) => Math.round((valor ?? 0) * 100);
@@ -123,19 +124,19 @@ export function rankingClientes(receitas: Receita[], criterio: CriterioRanking =
   return { total: criterio === "valor" ? total / 100 : total, posicoes };
 }
 
-export type Aviso = { icone: "alta" | "horario" | "pendente"; titulo: string; detalhe: string };
+export type Aviso = { icone: "alta" | "pendente"; titulo: string; detalhe: string };
 
 const DIAS_PENDENTE_PARA_AVISAR = 3;
 const AUMENTO_MINIMO_PARA_AVISAR = 10; // %
 
 /**
- * Avisos automáticos ("Atenção na operação"):
+ * Avisos automáticos ("Atenção"), só o que pede uma ação:
  * - categoria de despesa que subiu em relação ao período anterior de mesmo tamanho;
- * - faixa de 3 horas que mais rendeu receita paga;
  * - receita pendente há vários dias, a mais antiga de cada cliente.
+ * O melhor horário fica no Mapa do corre, para não aparecer duas vezes.
  */
 export function gerarAvisos(
-  atual: { receitas: Receita[]; despesas: Despesa[] },
+  atual: { despesas: Despesa[] },
   anterior: { despesas: Despesa[] },
   pendentes: Receita[],
   agora = new Date(),
@@ -169,22 +170,7 @@ export function gerarAvisos(
     });
   }
 
-  // 2. Faixa de horário mais rentável.
-  const faixas = new Array<number>(8).fill(0);
-  for (const r of pagas(atual.receitas)) {
-    faixas[Math.floor(new Date(r.data_hora).getHours() / 3)] += centavos(r.valor_total);
-  }
-  const totalPago = faixas.reduce((a, b) => a + b, 0);
-  if (totalPago > 0) {
-    const melhor = faixas.indexOf(Math.max(...faixas));
-    avisos.push({
-      icone: "horario",
-      titulo: `Horário mais rentável: ${melhor * 3}h às ${melhor * 3 + 3}h`,
-      detalhe: `${moeda(faixas[melhor])} dos ${moeda(totalPago)} recebidos no período saíram desse horário.`,
-    });
-  }
-
-  // 3. Pendências antigas, uma por cliente, das mais antigas para as mais novas.
+  // 2. Pendências antigas, uma por cliente, das mais antigas para as mais novas.
   const porCliente = new Map<string, { valor: number; desde: Date }>();
   for (const r of pendentes) {
     const nome = r.clientes?.nome ?? "Sem cliente";
@@ -211,7 +197,7 @@ export function gerarAvisos(
   return avisos;
 }
 
-/* ---------- Tendências, mapa do corre e evolução mensal ---------- */
+/* ---------- Números do corre e mapa do corre ---------- */
 
 type ItemValor = { valor_total: number | null };
 type ItemReceita = ItemValor & { tipo: string; status_pagamento: string; quantidade: number };
@@ -235,8 +221,10 @@ export type NumerosCorre = {
   porEntrega: number;
   /** Recebido dividido pelos dias trabalhados. */
   porDia: number;
-  /** Custo do corre a cada R$ 100 recebidos. */
-  custoACada100: number;
+  /** Despesas do corre, em reais. */
+  custo: number;
+  /** Quanto do recebido foi para os custos do corre, de 0 a 100. */
+  custoPercentual: number;
   /** Categoria de despesa do corre que mais pesou, se houver. */
   maiorCusto: string | null;
 };
@@ -263,7 +251,8 @@ export function numerosDoCorre(dados: { receitas: (ItemReceita & { data_hora: st
     diasTrabalhados: dias,
     porEntrega: entregasPagas ? recebido / entregasPagas / 100 : 0,
     porDia: dias ? recebido / dias / 100 : 0,
-    custoACada100: recebido ? Math.round((custo / recebido) * 100) : 0,
+    custo: custo / 100,
+    custoPercentual: recebido ? Math.round((custo / recebido) * 100) : 0,
     maiorCusto: maior ? maior[0] : null,
   };
 }
@@ -286,60 +275,15 @@ export function mapaDoCorre(receitas: (ItemReceita & { data_hora: string })[]) {
   return celulas.map((linha) => linha.map((valor) => valor / 100));
 }
 
-const MESES_CURTOS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-
-export type Mes = { rotulo: string; receita: number; despesa: number; saldo: number; acumulado: number };
-
-/** Receita paga, despesas e saldo de cada mês a partir de `inicio`, e o saldo acumulado. */
-export function porMes(
-  receitas: (ItemReceita & { data_hora: string })[],
-  despesas: (ItemValor & { data_hora: string })[],
-  inicio: Date,
-  meses: number,
-): Mes[] {
-  const indice = (dataHora: string) => {
-    const data = new Date(dataHora);
-    return (data.getFullYear() - inicio.getFullYear()) * 12 + data.getMonth() - inicio.getMonth();
-  };
-  const receita = new Array<number>(meses).fill(0);
-  const despesa = new Array<number>(meses).fill(0);
-  for (const r of receitas) {
-    const i = indice(r.data_hora);
-    if (r.status_pagamento === "pago" && i >= 0 && i < meses) receita[i] += centavos(r.valor_total);
-  }
-  for (const d of despesas) {
-    const i = indice(d.data_hora);
-    if (i >= 0 && i < meses) despesa[i] += centavos(d.valor_total);
-  }
-  let acumulado = 0;
-  return receita.map((valor, i) => {
-    const saldo = valor - despesa[i];
-    acumulado += saldo;
-    const mes = new Date(inicio.getFullYear(), inicio.getMonth() + i, 1);
-    return {
-      rotulo: MESES_CURTOS[mes.getMonth()],
-      receita: valor / 100,
-      despesa: despesa[i] / 100,
-      saldo: saldo / 100,
-      acumulado: acumulado / 100,
-    };
-  });
-}
-
 /**
- * Previsão para o fim do mês atual no ritmo de hoje: o que entrou e saiu até
- * agora, dividido pelos dias corridos e multiplicado pelos dias do mês.
- * Só faz sentido a partir do 3º dia; antes disso devolve null.
+ * Quanto o corre ainda deve render até o fim do mês atual, no ritmo de hoje:
+ * o recebido até agora dividido pelos dias corridos, vezes os dias que faltam.
+ * Só faz sentido a partir do 3º dia; antes disso (ou no último dia) devolve null.
  */
-export function previsaoDoMes(receitaPaga: number, despesas: number, hoje = new Date()) {
+export function ritmoAteOFimDoMes(recebidoNoMes: number, hoje = new Date()) {
   const diasNoMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).getDate();
   const corridos = hoje.getDate();
-  if (corridos < 3) return null;
-  const fator = diasNoMes / corridos;
-  return {
-    receita: receitaPaga * fator,
-    despesa: despesas * fator,
-    saldo: (receitaPaga - despesas) * fator,
-    diasRestantes: diasNoMes - corridos,
-  };
+  const diasRestantes = diasNoMes - corridos;
+  if (corridos < 3 || diasRestantes === 0) return null;
+  return { aMais: Math.round((recebidoNoMes / corridos) * diasRestantes * 100) / 100, diasRestantes };
 }
