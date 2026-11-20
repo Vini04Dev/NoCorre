@@ -17,18 +17,24 @@ const ORDENAR = "ordenar";
 const CLASSE_CAMPO =
   "min-w-0 rounded-[10px] border border-cinza-claro bg-white px-3 py-[9px] text-[13px] outline-none focus:border-dourado";
 
-type Props = { valor: FiltroPeriodo; aoMudar: (valor: FiltroPeriodo) => void };
+type Props = {
+  valor: FiltroPeriodo;
+  aoMudar: (valor: FiltroPeriodo) => void;
+  /** No Início o calendário anda de mês em mês pelas setas, então "Mês passado" sobra. */
+  semMesPassado?: boolean;
+};
 
 /**
  * Período do Início, do Resumo e dos Relatórios: atalhos num select e, em
  * "Escolher datas", um intervalo livre de/até. Dia, Semana e Mês aparecem na
  * ordem que a pessoa escolheu ("Mudar a ordem...", no fim da lista).
  */
-export function SeletorPeriodoAmplo({ valor, aoMudar }: Props) {
+export function SeletorPeriodoAmplo({ valor, aoMudar, semMesPassado }: Props) {
   const id = useId();
   const [ordem] = useOrdemPeriodos();
   const [ordenando, setOrdenando] = useState(false);
-  const opcoes = [...ordem.map((p) => ({ valor: p as FiltroPeriodo["tipo"], rotulo: ROTULOS[p] })), ...EXTRAS];
+  const extras = semMesPassado ? EXTRAS.filter((e) => e.valor !== "mes-passado") : EXTRAS;
+  const opcoes = [...ordem.map((p) => ({ valor: p as FiltroPeriodo["tipo"], rotulo: ROTULOS[p] })), ...extras];
 
   function escolher(tipo: FiltroPeriodo["tipo"] | typeof ORDENAR) {
     if (tipo === ORDENAR) {

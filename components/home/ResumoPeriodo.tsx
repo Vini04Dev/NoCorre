@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { AtalhoMoto } from "./AtalhoMoto";
 import { Calendario } from "./Calendario";
 import { PainelLancamento } from "@/components/lancamentos/PainelLancamento";
 import { LinhaValor, SubLinhaValor } from "@/components/ui/LinhaValor";
@@ -56,12 +55,18 @@ function tituloDoIntervalo(tipo: FiltroPeriodo["tipo"], inicio: Date, fim: Date)
  */
 export function ResumoPeriodo() {
   const [ordem] = useOrdemPeriodos();
-  const [periodo, setPeriodoEscolhido] = useEstadoDaTela<FiltroPeriodo>("home:periodo", { tipo: ordem[0] });
-  // Quantas semanas ou meses antes (negativo) ou depois de agora.
-  const [passo, setPasso] = useEstadoDaTela("home:passo", 0);
+  const [escolhido, setPeriodoEscolhido] = useEstadoDaTela<FiltroPeriodo>("home:periodo", { tipo: ordem[0] });
+  // "Mês passado" saiu do Início (as setas do calendário fazem isso); quem tinha ficado nele volta para o mês.
+  const periodo: FiltroPeriodo = escolhido.tipo === "mes-passado" ? { tipo: "mes" } : escolhido;
+  // Quantas semanas ou meses antes (negativo) ou depois de agora. Só vale no calendário, onde ficam as setas.
+  const [passoGuardado, setPasso] = useEstadoDaTela("home:passo", 0);
   const [visao, setVisao] = useEstadoDaTela<Visao>("home:visao", "lista");
   const [diaParaLancar, setDiaParaLancar] = useState<string | null>(null);
-  const navegavel = periodo.tipo === "semana" || periodo.tipo === "mes";
+  // "Hoje" é sempre a lista: um calendário de um quadrado só não diz nada.
+  const permiteCalendario = periodo.tipo !== "dia";
+  const mostrarCalendario = permiteCalendario && visao === "calendario";
+  const navegavel = mostrarCalendario && (periodo.tipo === "semana" || periodo.tipo === "mes");
+  const passo = navegavel ? passoGuardado : 0;
   const { inicio, fim } = intervaloDoPeriodo(periodo, navegavel ? referencia(periodo.tipo, passo) : undefined);
   // Fora de "agora" a busca é pelo intervalo exato (o Resumo também abre nele).
   const periodoVisto: FiltroPeriodo =
@@ -89,10 +94,6 @@ export function ResumoPeriodo() {
     setPasso(0);
   }
 
-  // "Hoje" é sempre a lista: um calendário de um quadrado só não diz nada.
-  const permiteCalendario = periodo.tipo !== "dia";
-  const mostrarCalendario = permiteCalendario && visao === "calendario";
-
   // Tocar numa linha abre o Resumo no mesmo período, já com o filtro daquela linha.
   const router = useRouter();
   const abrirResumo = (rapido: FiltroRapido, filtros: Filtros = FILTROS_VAZIOS) => () => {
@@ -104,10 +105,9 @@ export function ResumoPeriodo() {
 
   return (
     <section className="flex flex-col gap-[21px]">
-      <AtalhoMoto />
       <div className="flex items-start gap-2">
         <div className="min-w-0 flex-1">
-          <SeletorPeriodoAmplo valor={periodo} aoMudar={setPeriodo} />
+          <SeletorPeriodoAmplo valor={periodo} aoMudar={setPeriodo} semMesPassado />
         </div>
         {permiteCalendario && (
           <button

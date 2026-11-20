@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { cookies, headers } from "next/headers";
 import { Suspense } from "react";
+import { AtalhoMoto } from "@/components/home/AtalhoMoto";
 import { AvisoPrimeiroUso } from "@/components/home/AvisoPrimeiroUso";
 import { AvisoProChegou } from "@/components/pro/AvisoProChegou";
 import { CabecalhoHome } from "@/components/home/CabecalhoHome";
@@ -66,6 +67,8 @@ async function Home() {
           <Suspense>
             <LinhaUrgente />
           </Suspense>
+          {/* Em cima do saldo: atualizar o km é a primeira coisa do dia de quem roda. */}
+          <AtalhoMoto />
           <Secao titulo="MEU SALDO">
             <ResumoPeriodo />
           </Secao>
@@ -95,7 +98,7 @@ async function Home() {
               />
               {perfil?.plano === "pro" && (
                 <CartaoModulo
-                faixa
+                  faixa
                   href="/carteiras"
                   titulo="Carteiras"
                   descricao="Separe o dinheiro do banco, da mão e do salário, cada um com seu saldo."
@@ -113,7 +116,7 @@ async function Home() {
               />
               {perfil?.plano === "pro" && (
                 <CartaoModulo
-                faixa
+                  faixa
                   href="/moto"
                   titulo="Saúde da moto"
                   descricao="Quilometragem, troca de óleo, pneus, relação e freios no tempo certo."
