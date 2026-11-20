@@ -1,12 +1,12 @@
 import type { Fatia } from "@/lib/relatorio";
 import { Valor } from "@/components/ui/Valor";
+import { formatarMoeda } from "@/lib/formatar";
 
 /*
- * Paletas das roscas, nos tons do Figma (dourados para receita, vermelhos para
- * despesa) com os degraus afastados o suficiente para quem tem daltonismo
- * (conferido com o validador de paleta). A última cor, cinza, é sempre "Outras".
+ * Paleta da rosca de despesas, nos vermelhos do Figma, com os degraus afastados
+ * o suficiente para quem tem daltonismo (conferido com o validador de paleta).
+ * A última cor, cinza, é sempre "Outras".
  */
-export const CORES_RECEITA = ["#2b2d42", "#b07d12", "#ffd36a"];
 export const CORES_DESPESA = ["#cc0000", "#f08a7a", "#7a1010"];
 const COR_OUTRAS = "#8a909c";
 
@@ -22,14 +22,19 @@ type Props = {
   fatias: Fatia[];
   cores: string[];
   vazio: string;
+  /** Debaixo da rosca, uma linha a mais (ex.: do corre e pessoais). */
+  rodape?: React.ReactNode;
 };
 
 function corDa(fatia: Fatia, indice: number, cores: string[]) {
   return fatia.nome === "Outras" ? COR_OUTRAS : cores[indice];
 }
 
-/** Rosca com o total no centro e legenda com percentuais (a cor nunca é a única pista). */
-export function Rosca({ titulo, total, fatias, cores, vazio }: Props) {
+/**
+ * Rosca com o total no centro e, ao lado, a legenda com valor e percentual de
+ * cada fatia (a cor nunca é a única pista).
+ */
+export function Rosca({ titulo, total, fatias, cores, vazio, rodape }: Props) {
   const totalArredondado = total.toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL",
@@ -40,13 +45,13 @@ export function Rosca({ titulo, total, fatias, cores, vazio }: Props) {
   const inicios = arcos.map((_, indice) => arcos.slice(0, indice).reduce((a, b) => a + b, 0));
 
   return (
-    <figure className="flex min-w-0 flex-1 flex-col items-center gap-3 rounded-[12px] border border-black/8 bg-white p-3.5 shadow-cartao">
+    <figure className="flex min-w-0 flex-col gap-3 rounded-[12px] border border-black/8 bg-white p-3.5 shadow-cartao">
       <figcaption className="sr-only">{titulo}</figcaption>
       {total === 0 ? (
         <p className="py-10 text-center text-xs text-cinza-escuro">{vazio}</p>
       ) : (
-        <>
-          <div className="relative size-[116px]">
+        <div className="flex items-center gap-4">
+          <div className="relative size-[116px] shrink-0">
             <svg viewBox="0 0 116 116" className="size-full -rotate-90" aria-hidden>
               {fatias.map((fatia, indice) => {
                 const comprimento = arcos[indice];
@@ -73,7 +78,7 @@ export function Rosca({ titulo, total, fatias, cores, vazio }: Props) {
               <Valor className="text-[13px] font-extrabold" texto={totalArredondado} />
             </div>
           </div>
-          <ul className="flex w-full flex-col gap-1.5">
+          <ul className="flex min-w-0 flex-1 flex-col gap-1.5">
             {fatias.map((fatia, indice) => (
               <li key={fatia.nome} className="flex items-center gap-1.5 text-[11px]">
                 <span
@@ -82,12 +87,14 @@ export function Rosca({ titulo, total, fatias, cores, vazio }: Props) {
                   style={{ backgroundColor: corDa(fatia, indice, cores) }}
                 />
                 <span className="min-w-0 flex-1 truncate">{fatia.nome}</span>
-                <span className="font-semibold">{fatia.percentual}%</span>
+                <span className="text-cinza-escuro">{fatia.percentual}%</span>
+                <Valor className="min-w-[72px] text-right font-semibold" texto={formatarMoeda(fatia.valor)} />
               </li>
             ))}
           </ul>
-        </>
+        </div>
       )}
+      {total > 0 && rodape}
     </figure>
   );
 }

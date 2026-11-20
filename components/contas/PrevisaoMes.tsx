@@ -5,13 +5,14 @@ import { useContagemPagamentos, useContasFixas, useContasPagasNoMes } from "@/ho
 import { progressoParcelas } from "@/lib/contas-fixas";
 import { useMovimentacoes } from "@/hooks/useMovimentacoes";
 import { formatarMoeda } from "@/lib/formatar";
+import { ritmoAteOFimDoMes } from "@/lib/relatorio";
 import { calcularTotais } from "@/lib/totais";
 
 /**
- * Previsão do fim do mês (ideia vinda do "Saldo previsto" do Recta), nos
- * Relatórios: quanto deve sobrar se o que está pendente for recebido e as
- * contas fixas que faltam forem pagas. Só soma o que o app já sabe; não chuta
- * receita futura (isso é a projeção das tendências).
+ * Previsão do fim do mês nos Relatórios, numa conta só: o saldo do mês até
+ * agora (o mesmo do Início), mais o que está pendente, menos as contas fixas
+ * que faltam. Embaixo, à parte e como estimativa, quanto o corre ainda deve
+ * render no ritmo de hoje (antes eram duas previsões que não batiam).
  */
 export function PrevisaoMes() {
   const { data } = useMovimentacoes({ tipo: "mes" });
@@ -25,6 +26,7 @@ export function PrevisaoMes() {
     .filter((conta) => conta.ativa && !pagas.data.has(conta.id) && !progressoParcelas(conta, contagem.data?.get(conta.id) ?? 0)?.quitada)
     .reduce((soma, conta) => soma + conta.valor, 0);
   const sobra = saldo + pendentes - faltaPagar;
+  const ritmo = ritmoAteOFimDoMes(calcularTotais(data.receitas, []).recebidos);
 
   const linhas = [
     { rotulo: "Saldo do mês até agora", valor: saldo, sinal: "" },
@@ -52,7 +54,19 @@ export function PrevisaoMes() {
             <Valor texto={formatarMoeda(sobra)} />
           </span>
         </div>
-        <p className="text-[11px] text-cinza-escuro">Conta só o que já está lançado. Cada entrega nova aumenta a sobra.</p>
+        <p className="text-[11px] text-cinza-escuro">
+          {ritmo ? (
+            <>
+              Conta só o que já está lançado. No ritmo de hoje, o corre ainda deve render cerca de{" "}
+              <b className="text-marinho">
+                <Valor texto={formatarMoeda(ritmo.aMais)} />
+              </b>{" "}
+              até o fim do mês ({ritmo.diasRestantes} {ritmo.diasRestantes === 1 ? "dia" : "dias"}).
+            </>
+          ) : (
+            "Conta só o que já está lançado. Cada entrega nova aumenta a sobra."
+          )}
+        </p>
       </div>
     </section>
   );

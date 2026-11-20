@@ -27,7 +27,7 @@ export const NOTAS: Nota[] = [
     versao: "0.0.7",
     data: "2026-11-20",
     titulo: "Início do seu jeito",
-    resumo: "Você escolhe o período que abre primeiro, quais carteiras contam e lança direto pelo calendário.",
+    resumo: "Você escolhe o período que abre primeiro e quais carteiras contam, lança direto pelo calendário e vê toda a sua renda nos Relatórios.",
     destaques: [
       {
         icone: "/icones/ordenar.svg",
@@ -43,6 +43,11 @@ export const NOTAS: Nota[] = [
         icone: "/icones/saldo-linha.svg",
         titulo: "Números que batem",
         texto: "O Saldo é sempre Recebidos menos Despesas, e somar os dias do calendário dá os mesmos totais. As outras entradas, como salário, agora também aparecem no calendário.",
+      },
+      {
+        icone: "/icones/entrada-linha.svg",
+        titulo: "Relatórios com toda a sua renda",
+        texto: "Os Relatórios começam pelo que entrou, saiu e sobrou, e mostram de onde veio o dinheiro: o corre, o salário, a bolsa e as outras rendas. Os últimos 6 meses e a previsão do fim do mês usam a mesma conta do Início.",
       },
       {
         icone: "/icones/carteira-linha.svg",

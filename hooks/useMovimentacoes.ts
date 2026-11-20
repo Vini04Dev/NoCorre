@@ -66,7 +66,8 @@ export function useMovimentacoes(periodo: FiltroPeriodo) {
 
 /**
  * Dados dos Relatórios: o período escolhido e o anterior de mesmo tamanho
- * (para as tendências e os avisos), numa busca só, separados aqui.
+ * (para as comparações e os avisos), numa busca só, separados aqui. As outras
+ * entradas (salário, bolsa) vêm junto, para a renda fora do corre.
  */
 export function useRelatorio(periodo: FiltroPeriodo) {
   return useQuery({
@@ -74,13 +75,14 @@ export function useRelatorio(periodo: FiltroPeriodo) {
     queryFn: async () => {
       const { inicio, fim } = intervaloDoPeriodo(periodo);
       const inicioAnterior = new Date(inicio.getTime() - (fim.getTime() - inicio.getTime()));
-      const { receitas, despesas } = await buscarIntervalo(inicioAnterior, fim);
+      const { receitas, despesas, entradas } = await buscarIntervalo(inicioAnterior, fim);
       const noPeriodo = (item: { data_hora: string }) => new Date(item.data_hora) >= inicio;
+      const antes = (item: { data_hora: string }) => !noPeriodo(item);
       return {
         inicio,
         fim,
-        atual: { receitas: receitas.filter(noPeriodo), despesas: despesas.filter(noPeriodo) },
-        anterior: { receitas: receitas.filter((r) => !noPeriodo(r)), despesas: despesas.filter((d) => !noPeriodo(d)) },
+        atual: { receitas: receitas.filter(noPeriodo), despesas: despesas.filter(noPeriodo), entradas: entradas.filter(noPeriodo) },
+        anterior: { receitas: receitas.filter(antes), despesas: despesas.filter(antes), entradas: entradas.filter(antes) },
       };
     },
   });
@@ -132,6 +134,7 @@ export function useDespesa(id: string) {
 
 export type LinhaHistorico = Pick<Receita, "tipo" | "data_hora" | "valor_total" | "status_pagamento" | "quantidade" | "cliente_id">;
 export type LinhaHistoricoDespesa = Pick<Despesa, "data_hora" | "valor_total" | "do_corre">;
+export type LinhaHistoricoEntrada = Pick<Entrada, "data_hora" | "valor">;
 
 /**
  * Busca todas as linhas, de 1000 em 1000: a API do Supabase devolve no máximo
@@ -159,7 +162,7 @@ export function useHistoricoMeses(meses = 6) {
       const inicio = new Date(hoje.getFullYear(), hoje.getMonth() - (meses - 1), 1);
       const fim = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 1);
       const supabase = criarClienteNavegador();
-      const [receitas, despesas] = await Promise.all([
+      const [receitas, despesas, entradas] = await Promise.all([
         buscarTudo<LinhaHistorico>((de, ate) =>
           supabase
             .from("receitas")
@@ -178,8 +181,17 @@ export function useHistoricoMeses(meses = 6) {
             .order("data_hora")
             .range(de, ate),
         ),
+        buscarTudo<LinhaHistoricoEntrada>((de, ate) =>
+          supabase
+            .from("entradas")
+            .select("data_hora, valor")
+            .gte("data_hora", inicio.toISOString())
+            .lt("data_hora", fim.toISOString())
+            .order("data_hora")
+            .range(de, ate),
+        ),
       ]);
-      return { inicio, receitas, despesas };
+      return { inicio, receitas, despesas, entradas };
     },
   });
 }

@@ -4,16 +4,15 @@ import { Valor } from "@/components/ui/Valor";
 
 const ICONES: Record<Aviso["icone"], string> = {
   alta: "/icones/seta-extrato-receita.svg",
-  horario: "/icones/saldo.svg",
   pendente: "/icones/pendente.svg",
 };
 
-/** "Atenção na operação": avisos calculados a partir dos lançamentos. */
+/** "Atenção": avisos calculados a partir dos lançamentos, só o que pede uma ação. */
 export function ListaAvisos({ avisos }: { avisos: Aviso[] }) {
   return (
     <section className="flex flex-col gap-2.5">
       <div className="flex items-center justify-between text-[11px] font-semibold">
-        <h2 className="tracking-[0.66px] text-cinza">ATENÇÃO NA OPERAÇÃO</h2>
+        <h2 className="tracking-[0.66px] text-cinza">ATENÇÃO</h2>
         <span>
           {avisos.length} {avisos.length === 1 ? "alerta" : "alertas"}
         </span>
