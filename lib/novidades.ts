@@ -24,6 +24,49 @@ export type Nota = {
 
 export const NOTAS: Nota[] = [
   {
+    versao: "0.0.7",
+    data: "2026-11-20",
+    titulo: "Início do seu jeito",
+    resumo: "Você escolhe o período que abre primeiro, quais carteiras contam e lança direto pelo calendário.",
+    destaques: [
+      {
+        icone: "/icones/ordenar.svg",
+        titulo: "Dia, Semana e Mês na sua ordem",
+        texto: "No seletor de período, toque em Mudar a ordem e arraste. O primeiro da lista é o que abre quando você entra no app.",
+      },
+      {
+        icone: "/icones/calendario-linha.svg",
+        titulo: "Calendário que anda e lança",
+        texto: "No calendário do Início, arraste para o lado para ver outros meses ou semanas, como na Agenda. Toque num dia vazio para lançar uma receita, despesa ou outra entrada já com aquela data.",
+      },
+      {
+        icone: "/icones/saldo-linha.svg",
+        titulo: "Números que batem",
+        texto: "O Saldo é sempre Recebidos menos Despesas, e somar os dias do calendário dá os mesmos totais. As outras entradas, como salário, agora também aparecem no calendário.",
+      },
+      {
+        icone: "/icones/carteira-linha.svg",
+        titulo: "Escolha quais carteiras contam",
+        texto: "No botão de carteira, marque uma, várias ou todas. O Início e o Resumo somam só as marcadas, e a escolha fica salva na sua conta. Toda conta agora já tem a carteira Principal.",
+      },
+      {
+        icone: "/icones/repetir.svg",
+        titulo: "Repetir nos dias que você escolher",
+        texto: "Na Agenda, em Repetição, escolha Dias escolhidos no calendário e marque as datas exatas, passando de mês em mês.",
+      },
+      {
+        icone: "/icones/conta-fixa.svg",
+        titulo: "Conta fixa cadastrada depois do vencimento",
+        texto: "Se o dia de vencer deste mês já passou quando você cadastra a conta, ela começa a contar no mês que vem, sem aparecer como atrasada.",
+      },
+      {
+        icone: "/icones/moto-linha.svg",
+        titulo: "Quilometragem no Início",
+        texto: "Quem usa a Saúde da moto atualiza o km direto do Início. Trocou de moto? Na Saúde da moto dá para zerar os dados e configurar do zero.",
+      },
+    ],
+  },
+  {
     versao: "0.0.6",
     data: "2026-11-18",
     titulo: "Compromissos que se repetem",
