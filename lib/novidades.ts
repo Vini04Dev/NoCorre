@@ -37,22 +37,22 @@ export const NOTAS: Nota[] = [
       {
         icone: "/icones/calendario-linha.svg",
         titulo: "Calendário que anda e lança",
-        texto: "No calendário do Início, arraste para o lado para ver outros meses ou semanas, como na Agenda. Toque num dia vazio para lançar uma receita, despesa ou outra entrada já com aquela data.",
+        texto: "No calendário do Início, arraste para o lado para ver outros meses ou semanas. Toque num dia vazio para lançar já com aquela data.",
       },
       {
         icone: "/icones/saldo-linha.svg",
-        titulo: "Números que batem",
-        texto: "O Saldo é sempre Recebidos menos Despesas, e somar os dias do calendário dá os mesmos totais. As outras entradas, como salário, agora também aparecem no calendário.",
+        titulo: "Salário e outras entradas no calendário",
+        texto: "O calendário do Início agora mostra também o que entra fora do corre, e a soma dos dias bate com os totais de cima.",
       },
       {
         icone: "/icones/entrada-linha.svg",
         titulo: "Relatórios com toda a sua renda",
-        texto: "Os Relatórios começam pelo que entrou, saiu e sobrou, e mostram de onde veio o dinheiro: o corre, o salário, a bolsa e as outras rendas. Os últimos 6 meses e a previsão do fim do mês usam a mesma conta do Início.",
+        texto: "Os Relatórios começam pelo que entrou, saiu e sobrou, e mostram de onde veio o dinheiro: o corre, o salário, a bolsa e as outras rendas.",
       },
       {
         icone: "/icones/carteira-linha.svg",
         titulo: "Escolha quais carteiras contam",
-        texto: "No botão de carteira, marque uma, várias ou todas. O Início e o Resumo somam só as marcadas, e a escolha fica salva na sua conta. Toda conta agora já tem a carteira Principal.",
+        texto: "No botão de carteira, marque uma, várias ou todas. O Início e o Resumo somam só as marcadas, e a escolha fica salva na sua conta.",
       },
       {
         icone: "/icones/repetir.svg",
@@ -62,12 +62,12 @@ export const NOTAS: Nota[] = [
       {
         icone: "/icones/conta-fixa.svg",
         titulo: "Conta fixa cadastrada depois do vencimento",
-        texto: "Se o dia de vencer deste mês já passou quando você cadastra a conta, ela começa a contar no mês que vem, sem aparecer como atrasada.",
+        texto: "Se o vencimento deste mês já passou quando você cadastra a conta, ela começa a contar no mês que vem, sem aparecer como atrasada.",
       },
       {
         icone: "/icones/moto-linha.svg",
         titulo: "Quilometragem no Início",
-        texto: "Quem usa a Saúde da moto atualiza o km direto do Início. Trocou de moto? Na Saúde da moto dá para zerar os dados e configurar do zero.",
+        texto: "Quem usa a Saúde da moto atualiza o km direto do Início. Trocou de moto? Na Saúde da moto dá para zerar e configurar de novo.",
       },
     ],
   },
