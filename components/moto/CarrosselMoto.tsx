@@ -6,7 +6,7 @@ import { COR_SITUACAO, type CalorParte, type ParteDesenho } from "@/lib/moto";
 type Mancha = { cx: number; cy: number; rx: number; ry: number };
 
 /**
- * Fotos da CG 160 em volta da moto, na ordem em que aparecem quando ela gira
+ * Fotos em volta da moto (na pasta do modelo), na ordem em que aparecem quando ela gira
  * arrastando para a esquerda (a frente vem para quem olha). Coordenadas das
  * manchas no tamanho original das fotos (950 × 466). Parte que não aparece
  * naquele ângulo (a corrente fica do lado esquerdo) não ganha mancha.
@@ -14,7 +14,7 @@ type Mancha = { cx: number; cy: number; rx: number; ry: number };
 const ANGULOS: { nome: string; foto: string; manchas: Partial<Record<ParteDesenho, Mancha[]>> }[] = [
   {
     nome: "Lateral",
-    foto: "/moto/fan160/lateral.webp",
+    foto: "lateral.webp",
     manchas: {
       motor: [{ cx: 478, cy: 318, rx: 62, ry: 55 }],
       roda_traseira: [{ cx: 268, cy: 368, rx: 92, ry: 92 }],
@@ -27,7 +27,7 @@ const ANGULOS: { nome: string; foto: string; manchas: Partial<Record<ParteDesenh
   },
   {
     nome: "Frente",
-    foto: "/moto/fan160/dianteira.webp",
+    foto: "dianteira.webp",
     manchas: {
       motor: [{ cx: 445, cy: 285, rx: 55, ry: 50 }],
       roda_traseira: [{ cx: 330, cy: 325, rx: 62, ry: 70 }],
@@ -37,7 +37,7 @@ const ANGULOS: { nome: string; foto: string; manchas: Partial<Record<ParteDesenh
   },
   {
     nome: "Traseira esquerda",
-    foto: "/moto/fan160/traseira-esquerda.webp",
+    foto: "traseira-esquerda.webp",
     manchas: {
       motor: [{ cx: 395, cy: 285, rx: 52, ry: 48 }],
       corrente: [{ cx: 470, cy: 325, rx: 92, ry: 24 }],
@@ -48,7 +48,7 @@ const ANGULOS: { nome: string; foto: string; manchas: Partial<Record<ParteDesenh
   },
   {
     nome: "Traseira direita",
-    foto: "/moto/fan160/traseira-direita.webp",
+    foto: "traseira-direita.webp",
     manchas: {
       motor: [{ cx: 505, cy: 290, rx: 55, ry: 50 }],
       roda_traseira: [{ cx: 318, cy: 340, rx: 88, ry: 98 }],
@@ -87,7 +87,16 @@ function IconeGirar() {
  * sumindo enquanto a do ângulo seguinte aparece por cima. O mapa de calor
  * acompanha cada foto, com as manchas no lugar da peça naquele ângulo.
  */
-export function CarrosselMoto({ partes, descricao }: { partes: Partial<Record<ParteDesenho, CalorParte>>; descricao: string }) {
+export function CarrosselMoto({
+  pasta,
+  partes,
+  descricao,
+}: {
+  /** De `fotosDaMoto`, ex.: "/moto/fan160". */
+  pasta: string;
+  partes: Partial<Record<ParteDesenho, CalorParte>>;
+  descricao: string;
+}) {
   const id = useId();
   const filtro = `calor-foto-${id.replace(/[^a-zA-Z0-9]/g, "")}`;
   const [posicao, setPosicao] = useState(0);
@@ -144,7 +153,7 @@ export function CarrosselMoto({ partes, descricao }: { partes: Partial<Record<Pa
               aria-hidden
             >
               {/* eslint-disable-next-line @next/next/no-img-element -- fotos fixas e leves (webp ~50 KB); a primeira carrega já, as outras logo depois */}
-              <img src={angulo.foto} alt="" draggable={false} loading={i === 0 ? "eager" : "lazy"} className="size-full object-contain" />
+              <img src={`${pasta}/${angulo.foto}`} alt="" draggable={false} loading={i === 0 ? "eager" : "lazy"} className="size-full object-contain" />
               <svg viewBox="0 0 950 466" className="absolute inset-0 size-full">
                 <defs>
                   <filter id={`${filtro}-${i}`} x="-50%" y="-50%" width="200%" height="200%">

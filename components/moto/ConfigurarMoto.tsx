@@ -9,7 +9,7 @@ import { Botao } from "@/components/ui/Botao";
 import { CampoTexto } from "@/components/ui/CampoTexto";
 import { PainelInferior } from "@/components/ui/PainelInferior";
 import { useConfigurarMoto } from "@/hooks/useMoto";
-import { COMPONENTES_PADRAO, ehCg160, formatarKm } from "@/lib/moto";
+import { COMPONENTES_PADRAO, formatarKm, fotosDaMoto } from "@/lib/moto";
 
 /**
  * Pontos da régua de cada peça: quanto do intervalo de troca já foi rodado.
@@ -30,7 +30,8 @@ const somenteNumeros = (texto: string) => texto.replace(/\D/g, "").slice(0, 7);
 const suave = (cor: string) => `color-mix(in srgb, ${cor} 45%, var(--t-superficie, #ffffff))`;
 
 /** Fundo do popup: o esquema da tela de verdade, ainda sem dados. */
-function EsquemaMoto({ veiculo }: { veiculo: string | null | undefined }) {
+function EsquemaMoto({ veiculo, previa }: { veiculo: string | null | undefined; previa: boolean }) {
+  const pasta = fotosDaMoto(veiculo, previa);
   return (
     <div aria-hidden className="flex flex-col gap-4">
       <section className="flex flex-col items-center gap-2 rounded-[14px] border border-black/8 bg-white px-4 pt-4 pb-3 shadow-cartao">
@@ -41,7 +42,7 @@ function EsquemaMoto({ veiculo }: { veiculo: string | null | undefined }) {
             <span className="text-lg font-extrabold">– km</span>
           </span>
         </div>
-        {ehCg160(veiculo) ? <CarrosselMoto partes={{}} descricao="Moto" /> : <EmBreve modelo={veiculo} />}
+        {pasta ? <CarrosselMoto pasta={pasta} partes={{}} descricao="Moto" /> : <EmBreve modelo={veiculo} />}
       </section>
       <ul className="flex flex-col gap-2">
         {COMPONENTES_PADRAO.map((c) => (
@@ -87,7 +88,7 @@ export function PrimeiraVisitaMoto({ veiculo, previa = false }: { veiculo: strin
 
   return (
     <>
-      <EsquemaMoto veiculo={veiculo} />
+      <EsquemaMoto veiculo={veiculo} previa={previa} />
       <PainelInferior idTitulo="moto-titulo" aoFechar={sair} centralizado>
         <div className="flex flex-col items-center gap-2 text-center">
           <span className="grid size-14 place-items-center rounded-full bg-marinho text-dourado-claro">

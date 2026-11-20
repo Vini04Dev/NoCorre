@@ -99,6 +99,25 @@ export function useConfigurarMoto() {
   });
 }
 
+/**
+ * Zera a Saúde da moto da pessoa: apaga as leituras do odômetro e os itens de
+ * manutenção. Sem eles, a tela volta para a primeira visita (configurar do
+ * zero). A RLS já limita às linhas da própria conta; o filtro por usuário é
+ * para o delete nunca sair sem filtro.
+ */
+export function useZerarMoto() {
+  return useMutacaoMoto(async () => {
+    const supabase = criarClienteNavegador();
+    const { data } = await supabase.auth.getClaims();
+    const usuario = data?.claims.sub;
+    if (!usuario) throw new Error("Sua sessão expirou. Entre de novo para continuar.");
+    const itens = await supabase.from("moto_componentes").delete().eq("usuario_id", usuario);
+    if (itens.error) throw new Error(traduzirErroBanco(itens.error));
+    const leituras = await supabase.from("moto_quilometragem").delete().eq("usuario_id", usuario);
+    if (leituras.error) throw new Error(traduzirErroBanco(leituras.error));
+  });
+}
+
 export function useSalvarComponente() {
   return useMutacaoMoto(
     async ({ id, dados }: { id: string; dados: Partial<Pick<Componente, "intervalo_km" | "km_ultima_troca" | "ativo">> }) => {
