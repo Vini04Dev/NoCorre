@@ -43,3 +43,7 @@ CLAUDE.md
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Migrations pessoais (mexem em dados de uma conta específica, como a do autor):
+# ficam só na máquina do autor, nunca em commit nem no GitHub. Use _pessoal_ no nome.
+supabase/migrations/*_pessoal_*.sql
