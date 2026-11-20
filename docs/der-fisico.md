@@ -62,6 +62,7 @@ ficam em `auth.users`).
 | `placa`          | `varchar(10)` | opcional                                            |
 | `foto`           | `text`        | opcional, caminho no bucket `fotos-perfil`          |
 | `plano`          | `plano_conta` | not null, default `gratis`; só o servidor altera    |
+| `carteiras_visiveis` | `uuid[]`  | opcional; carteiras que contam no Início e no Resumo (vazio = todas). Ids de carteiras arquivadas ou excluídas são ignorados pelo app. Migration `20261120090000_carteiras_visiveis` |
 | `created_at`     | `timestamptz` | default `now()`                                     |
 
 Criada automaticamente pelo trigger `ao_criar_usuario` quando alguém se

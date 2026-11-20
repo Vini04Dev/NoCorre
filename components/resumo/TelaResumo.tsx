@@ -20,7 +20,7 @@ import {
   type FiltroRapido,
   type Filtros,
 } from "@/lib/filtros";
-import { ehDaCarteira } from "@/lib/carteiras";
+import { ehDasCarteiras, nomesCarteiras } from "@/lib/carteiras";
 import { Valor } from "@/components/ui/Valor";
 import { formatarMoeda } from "@/lib/formatar";
 import { intervaloDoPeriodo, nomeDoPeriodo, type FiltroPeriodo } from "@/lib/periodo";
@@ -53,11 +53,12 @@ export function TelaResumo({ dia }: { dia?: string }) {
 
   // Carteira em foco (botão no topo): o extrato mostra só o que passou por ela.
   const emFoco = useCarteiraEmFoco();
-  const focada = emFoco.carteira;
-  const daqui = (id: string | null) => !focada || ehDaCarteira(id, focada.id, emFoco.principalId);
+  const filtro = emFoco.filtro;
+  const daqui = (id: string | null) => !filtro || ehDasCarteiras(id, filtro, emFoco.principalId);
   const { inicio, fim } = intervaloDoPeriodo(periodo);
-  const { data: transferencias } = useTransferenciasDoPeriodo(inicio, fim, Boolean(focada));
-  const { data: saldos } = useSaldosCarteiras(Boolean(focada));
+  const { data: transferencias } = useTransferenciasDoPeriodo(inicio, fim, Boolean(filtro));
+  const { data: saldos } = useSaldosCarteiras(Boolean(filtro));
+  const somaHoje = filtro && saldos ? emFoco.escolhidas.reduce((total, c) => total + (saldos.get(c.id) ?? 0), 0) : null;
   const dados = movimentacoes.data && {
     receitas: movimentacoes.data.receitas.filter((r) => daqui(r.carteira_id)),
     despesas: movimentacoes.data.despesas.filter((d) => daqui(d.carteira_id)),
@@ -116,12 +117,12 @@ export function TelaResumo({ dia }: { dia?: string }) {
         filtro={totaisFiltro ? { titulo: nomeCliente ?? "Com os filtros", ...totaisFiltro } : undefined}
       />
       {/* Mesma leitura de "Todas as carteiras", só com o que passou por ela. */}
-      {focada && (
+      {filtro && (
         <p className="-mt-1.5 text-[11px] leading-snug text-cinza-escuro">
-          Mostrando só <b className="text-marinho">{focada.nome}</b>
-          {saldos?.has(focada.id) && (
+          Mostrando só <b className="text-marinho">{nomesCarteiras(emFoco.escolhidas.map((c) => c.nome))}</b>
+          {somaHoje !== null && (
             <>
-              , que tem <Valor texto={formatarMoeda(saldos.get(focada.id)!)} /> hoje
+              , {filtro.length > 1 ? "que somam" : "que tem"} <Valor texto={formatarMoeda(somaHoje)} /> hoje
             </>
           )}
           {transferencias?.length ? ". Transferências entre carteiras ficam na tela Carteiras." : "."}
