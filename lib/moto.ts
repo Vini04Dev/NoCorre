@@ -66,7 +66,7 @@ export function formatarKm(km: number) {
  */
 const MODELOS_COM_FOTOS = [
   { pasta: "/moto/fan160", padrao: /\b(fan|cg\s*-?\s*160)\b/i, liberado: true },
-  { pasta: "/moto/titan150", padrao: /\b(titan|cg)\s*-?\s*150\b/i, liberado: false },
+  { pasta: "/moto/titan150", padrao: /\b(titan|cg)\s*-?\s*150\b/i, liberado: true },
 ];
 
 /** Pasta das fotos da moto, ou null quando o modelo ainda não tem fotos (ou não foi liberado). */
