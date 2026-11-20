@@ -1,4 +1,7 @@
 import { contaComoEntrega } from "./categorias-padrao";
+import { ehDaCarteira } from "./filtro-carteiras";
+
+export { ehDaCarteira, ehDasCarteiras, lancamentosDasCarteiras, nomesCarteiras, saldoTransferencias } from "./filtro-carteiras";
 
 /**
  * Tipos de carteira. A coluna no banco é texto livre (como o tipo de receitas e
@@ -50,39 +53,6 @@ type CarteiraBase = { id: string; padrao: boolean; created_at: string };
  */
 export function principalEntre<T extends CarteiraBase>(carteiras: T[]): T | undefined {
   return [...carteiras].sort((a, b) => Number(b.padrao) - Number(a.padrao) || a.created_at.localeCompare(b.created_at))[0];
-}
-
-/** O lançamento é desta carteira? Sem carteira (null) conta na principal. */
-export function ehDaCarteira(carteiraDoLancamento: string | null, carteiraId: string, principalId: string | null) {
-  return carteiraDoLancamento === carteiraId || (carteiraDoLancamento === null && carteiraId === principalId);
-}
-
-/**
- * Só os lançamentos de uma carteira (sem carteira contam na principal). Com
- * isso o Início e o Resumo mostram uma carteira com as mesmas linhas e os
- * mesmos nomes de "Todas as carteiras".
- */
-export function lancamentosDaCarteira<
-  R extends { carteira_id: string | null },
-  D extends { carteira_id: string | null },
-  E extends { carteira_id: string | null },
->(dados: { receitas: R[]; despesas: D[]; entradas: E[] }, carteiraId: string, principalId: string | null) {
-  const daqui = (id: string | null) => ehDaCarteira(id, carteiraId, principalId);
-  return {
-    receitas: dados.receitas.filter((r) => daqui(r.carteira_id)),
-    despesas: dados.despesas.filter((d) => daqui(d.carteira_id)),
-    entradas: dados.entradas.filter((e) => daqui(e.carteira_id)),
-  };
-}
-
-/** Transferências do período para uma carteira: o que chegou menos o que saiu, em reais. */
-export function saldoTransferencias(transferencias: { origem_id: string; destino_id: string; valor: number }[], carteiraId: string) {
-  let centavos = 0;
-  for (const t of transferencias) {
-    if (t.destino_id === carteiraId) centavos += Math.round(t.valor * 100);
-    if (t.origem_id === carteiraId) centavos -= Math.round(t.valor * 100);
-  }
-  return centavos / 100;
 }
 
 type Movimentos = {

@@ -17,7 +17,7 @@ import { useMovimentacoes } from "@/hooks/useMovimentacoes";
 import { Valor } from "@/components/ui/Valor";
 import { formatarMoeda } from "@/lib/formatar";
 import { MESES_LONGOS } from "@/lib/agenda";
-import { lancamentosDaCarteira, saldoTransferencias } from "@/lib/carteiras";
+import { lancamentosDasCarteiras, nomesCarteiras, saldoTransferencias } from "@/lib/carteiras";
 import { dataHoraParaCampos } from "@/lib/data";
 import { intervaloDoPeriodo, type FiltroPeriodo } from "@/lib/periodo";
 import { calcularTotais } from "@/lib/totais";
@@ -75,17 +75,18 @@ export function ResumoPeriodo() {
       : periodo;
   const { data: todos, isError } = useMovimentacoes(periodoVisto);
   const emFoco = useCarteiraEmFoco();
-  const carteira = emFoco.carteira;
+  const filtro = emFoco.filtro;
   // Quem não quer ver o detalhe recolhe as sublinhas; a escolha fica guardada no aparelho.
   const [recebidosAbertos, abrirRecebidos] = usePreferencia("home:detalhe-recebidos", true);
   const [despesasAbertas, abrirDespesas] = usePreferencia("home:detalhe-despesas", true);
-  const { data: saldos } = useSaldosCarteiras(Boolean(carteira));
-  const { data: transferencias } = useTransferenciasDoPeriodo(inicio, fim, Boolean(carteira));
-  const data = todos && carteira ? lancamentosDaCarteira(todos, carteira.id, emFoco.principalId) : todos;
-  const transferido = carteira && transferencias ? saldoTransferencias(transferencias, carteira.id) : 0;
+  const { data: saldos } = useSaldosCarteiras(Boolean(filtro));
+  const { data: transferencias } = useTransferenciasDoPeriodo(inicio, fim, Boolean(filtro));
+  const data = todos && filtro ? lancamentosDasCarteiras(todos, filtro, emFoco.principalId) : todos;
+  const transferido = filtro && transferencias ? saldoTransferencias(transferencias, filtro) : 0;
+  const somaHoje = filtro && saldos ? emFoco.escolhidas.reduce((total, c) => total + (saldos.get(c.id) ?? 0), 0) : null;
   const totais = calcularTotais(data?.receitas ?? [], data?.despesas ?? [], data?.entradas ?? []);
   const saldo = Math.round((totais.saldo + transferido) * 100) / 100;
-  const pronto = Boolean(data && (!carteira || transferencias));
+  const pronto = Boolean(data && (!filtro || transferencias));
   // Enquanto carrega, mostra "-" em vez de um R$ 0,00 que pareceria verdadeiro.
   const moeda = (valor: number) => (!pronto ? "–" : <Valor texto={formatarMoeda(valor)} />);
 
@@ -245,7 +246,7 @@ export function ResumoPeriodo() {
             aoTocar={abrirResumo("receitas")}
           />
           {/* Repasse semanal (iFood) ainda não caiu: o negativo assusta sem motivo. */}
-          {carteira && transferido !== 0 && (
+          {filtro && transferido !== 0 && (
             <LinhaValor
               rotulo="Transferências"
               valor={moeda(transferido)}
@@ -265,15 +266,15 @@ export function ResumoPeriodo() {
           )}
         </div>
       )}
-      {carteira && (
+      {filtro && (
         <p className="-mt-3 text-[11px] leading-snug text-cinza-escuro">
-          Mostrando só <b className="text-marinho">{carteira.nome}</b>
-          {saldos?.has(carteira.id) && (
+          Mostrando só <b className="text-marinho">{nomesCarteiras(emFoco.escolhidas.map((c) => c.nome))}</b>
+          {somaHoje !== null && (
             <>
-              , que tem <Valor texto={formatarMoeda(saldos.get(carteira.id)!)} /> hoje (somando desde o começo)
+              , {filtro.length > 1 ? "que somam" : "que tem"} <Valor texto={formatarMoeda(somaHoje)} /> hoje (somando desde o começo)
             </>
           )}
-          . Para ver tudo, toque no botão de carteira no topo.
+          . Para mudar, toque no botão de carteira no topo.
         </p>
       )}
       {diaParaLancar && <PainelLancamento dia={diaParaLancar} aoFechar={() => setDiaParaLancar(null)} />}

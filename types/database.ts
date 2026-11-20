@@ -396,6 +396,7 @@ export type Database = {
       perfis: {
         Row: {
           ano_veiculo: number | null
+          carteiras_visiveis: string[] | null
           created_at: string
           foto: string | null
           id: string
@@ -408,6 +409,7 @@ export type Database = {
         }
         Insert: {
           ano_veiculo?: number | null
+          carteiras_visiveis?: string[] | null
           created_at?: string
           foto?: string | null
           id: string
@@ -420,6 +422,7 @@ export type Database = {
         }
         Update: {
           ano_veiculo?: number | null
+          carteiras_visiveis?: string[] | null
           created_at?: string
           foto?: string | null
           id?: string
