@@ -11,6 +11,7 @@ import { ConfirmarExclusao } from "@/components/ui/ConfirmarExclusao";
 import { PainelInferior } from "@/components/ui/PainelInferior";
 import { useContagemPagamentos, useExcluirContaFixa, useSalvarContaFixa, type ContaFixa } from "@/hooks/useContasFixas";
 import { CATEGORIA_CONTAS } from "@/lib/categorias-padrao";
+import { comecaNoProximoMes, vencimentoNoMes } from "@/lib/contas-fixas";
 
 /** Sugestões do dia a dia de quem roda, já com valor em branco para a pessoa completar. */
 const SUGESTOES = ["Plano de celular", "Internet", "Aluguel", "Seguro da moto", "Streaming"];
@@ -41,6 +42,12 @@ export function PainelContaFixa({ conta, aoFechar }: { conta?: ContaFixa; aoFech
   const [pagasTexto, setPagasTexto] = useState(conta ? String((conta.parcelas_antes ?? 0) + lancadas) : "0");
   const [erros, setErros] = useState<Erros>({});
   const [confirmando, setConfirmando] = useState(false);
+  // Cadastrando hoje (20) uma conta do dia 5: a deste mês já passou, a primeira é a do mês que vem.
+  const numeroDia = Number(dia);
+  const hoje = new Date();
+  const primeiraNoProximo =
+    Number.isInteger(numeroDia) && numeroDia >= 1 && numeroDia <= 31 && comecaNoProximoMes(numeroDia, conta ? new Date(conta.created_at) : hoje);
+  const primeira = primeiraNoProximo ? vencimentoNoMes(numeroDia, hoje.getFullYear(), hoje.getMonth() + 1) : null;
 
   function enviar(evento: React.FormEvent) {
     evento.preventDefault();
@@ -128,6 +135,15 @@ export function PainelContaFixa({ conta, aoFechar }: { conta?: ContaFixa; aoFech
           erro={erros.dia}
         />
       </div>
+      {primeira && (
+        <p className="-mt-1 text-[11px] text-cinza-escuro">
+          O dia {numeroDia} deste mês já passou: a primeira conta vence em{" "}
+          <b className="text-marinho">
+            {String(primeira.getDate()).padStart(2, "0")}/{String(primeira.getMonth() + 1).padStart(2, "0")}
+          </b>
+          {conta ? "" : " e não aparece como atrasada"}.
+        </p>
+      )}
       <label className="flex items-start gap-2.5 text-xs">
         <input
           type="checkbox"
