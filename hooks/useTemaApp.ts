@@ -6,7 +6,8 @@ import { CHAVE_TEMA_APP, enfeiteDoDia, TEMAS_APP, type TemaApp } from "@/lib/tem
 const PADRAO = TEMAS_APP[0].valor;
 const ouvintes = new Set<() => void>();
 
-function ler(): TemaApp {
+/** Tema guardado neste aparelho (ou o padrão). */
+export function temaGuardado(): TemaApp {
   try {
     const valor = localStorage.getItem(CHAVE_TEMA_APP);
     return TEMAS_APP.some((t) => t.valor === valor) ? (valor as TemaApp) : PADRAO;
@@ -45,6 +46,6 @@ export function aplicarTemaApp(tema: TemaApp) {
 
 /** Tema escolhido neste aparelho. */
 export function useTemaApp() {
-  const tema = useSyncExternalStore(inscrever, ler, () => PADRAO);
+  const tema = useSyncExternalStore(inscrever, temaGuardado, () => PADRAO);
   return [tema, aplicarTemaApp] as const;
 }
