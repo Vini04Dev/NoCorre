@@ -48,8 +48,9 @@ export function CalendarioDatas({ inicio, datas, aoMudar }: Props) {
 
   const seta = "grid size-8 place-items-center rounded-full text-xl font-semibold disabled:opacity-25";
 
+  // Largura de celular também no computador: com a tela toda, os dias viravam círculos enormes.
   return (
-    <div className="flex flex-col gap-2">
+    <div className="mx-auto flex w-full max-w-[360px] flex-col gap-2">
       <div className="flex items-center justify-between">
         <button type="button" onClick={() => setPasso(passo - 1)} disabled={!podeVoltar} aria-label="Mês anterior" className={seta}>
           ‹

@@ -46,8 +46,8 @@ function tituloDoIntervalo(tipo: FiltroPeriodo["tipo"], inicio: Date, fim: Date)
  * Filtro de período e totais da Home. Em períodos de mais de um dia, um botão
  * troca as linhas de totais pelo calendário com o que entrou e saiu em cada
  * dia; semana e mês andam para trás e para a frente (setas ou arrastando o
- * calendário). Com uma carteira escolhida, as linhas e o calendário são os
- * mesmos, só com o que passou por ela.
+ * calendário). Com carteiras escolhidas no botão de carteira, as linhas e o
+ * calendário são os mesmos, só com o que passou por elas.
  *
  * Os números batem entre si: Saldo = Recebidos - Despesas, e somar os dias do
  * calendário dá o Recebidos e o Despesas de cima. Por isso saiu o "Tenho

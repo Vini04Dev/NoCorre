@@ -69,7 +69,7 @@ export function FormularioDespesa({ despesa, contaInicial, fixa, dataInicial }: 
   const [carteiraId, setCarteiraId] = useState<string | null | undefined>(
     despesa ? despesa.carteira_id : fixa ? fixa.carteira_id : undefined,
   );
-  // Lançamento novo sem escolha: a carteira em foco no Início (à vista no campo Carteira).
+  // Lançamento novo sem escolha: a carteira marcada no botão de carteira, quando é uma só (à vista no campo Carteira).
   const { carteira: emFoco } = useCarteiraEmFoco();
   const carteiraEfetiva = carteiraId !== undefined ? carteiraId : emFoco?.id;
 
